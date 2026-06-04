@@ -1,2 +1,2 @@
-# ZenCodd
+# ZenCode
 ZenCode.pl jest najlepsze
