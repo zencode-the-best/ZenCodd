@@ -1,26 +1,72 @@
-function generate(){
+function updateColor() {
 
-    const text = document.getElementById("text").value || "ZET";
-    const color = document.getElementById("color").value;
+    const color = document.getElementById("colorPicker").value;
 
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    const preview = document.getElementById("colorPreview");
+
+    preview.innerText = color;
+    preview.style.color = color;
+}
+
+function generate() {
+
+    const topText =
+        document.getElementById("topText").value || "ZET";
+
+    const bottomText =
+        document.getElementById("bottomText").value || "SIGMA";
+
+    const color =
+        document.getElementById("colorPicker").value;
+
+    const canvas =
+        document.getElementById("canvas");
+
+    const ctx =
+        canvas.getContext("2d");
 
     ctx.fillStyle = "#08142b";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-    ctx.font = "bold 120px Arial";
     ctx.textAlign = "center";
 
     ctx.fillStyle = color;
-    ctx.fillText(text, 500, 250);
 
-    ctx.font = "30px Arial";
+    ctx.font = "bold 130px Arial";
+    ctx.fillText(
+        topText,
+        500,
+        190
+    );
+
+    ctx.font = "bold 110px Arial";
+    ctx.fillText(
+        bottomText,
+        500,
+        340
+    );
+
+    ctx.font = "28px Arial";
     ctx.fillStyle = "#ffffff";
-    ctx.fillText("ZenCode FREE", 500, 430);
+    ctx.fillText(
+        "ZenCode FREE",
+        500,
+        450
+    );
 
-    const link = document.getElementById("download");
+    const link =
+        document.getElementById("download");
 
-    link.href = canvas.toDataURL("image/png");
-    link.style.display = "inline-block";
+    link.href =
+        canvas.toDataURL("image/png");
+
+    link.style.display =
+        "inline-block";
 }
+
+updateColor();

@@ -12,14 +12,22 @@
 
     <h1>🎨 Grafika Creator</h1>
 
-    <input id="text" placeholder="Wpisz tekst">
+    <input id="topText" placeholder="Górny napis (np. ZET)">
 
-    <select id="color">
-        <option value="#2196ff">Niebieski</option>
-        <option value="#ffb300">Złoty</option>
-        <option value="#00ff88">Zielony</option>
-        <option value="#ff4444">Czerwony</option>
-    </select>
+    <input id="bottomText" placeholder="Dolny napis (np. SIGMA)">
+
+    <h3>🎨 Kolor tekstu</h3>
+
+    <input
+        type="color"
+        id="colorPicker"
+        value="#2196ff"
+        oninput="updateColor()"
+    >
+
+    <p id="colorPreview">
+        #2196ff
+    </p>
 
     <button onclick="generate()">
         🚀 Generuj Grafikę
