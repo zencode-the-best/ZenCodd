@@ -1,0 +1,40 @@
+body{
+    background:#050816;
+    color:white;
+    font-family:Arial,sans-serif;
+    text-align:center;
+}
+
+.container{
+    padding:40px;
+}
+
+input,
+select{
+    width:300px;
+    padding:12px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+}
+
+button{
+    padding:12px 25px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+canvas{
+    display:block;
+    margin:30px auto;
+    background:#08142b;
+    border-radius:15px;
+    max-width:100%;
+}
+
+#download{
+    display:none;
+    color:white;
+    text-decoration:none;
+}

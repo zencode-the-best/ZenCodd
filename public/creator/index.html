@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grafika Creator - ZenCode</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🎨 Grafika Creator</h1>
+
+    <input id="text" placeholder="Wpisz tekst">
+
+    <select id="color">
+        <option value="#2196ff">Niebieski</option>
+        <option value="#ffb300">Złoty</option>
+        <option value="#00ff88">Zielony</option>
+        <option value="#ff4444">Czerwony</option>
+    </select>
+
+    <button onclick="generate()">
+        🚀 Generuj Grafikę
+    </button>
+
+    <canvas id="canvas" width="1000" height="500"></canvas>
+
+    <a id="download" download="zencode-grafika.png">
+        📥 Pobierz PNG
+    </a>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
