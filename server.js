@@ -12,7 +12,7 @@ const app = express();
 app.set("trust proxy", 1);
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || "zencode_secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -34,7 +34,8 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.get("/auth/discord",
+app.get(
+    "/auth/discord",
     passport.authenticate("discord")
 );
 
@@ -60,34 +61,45 @@ app.get("/api/user", (req, res) => {
 
     const avatar = req.user.avatar
         ? `https://cdn.discordapp.com/avatars/${req.user.id}/${req.user.avatar}.png`
-        : `https://cdn.discordapp.com/embed/avatars/0.png`;
+        : "https://cdn.discordapp.com/embed/avatars/0.png";
 
     res.json({
         logged: true,
         id: req.user.id,
         username: req.user.username,
-        avatar
+        avatar,
+        premium: req.user.premium || false,
+        subscriber: req.user.subscriber || false
     });
 });
 
 app.get("/logout", (req, res) => {
+
     req.logout(() => {
+
         req.session.destroy(() => {
+
             res.redirect("/");
+
         });
+
     });
+
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
+
     console.log(`
 =================================
 🚀 ZenCode Studio
 🌐 http://localhost:${PORT}
 🌍 ${process.env.BASE_URL}
 👤 CLIENT_ID: ${process.env.CLIENT_ID}
+🏰 GUILD_ID: ${process.env.GUILD_ID}
 ✅ OAuth Discord aktywny
 =================================
 `);
+
 });
