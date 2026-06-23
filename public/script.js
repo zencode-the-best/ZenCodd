@@ -1,36 +1,47 @@
-console.log(`
-=================================
-🚀 ZenCode Studio
-✅ Frontend załadowany
-=================================
-`);
-
-const loginBtn = document.querySelector(".login-btn");
-
 async function loadUser() {
+
     try {
+
         const res = await fetch("/api/user");
         const data = await res.json();
 
-        if (!data.logged) return;
+        const loginBtn = document.querySelector(".login-btn");
+
+        if (!data.logged) {
+
+            loginBtn.innerHTML =
+                "🔐 Zaloguj przez Discord";
+
+            loginBtn.onclick = () => {
+                location.href = "/auth/discord";
+            };
+
+            return;
+        }
+
+        let badge = "";
+
+        if (data.premium)
+            badge = "⭐ PREMIUM";
+
+        if (data.subscriber)
+            badge = "👑 SUB";
 
         loginBtn.innerHTML = `
-            <img src="${data.user.avatar}" 
-            style="width:32px;height:32px;border-radius:50%;margin-right:8px;">
-            ${data.user.username}
+            <img src="${data.avatar}"
+            style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;">
+            ${data.username}
+            ${badge}
         `;
 
         loginBtn.onclick = () => {
-            window.location.href = "/logout";
+            location.href = "/logout";
         };
 
     } catch (err) {
-        console.error(err);
+        console.log(err);
     }
-}
 
-loginBtn.addEventListener("click", () => {
-    window.location.href = "/auth/discord";
-});
+}
 
 loadUser();
