@@ -25,7 +25,7 @@
     <h1>ZENCODE STUDIO</h1>
 
     <p>
-        Automatyczne kreatory Minecraft, Discord i Grafiki.
+        Profesjonalne kreatory Minecraft, Discord i Grafiki.
     </p>
 
     <div class="buttons">
@@ -36,8 +36,8 @@
             </button>
         </a>
 
-        <button onclick="document.getElementById('creators').scrollIntoView()">
-            📦 Wszystkie Kreatory
+        <button onclick="document.getElementById('creators').scrollIntoView({behavior:'smooth'})">
+            📦 Kreatory
         </button>
 
     </div>
@@ -48,25 +48,25 @@
 
     <div class="card">
         <h2>👥</h2>
-        <h3 id="users">0</h3>
+        <h3>1245</h3>
         <p>Użytkowników</p>
     </div>
 
     <div class="card">
         <h2>⭐</h2>
-        <h3 id="premium">0</h3>
+        <h3>143</h3>
         <p>Premium</p>
     </div>
 
     <div class="card">
         <h2>👑</h2>
-        <h3 id="subs">0</h3>
+        <h3>321</h3>
         <p>Subskrybentów</p>
     </div>
 
     <div class="card">
-        <h2>🛠</h2>
-        <h3 id="projects">0</h3>
+        <h2>📦</h2>
+        <h3>12531</h3>
         <p>Projektów</p>
     </div>
 
@@ -79,27 +79,33 @@
 <div class="grid">
 
 <div class="creator free">
-🟢 Grafika Creator
+    <span>🎨 Grafika Creator</span>
+    <span>FREE</span>
 </div>
 
-<div class="creator premium">
-⭐ GUI Creator
+<div class="creator premium" data-role="premium">
+    <span>⭐ GUI Creator</span>
+    <span>PREMIUM</span>
 </div>
 
-<div class="creator premium">
-⭐ Rank Creator
+<div class="creator premium" data-role="premium">
+    <span>⭐ Rank Creator</span>
+    <span>PREMIUM</span>
 </div>
 
-<div class="creator subscriber">
-👑 Skript Creator
+<div class="creator subscriber" data-role="subscriber">
+    <span>👑 Skript Creator</span>
+    <span>SUB</span>
 </div>
 
-<div class="creator subscriber">
-👑 Pack Creator
+<div class="creator subscriber" data-role="subscriber">
+    <span>👑 Pack Creator</span>
+    <span>SUB</span>
 </div>
 
-<div class="creator premium">
-⭐ Discord Creator
+<div class="creator premium" data-role="premium">
+    <span>⭐ Discord Creator</span>
+    <span>PREMIUM</span>
 </div>
 
 </div>
@@ -111,7 +117,7 @@
 <h2>📜 ZenCode Studio</h2>
 
 <p>
-Twórz grafiki, GUI, konfiguracje i projekty Minecraft jednym kliknięciem.
+Twórz projekty Minecraft i Discord jednym kliknięciem.
 </p>
 
 </section>
