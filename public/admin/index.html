@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ZenCode Studio • Panel Administratora</title>
+
+<link rel="stylesheet" href="/style.css">
+
+<style>
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.user{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.user img{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:380px 1fr;
+    gap:25px;
+}
+
+.card{
+    background:#0f172a;
+    border:1px solid rgba(59,130,246,.25);
+    border-radius:18px;
+    padding:22px;
+}
+
+.card h2{
+    margin-bottom:18px;
+}
+
+.input{
+    width:100%;
+    margin-bottom:15px;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    background:#08142b;
+    color:white;
+}
+
+textarea.input{
+    resize:vertical;
+    min-height:120px;
+}
+
+.file{
+    margin-bottom:15px;
+}
+
+.btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+}
+
+.plugin{
+    background:#08142b;
+    border-radius:15px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.plugin h3{
+    margin-bottom:8px;
+}
+
+.plugin p{
+    color:#cbd5e1;
+}
+
+.actions{
+    margin-top:15px;
+    display:flex;
+    gap:10px;
+}
+
+.delete{
+    background:#dc2626;
+}
+
+.delete:hover{
+    background:#b91c1c;
+}
+
+.edit{
+    background:#ca8a04;
+}
+
+.edit:hover{
+    background:#a16207;
+}
+
+#adminPanel{
+    display:none;
+}
+
+#noAccess{
+    text-align:center;
+    margin-top:100px;
+}
+
+</style>
+
+</head>
+<body>
+
+<nav>
+
+<div class="logo">
+<img src="/assets/logo.png" alt="ZenCode">
+</div>
+
+<button class="login-btn" onclick="location='/dashboard'">
+Dashboard
+</button>
+
+</nav>
+
+<div class="container">
+
+<div id="noAccess">
+
+<h1>🔒 Brak dostępu</h1>
+
+<p>Tylko właściciel może korzystać z panelu administratora.</p>
+
+</div>
+
+<div id="adminPanel">
+
+<div class="top">
+
+<div>
+
+<h1>🛠 Panel Administratora</h1>
+
+<p>Zarządzaj pluginami ZenCode Studio.</p>
+
+</div>
+
+<div class="user">
+
+<img id="avatar">
+
+<div>
+
+<b id="username"></b><br>
+
+<span style="color:#94a3b8;">Administrator</span>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+
+<h2>➕ Dodaj plugin</h2>
+
+<input
+id="name"
+class="input"
+placeholder="Nazwa pluginu">
+
+<input
+id="version"
+class="input"
+placeholder="Wersja">
+
+<textarea
+id="description"
+class="input"
+placeholder="Opis pluginu"></textarea>
+
+<input
+id="plugin"
+class="file"
+type="file"
+accept=".jar,.zip">
+
+<button
+class="btn"
+id="uploadBtn">
+
+📤 Dodaj plugin
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>📦 Wszystkie pluginy</h2>
+
+<div id="plugins">
+
+<p>Ładowanie...</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let user=null;
+
+fetch("/api/user")
+
+.then(r=>r.json())
+
+.then(data=>{
+
+if(!data.logged){
+
+location="/";
+
+return;
+
+}
+
+if(data.id!=="1238570679465410571"){
+
+return;
+
+}
+
+user=data;
+
+document.getElementById("noAccess").style.display="none";
+
+document.getElementById("adminPanel").style.display="block";
+
+document.getElementById("avatar").src=data.avatar;
+
+document.getElementById("username").innerText=data.username;
+
+loadPlugins();
+
+});
+
+async function loadPlugins(){
+
+const res=await fetch("/api/plugins");
+
+const plugins=await res.json();
+
+const div=document.getElementById("plugins");
+
+div.innerHTML="";
+
+if(plugins.length===0){
+
+div.innerHTML="<p>Brak pluginów.</p>";
+
+return;
+
+}
+
+plugins.forEach(plugin=>{
+
+div.innerHTML+=`
+
+<div class="plugin">
+
+<h3>${plugin.name}</h3>
+
+<p>${plugin.description}</p>
+
+<p><b>Wersja:</b> ${plugin.version}</p>
+
+<p><b>Pobrań:</b> ${plugin.downloads}</p>
+
+<div class="actions">
+
+<button class="btn edit">
+
+✏️ Edytuj
+
+</button>
+
+<button class="btn delete">
+
+🗑 Usuń
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+document.getElementById("uploadBtn").onclick=async()=>{
+
+const file=document.getElementById("plugin").files[0];
+
+if(!file){
+
+alert("Wybierz plik.");
+
+return;
+
+}
+
+const form=new FormData();
+
+form.append("plugin",file);
+
+form.append("name",document.getElementById("name").value);
+
+form.append("description",document.getElementById("description").value);
+
+form.append("version",document.getElementById("version").value);
+
+const res=await fetch("/api/plugins/upload",{
+
+method:"POST",
+
+body:form
+
+});
+
+const json=await res.json();
+
+if(json.success){
+
+alert("Plugin dodany.");
+
+loadPlugins();
+
+}else{
+
+alert(json.message||"Błąd.");
+
+}
+
+};
+
+</script>
+
+</body>
+</html>

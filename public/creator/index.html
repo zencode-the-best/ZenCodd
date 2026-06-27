@@ -4,40 +4,142 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grafika Creator - ZenCode</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/style.css">
+<style>
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.panel{
+    background:#0f172a;
+    border-radius:20px;
+    padding:25px;
+    border:1px solid rgba(59,130,246,.2);
+    margin-bottom:25px;
+}
+
+.row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+input[type=text]{
+    width:100%;
+    background:#030712;
+    color:white;
+    border:1px solid #1e293b;
+    border-radius:12px;
+    padding:14px;
+    margin-top:8px;
+}
+
+input[type=color]{
+    width:100%;
+    height:55px;
+    border:none;
+    background:none;
+    margin-top:8px;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+canvas{
+    width:100%;
+    background:#08142b;
+    border-radius:20px;
+    margin-top:25px;
+}
+
+#download{
+    display:none;
+    margin-top:20px;
+    text-decoration:none;
+    background:#22c55e;
+    color:white;
+    padding:12px 18px;
+    border-radius:12px;
+}
+
+@media(max-width:900px){
+
+    .row{
+        grid-template-columns:1fr;
+    }
+
+}
+</style>
 </head>
 <body>
 
 <div class="container">
 
-    <h1>🎨 Grafika Creator</h1>
+<h1 style="margin-bottom:25px;">
+🎨 Grafika Creator
+</h1>
 
-    <input id="topText" placeholder="Górny napis (np. ZET)">
+<div class="panel">
 
-    <input id="bottomText" placeholder="Dolny napis (np. SIGMA)">
+<div class="row">
 
-    <h3>🎨 Kolor tekstu</h3>
+<div>
+<label>Górny napis</label>
+<input id="topText" type="text" value="ZET">
+</div>
 
-    <input
-        type="color"
-        id="colorPicker"
-        value="#2196ff"
-        oninput="updateColor()"
-    >
+<div>
+<label>Dolny napis</label>
+<input id="bottomText" type="text" value="SIGMA">
+</div>
 
-    <p id="colorPreview">
-        #2196ff
-    </p>
+</div>
 
-    <button onclick="generate()">
-        🚀 Generuj Grafikę
-    </button>
+<div class="row" style="margin-top:20px;">
 
-    <canvas id="canvas" width="1000" height="500"></canvas>
+<div>
+<label>Kolor górnego napisu</label>
+<input id="topColor" type="color" value="#2196ff">
+</div>
 
-    <a id="download" download="zencode-grafika.png">
-        📥 Pobierz PNG
-    </a>
+<div>
+<label>Kolor dolnego napisu</label>
+<input id="bottomColor" type="color" value="#ffb300">
+</div>
+
+</div>
+
+<button onclick="generate()">
+🚀 Generuj Grafikę
+</button>
+
+</div>
+
+<canvas
+id="canvas"
+width="1200"
+height="600">
+</canvas>
+
+<br>
+
+<a
+id="download"
+download="zencode-grafika.png">
+📥 Pobierz PNG
+</a>
 
 </div>
 

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pluginy - ZenCode Studio</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-bottom:30px;
+}
+
+.search{
+    width:350px;
+    max-width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#0f172a;
+    color:white;
+}
+
+.addBtn{
+    display:none;
+    padding:14px 20px;
+    border:none;
+    border-radius:12px;
+    background:#16a34a;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+}
+
+.plugin{
+    background:#0f172a;
+    border:1px solid rgba(59,130,246,.2);
+    border-radius:20px;
+    padding:22px;
+    transition:.25s;
+}
+
+.plugin:hover{
+    transform:translateY(-5px);
+    border-color:#3b82f6;
+}
+
+.plugin h2{
+    margin-bottom:10px;
+}
+
+.plugin p{
+    color:#cbd5e1;
+    line-height:1.5;
+    margin-bottom:18px;
+}
+
+.badges{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+.badge{
+    background:#1e293b;
+    border-radius:999px;
+    padding:6px 12px;
+    font-size:14px;
+}
+
+.download{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.download:hover{
+    background:#1d4ed8;
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+
+<div class="logo">
+<img src="/assets/logo.png" alt="ZenCode">
+</div>
+
+<button class="login-btn" id="userBtn">
+Ładowanie...
+</button>
+
+</nav>
+
+<div class="container">
+
+<div class="top">
+
+<div>
+
+<h1>📦 Pluginy ZenCode</h1>
+
+<p style="color:#94a3b8;">
+Pobieraj najnowsze pluginy stworzone przez ZenCode Studio.
+</p>
+
+</div>
+
+<div>
+
+<input
+class="search"
+id="search"
+placeholder="🔍 Wyszukaj plugin...">
+
+<button
+class="addBtn"
+id="addPlugin">
+➕ Dodaj Plugin
+</button>
+
+</div>
+
+</div>
+
+<div class="grid" id="plugins">
+
+<div class="plugin">
+
+<h2>📦 ZenTrade</h2>
+
+<p>
+System wymian z nowoczesnym GUI dla serwerów Minecraft.
+</p>
+
+<div class="badges">
+<span class="badge">⭐ 1.0.0</span>
+<span class="badge">⬇ 0 pobrań</span>
+</div>
+
+<button
+class="download"
+onclick="downloadPlugin('ZenTrade')">
+
+📥 Pobierz
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let currentUser=null;
+
+fetch("/api/user")
+
+.then(r=>r.json())
+
+.then(user=>{
+
+currentUser=user;
+
+const btn=document.getElementById("userBtn");
+
+if(!user.logged){
+
+btn.innerHTML="🔐 Zaloguj";
+
+btn.onclick=()=>location="/auth/discord";
+
+return;
+
+}
+
+btn.innerHTML=`
+<img src="${user.avatar}" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;">
+${user.username}
+`;
+
+btn.onclick=()=>location="/logout";
+
+if(user.id==="1238570679465410571"){
+
+document.getElementById("addPlugin").style.display="inline-block";
+
+}
+
+});
+
+function downloadPlugin(name){
+
+fetch("/api/log-download",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+plugin:name
+
+})
+
+}).catch(()=>{});
+
+alert("Rozpoczynanie pobierania pluginu: "+name);
+
+}
+
+document
+.getElementById("search")
+.addEventListener("input",function(){
+
+const value=this.value.toLowerCase();
+
+document
+.querySelectorAll(".plugin")
+.forEach(plugin=>{
+
+plugin.style.display=
+plugin.innerText.toLowerCase().includes(value)
+? "block"
+: "none";
+
+});
+
+});
+
+</script>
+
+</body>
+</html>

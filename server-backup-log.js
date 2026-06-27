@@ -5,25 +5,9 @@ const path = require("path");
 const session = require("express-session");
 const passport = require("passport");
 
-const {
-    Client,
-    GatewayIntentBits,
-    EmbedBuilder
-} = require("discord.js");
-
 require("./oauth");
 
 const app = express();
-
-const bot = new Client({
-    intents: [GatewayIntentBits.Guilds]
-});
-
-bot.login(process.env.BOT_TOKEN);
-
-bot.once("ready", () => {
-    console.log(`🤖 ${bot.user.tag}`);
-});
 
 app.set("trust proxy", 1);
 
@@ -47,9 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "public", "index.html")
-    );
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.get(
@@ -89,63 +71,6 @@ app.get("/api/user", (req, res) => {
         premium: req.user.premium || false,
         subscriber: req.user.subscriber || false
     });
-
-});
-
-/* LOGI */
-
-app.post("/api/log-create", async (req, res) => {
-
-    try {
-
-        const channel =
-            await bot.channels.fetch(
-                process.env.LOG_CHANNEL_ID
-            );
-
-        const creator =
-            req.body.creator || "Nieznany";
-
-        const username =
-            req.user
-                ? `<@${req.user.id}>`
-                : "[INCOGNITO] - niezalogowany";
-
-        const date =
-            new Date().toLocaleString("pl-PL");
-
-        const embed =
-            new EmbedBuilder()
-            .setColor(0x3b82f6)
-            .setDescription(
-`<:09:1243544837622599752> Użytkownik: ${username}
-
-<:07:1243544833482555452> Stworzył: \`${creator}\`
-
-<a:clock:1249452752816439378> Dnia: **${date}**`
-            )
-            .setImage(
-                process.env.BANNER_IMAGE
-            );
-
-        await channel.send({
-            embeds: [embed]
-        });
-
-        res.json({
-            success: true
-        });
-
-    } catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false
-        });
-
-    }
-
 });
 
 app.get("/logout", (req, res) => {

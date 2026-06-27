@@ -1,14 +1,4 @@
-function updateColor() {
-
-    const color = document.getElementById("colorPicker").value;
-
-    const preview = document.getElementById("colorPreview");
-
-    preview.innerText = color;
-    preview.style.color = color;
-}
-
-function generate() {
+async function generate() {
 
     const topText =
         document.getElementById("topText").value || "ZET";
@@ -16,8 +6,11 @@ function generate() {
     const bottomText =
         document.getElementById("bottomText").value || "SIGMA";
 
-    const color =
-        document.getElementById("colorPicker").value;
+    const topColor =
+        document.getElementById("topColor").value;
+
+    const bottomColor =
+        document.getElementById("bottomColor").value;
 
     const canvas =
         document.getElementById("canvas");
@@ -25,7 +18,20 @@ function generate() {
     const ctx =
         canvas.getContext("2d");
 
-    ctx.fillStyle = "#08142b";
+    /* TŁO */
+
+    const bg =
+        ctx.createLinearGradient(
+            0,
+            0,
+            1200,
+            600
+        );
+
+    bg.addColorStop(0, "#050816");
+    bg.addColorStop(1, "#08142b");
+
+    ctx.fillStyle = bg;
     ctx.fillRect(
         0,
         0,
@@ -33,40 +39,109 @@ function generate() {
         canvas.height
     );
 
+    /* LINIE */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.05)";
+
+    for (let i = 0; i < 1200; i += 40) {
+
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 600);
+        ctx.stroke();
+
+    }
+
+    /* GÓRNY NAPIS */
+
     ctx.textAlign = "center";
 
-    ctx.fillStyle = color;
+    ctx.font =
+        "bold 150px Arial";
 
-    ctx.font = "bold 130px Arial";
+    ctx.shadowBlur = 35;
+    ctx.shadowColor = topColor;
+
+    ctx.fillStyle = topColor;
+
     ctx.fillText(
-        topText,
-        500,
-        190
+        topText.toUpperCase(),
+        600,
+        250
     );
 
-    ctx.font = "bold 110px Arial";
+    /* DOLNY */
+
+    ctx.font =
+        "bold 90px Arial";
+
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = bottomColor;
+
+    ctx.fillStyle = bottomColor;
+
     ctx.fillText(
-        bottomText,
-        500,
-        340
+        bottomText.toUpperCase(),
+        600,
+        360
     );
 
-    ctx.font = "28px Arial";
-    ctx.fillStyle = "#ffffff";
+    /* FREE */
+
+    ctx.shadowBlur = 0;
+
+    ctx.font =
+        "28px Arial";
+
+    ctx.fillStyle =
+        "#ffffff";
+
     ctx.fillText(
         "ZenCode FREE",
-        500,
-        450
+        600,
+        560
     );
 
-    const link =
+    const download =
         document.getElementById("download");
 
-    link.href =
+    download.href =
         canvas.toDataURL("image/png");
 
-    link.style.display =
+    download.style.display =
         "inline-block";
+
+    /* LOG DISCORD */
+
+    try {
+
+        await fetch("/api/log-create", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+
+                creator:
+                    "Grafika Creator"
+
+            })
+
+        });
+
+    } catch (e) {
+
+        console.log(e);
+
+    }
+
 }
 
-updateColor();
+/* AUTOMATYCZNY START */
+
+generate();

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - ZenCode Studio</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<nav>
+
+<div class="logo">
+<img src="/assets/logo.png" alt="ZenCode">
+</div>
+
+<button class="login-btn" id="userBtn">
+Ładowanie...
+</button>
+
+</nav>
+
+<div class="container">
+
+<h1>👋 Dashboard</h1>
+
+<div class="grid">
+
+<div class="card">
+<h2>🎨</h2>
+<h3>Kreatory</h3>
+<p>Twórz projekty Minecraft i Discord.</p>
+<button onclick="location.href='/creator'">
+Otwórz
+</button>
+</div>
+
+<div class="card">
+<h2>📦</h2>
+<h3>Pluginy</h3>
+<p>Pobieraj pluginy ZenCode.</p>
+<button onclick="location.href='/plugins'">
+Otwórz
+</button>
+</div>
+
+<div class="card">
+<h2>👤</h2>
+<h3>Profil</h3>
+<p>Informacje o koncie.</p>
+<button>
+Już wkrótce
+</button>
+</div>
+
+<div
+class="card"
+id="adminCard"
+style="display:none;">
+
+<h2>🛠</h2>
+
+<h3>Panel Administratora</h3>
+
+<p>
+Dodawanie pluginów i zarządzanie.
+</p>
+
+<button onclick="location.href='/admin'">
+Otwórz
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+fetch("/api/user")
+
+.then(r=>r.json())
+
+.then(user=>{
+
+const btn =
+document.getElementById("userBtn");
+
+if(!user.logged){
+
+location.href="/";
+
+return;
+
+}
+
+btn.innerHTML=
+`<img src="${user.avatar}" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;"> ${user.username}`;
+
+if(user.id==="1238570679465410571"){
+
+document.getElementById("adminCard").style.display="block";
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
