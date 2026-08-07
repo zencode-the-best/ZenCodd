@@ -1,0 +1,290 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#0b1220;
+    color:#fff;
+    font-family:Inter,Arial,sans-serif;
+}
+
+nav{
+    margin-left:280px;
+    height:80px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 35px;
+    background:#111827;
+    border-bottom:1px solid #1f2937;
+}
+
+.logo img{
+    height:52px;
+}
+
+#userBox{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#1f2937;
+    padding:10px 18px;
+    border-radius:14px;
+}
+
+.admin{
+    margin-left:280px;
+    padding:40px;
+}
+
+.admin h1{
+    font-size:42px;
+    margin-bottom:10px;
+}
+
+.admin>p{
+    color:#94a3b8;
+    margin-bottom:30px;
+}
+
+#productForm{
+    display:grid;
+    gap:18px;
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:20px;
+    padding:25px;
+}
+#productForm input,
+#productForm textarea,
+#productForm select{
+
+width:100%;
+padding:14px 16px;
+background:#0f172a;
+border:1px solid #1f2937;
+border-radius:12px;
+color:#fff;
+font-size:15px;
+outline:none;
+transition:.2s;
+
+}
+
+#productForm textarea{
+
+min-height:120px;
+resize:vertical;
+
+}
+
+#productForm input:focus,
+#productForm textarea:focus,
+#productForm select:focus{
+
+border-color:#2563eb;
+box-shadow:0 0 0 3px rgba(37,99,235,.15);
+
+}
+
+#productForm button{
+
+padding:14px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:#fff;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+transition:.2s;
+
+}
+
+#productForm button:hover{
+
+background:#1d4ed8;
+transform:translateY(-2px);
+
+}
+.products-panel{
+
+margin-top:35px;
+background:#111827;
+border:1px solid #1f2937;
+border-radius:20px;
+padding:25px;
+
+}
+
+.products-panel h2{
+
+margin-bottom:10px;
+
+}
+
+.products-panel p{
+
+color:#94a3b8;
+margin-bottom:20px;
+
+}
+
+.table-wrapper{
+
+overflow-x:auto;
+
+}
+
+#productsTable{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+#productsTable th,
+#productsTable td{
+
+padding:14px;
+text-align:left;
+border-bottom:1px solid #1f2937;
+
+}
+
+#productsTable th{
+
+background:#0f172a;
+color:#fff;
+
+}
+
+#productsTable tr:hover{
+
+background:#1a2436;
+
+}
+
+.edit-btn{
+
+background:#2563eb;
+color:#fff;
+border:none;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+margin-right:8px;
+
+}
+
+.delete-btn{
+
+background:#dc2626;
+color:#fff;
+border:none;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+
+}
+/* ===== STOPKA ===== */
+
+footer{
+
+margin-left:280px;
+padding:24px;
+text-align:center;
+background:#111827;
+border-top:1px solid #1f2937;
+color:#94a3b8;
+
+}
+
+/* ===== ANIMACJE ===== */
+
+@keyframes fadeUp{
+
+from{
+
+opacity:0;
+transform:translateY(18px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+.admin,
+#productForm,
+.products-panel{
+
+animation:fadeUp .35s ease;
+
+}
+
+/* ===== RESPONSYWNOŚĆ ===== */
+
+@media (max-width:900px){
+
+nav,
+.admin,
+footer{
+
+margin-left:0;
+
+}
+
+.admin{
+
+padding:20px;
+
+}
+
+.admin h1{
+
+font-size:30px;
+
+}
+
+#productsTable{
+
+font-size:14px;
+
+}
+
+}
+
+/* ===== SCROLLBAR ===== */
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#0b1220;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#2563eb;
+border-radius:999px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+background:#1d4ed8;
+
+}

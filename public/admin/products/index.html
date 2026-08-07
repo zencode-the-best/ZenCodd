@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Panel CEO • Produkty</title>
+
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/components/sidebar.css">
+<link rel="stylesheet" href="/admin/products/style.css">
+
+</head>
+
+<body>
+
+<div id="sidebarContainer"></div>
+
+<nav>
+
+<div class="logo">
+
+<img src="/assets/logo.png" alt="ZenityCode">
+
+</div>
+
+<div id="userBox">
+
+Ładowanie...
+
+</div>
+
+</nav>
+
+<div class="admin">
+
+<h1>
+
+📦 Zarządzanie produktami
+
+</h1>
+
+<p>
+
+Dodawaj, edytuj i usuwaj produkty Marketplace.
+
+</p>
+
+<form id="productForm">
+
+<input
+type="text"
+id="name"
+placeholder="Nazwa produktu"
+required>
+
+<textarea
+id="description"
+placeholder="Opis produktu"></textarea>
+<select id="type" required>
+
+<option value="plugin">
+
+📦 Plugin
+
+</option>
+
+<option value="script">
+
+📜 Skrypt
+
+</option>
+
+<option value="graphic">
+
+🎨 Grafika
+
+</option>
+
+<option value="bot">
+
+🤖 Bot Discord
+
+</option>
+
+</select>
+
+<select id="access" required>
+
+<option value="free">
+
+🟢 FREE
+
+</option>
+
+<option value="subscriber">
+
+💎 SUBSKRYBENT
+
+</option>
+
+<option value="premium">
+
+⭐ PREMIUM
+
+</option>
+
+</select>
+
+<input
+type="text"
+id="image"
+placeholder="/assets/products/obrazek.png">
+
+<input
+type="text"
+id="download"
+placeholder="/downloads/plik.zip">
+
+<button type="submit">
+
+➕ Dodaj produkt
+
+</button>
+
+</form>
+<section class="products-panel">
+
+<h2>
+
+📋 Lista produktów
+
+</h2>
+
+<p>
+
+Tutaj pojawią się wszystkie produkty zapisane w Marketplace.
+
+</p>
+
+<div class="table-wrapper">
+
+<table id="productsTable">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Nazwa</th>
+
+<th>Kategoria</th>
+
+<th>Dostęp</th>
+
+<th>Pobrania</th>
+
+<th>Akcje</th>
+
+</tr>
+
+</thead>
+
+<tbody id="productsBody">
+
+<tr>
+
+<td colspan="6">
+
+Ładowanie produktów...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+<script src="/admin/products/script.js"></script>
+
+<script>
+
+fetch("/components/sidebar.html")
+.then(response => response.text())
+.then(html => {
+
+    document.getElementById("sidebarContainer").innerHTML = html;
+
+    const script = document.createElement("script");
+    script.src = "/components/sidebar.js";
+    document.body.appendChild(script);
+
+})
+.catch(console.error);
+
+</script>
+
+<footer>
+
+<p>
+
+© 2026 ZenityCode Studio • Panel CEO
+
+</p>
+
+</footer>
+
+</div>
+
+</body>
+
+</html>
