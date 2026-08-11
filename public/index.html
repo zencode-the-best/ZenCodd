@@ -1,132 +1,471 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZenCode Studio</title>
-<link rel="stylesheet" href="style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="ZenityCode Studio — narzędzia, pluginy, skrypty i grafiki dla Minecraft oraz Discord."
+    >
+
+    <title>ZenityCode Studio</title>
+
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
+
 </head>
+
 <body>
 
-<nav>
+    <!-- =================================================
+         NAVIGATION
+    ================================================== -->
 
-    <div class="logo">
-        <img src="/assets/logo.png" alt="ZenCode">
-    </div>
+    <nav>
 
-    <button class="login-btn">
-        🔐 Zaloguj przez Discord
-    </button>
+        <div class="logo">
 
-</nav>
+            <a href="/">
 
-<section class="hero">
+                <img
+                    src="/assets/logo.png"
+                    alt="ZenityCode"
+                >
 
-    <h1>ZENCODE STUDIO</h1>
+            </a>
 
-    <p>
-        Profesjonalne kreatory Minecraft, Discord i Grafiki.
-    </p>
+        </div>
 
-    <div class="buttons">
+        <div class="nav-right">
 
-        <a href="/creator">
-            <button>
-                🎨 Grafika Creator
+            <button
+                class="login-btn"
+                type="button"
+            >
+                Zaloguj przez Discord
             </button>
-        </a>
 
-        <button onclick="document.getElementById('creators').scrollIntoView({behavior:'smooth'})">
-            📦 Kreatory
-        </button>
+        </div>
 
-    </div>
+    </nav>
 
-</section>
 
-<section class="stats">
+    <!-- =================================================
+         HERO
+    ================================================== -->
 
-    <div class="card">
-        <h2>👥</h2>
-        <h3>1245</h3>
-        <p>Użytkowników</p>
-    </div>
+    <main>
 
-    <div class="card">
-        <h2>⭐</h2>
-        <h3>143</h3>
-        <p>Premium</p>
-    </div>
+        <section class="hero">
 
-    <div class="card">
-        <h2>👑</h2>
-        <h3>321</h3>
-        <p>Subskrybentów</p>
-    </div>
+            <h1>
+                Narzędzia dla
+                <br>
+                nowoczesnych serwerów.
+            </h1>
 
-    <div class="card">
-        <h2>📦</h2>
-        <h3>12531</h3>
-        <p>Projektów</p>
-    </div>
+            <p>
+                ZenityCode Studio łączy narzędzia,
+                pluginy, skrypty i grafiki w jednym
+                miejscu.
+            </p>
 
-</section>
+            <div class="buttons">
 
-<section id="creators" class="creators">
+                <a href="/creator">
 
-<h2>Dostępne Kreatory</h2>
+                    <button type="button">
+                        Otwórz Creator
+                    </button>
 
-<div class="grid">
+                </a>
 
-<div class="creator free">
-    <span>🎨 Grafika Creator</span>
-    <span>FREE</span>
-</div>
+                <button
+                    type="button"
+                    onclick="document
+                        .getElementById('panel')
+                        .scrollIntoView({
+                            behavior: 'smooth'
+                        })"
+                >
+                    Przeglądaj Studio
+                </button>
 
-<div class="creator premium" data-role="premium">
-    <span>⭐ GUI Creator</span>
-    <span>PREMIUM</span>
-</div>
+            </div>
 
-<div class="creator premium" data-role="premium">
-    <span>⭐ Rank Creator</span>
-    <span>PREMIUM</span>
-</div>
+        </section>
+        <!-- =================================================
+             STUDIO
+        ================================================== -->
 
-<div class="creator subscriber" data-role="subscriber">
-    <span>👑 Skript Creator</span>
-    <span>SUB</span>
-</div>
+        <section
+            id="panel"
+            class="panel"
+        >
 
-<div class="creator subscriber" data-role="subscriber">
-    <span>👑 Pack Creator</span>
-    <span>SUB</span>
-</div>
+            <h2>Studio</h2>
 
-<div class="creator premium" data-role="premium">
-    <span>⭐ Discord Creator</span>
-    <span>PREMIUM</span>
-</div>
+            <div class="tabs">
 
-</div>
+                <button
+                    class="tab active"
+                    data-tab="graphics"
+                    type="button"
+                >
+                    Grafiki
+                </button>
 
-</section>
+                <button
+                    class="tab"
+                    id="subscriberTab"
+                    type="button"
+                >
+                    Subskrybent
+                </button>
 
-<section class="logs">
+                <button
+                    class="tab"
+                    id="scriptsTab"
+                    type="button"
+                    style="display:none"
+                >
+                    Skrypty
+                </button>
 
-<h2>📜 ZenCode Studio</h2>
+                <button
+                    class="tab"
+                    id="pluginsTab"
+                    type="button"
+                    style="display:none"
+                >
+                    Pluginy
+                </button>
 
-<p>
-Twórz projekty Minecraft i Discord jednym kliknięciem.
-</p>
+                <button
+                    class="tab"
+                    id="premiumTab"
+                    type="button"
+                >
+                    Premium
+                </button>
 
-</section>
+                <button
+                    class="tab"
+                    id="ceoTab"
+                    type="button"
+                    style="display:none"
+                >
+                    Zarządzanie
+                </button>
 
-<footer>
-© 2026 ZenCode.pl
-</footer>
+            </div>
 
-<script src="script.js"></script>
+
+            <!-- =============================================
+                 GRAPHICS
+            ============================================== -->
+
+            <div
+                class="tab-page active"
+                id="graphics"
+            >
+
+                <h2>Grafiki</h2>
+
+                <p>
+                    Twórz profesjonalne grafiki dla
+                    serwerów Minecraft i społeczności
+                    Discord.
+                </p>
+
+                <a href="/creator">
+
+                    <button type="button">
+                        Otwórz Creator
+                    </button>
+
+                </a>
+
+            </div>
+
+
+            <!-- =============================================
+                 SUBSCRIBER
+            ============================================== -->
+
+            <div
+                class="tab-page"
+                id="subscriber"
+            >
+
+                <h2>Subskrybent</h2>
+
+                <p>
+                    Strefa przeznaczona dla użytkowników
+                    posiadających dostęp Subskrybenta.
+                </p>
+
+                <p>
+                    Dostęp do dodatkowych materiałów
+                    otrzymasz po uzyskaniu odpowiedniej
+                    rangi na serwerze Discord ZenityCode.
+                </p>
+
+            </div>
+            <!-- =============================================
+                 SCRIPTS
+            ============================================== -->
+
+            <div
+                class="tab-page"
+                id="scripts"
+                style="display:none"
+            >
+
+                <h2>Skrypty</h2>
+
+                <p>
+                    Gotowe skrypty i rozwiązania dla
+                    serwerów Minecraft.
+                </p>
+
+                <a href="/scripts">
+
+                    <button type="button">
+                        Przejdź do skryptów
+                    </button>
+
+                </a>
+
+            </div>
+
+
+            <!-- =============================================
+                 PLUGINS
+            ============================================== -->
+
+            <div
+                class="tab-page"
+                id="plugins"
+                style="display:none"
+            >
+
+                <h2>Pluginy</h2>
+
+                <p>
+                    Przeglądaj dostępne pluginy
+                    przygotowane przez ZenityCode.
+                </p>
+
+                <a href="/plugins">
+
+                    <button type="button">
+                        Przejdź do pluginów
+                    </button>
+
+                </a>
+
+            </div>
+
+
+            <!-- =============================================
+                 PREMIUM
+            ============================================== -->
+
+            <div
+                class="tab-page"
+                id="premium"
+            >
+
+                <h2>Strefa Premium</h2>
+
+                <p>
+                    Ekskluzywne materiały i narzędzia
+                    dostępne dla użytkowników Premium.
+                </p>
+
+                <ul>
+
+                    <li>
+                        Ekskluzywne pluginy
+                    </li>
+
+                    <li>
+                        Ekskluzywne skrypty
+                    </li>
+
+                    <li>
+                        Wczesny dostęp do aktualizacji
+                    </li>
+
+                    <li>
+                        Priorytetowe wsparcie
+                    </li>
+
+                </ul>
+
+                <p>
+                    Dostęp do Premium możesz uzyskać
+                    poprzez kontakt na serwerze Discord
+                    ZenityCode.
+                </p>
+
+            </div>
+            <!-- =============================================
+                 MANAGEMENT
+            ============================================== -->
+
+            <div
+                class="tab-page"
+                id="ceo"
+                style="display:none"
+            >
+
+                <h2>Zarządzanie</h2>
+
+                <p>
+                    Panel zarządzania ZenityCode Studio.
+                </p>
+
+                <div class="ceo-grid">
+
+                    <button type="button">
+                        Generatory
+                    </button>
+
+                    <button type="button">
+                        Grafiki
+                    </button>
+
+                    <button type="button">
+                        Skrypty
+                    </button>
+
+                    <button type="button">
+                        Pluginy
+                    </button>
+
+                    <button type="button">
+                        Premium
+                    </button>
+
+                    <button type="button">
+                        Statystyki
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+        <!-- =================================================
+             ABOUT
+        ================================================== -->
+
+        <section class="about">
+
+            <h2>
+                ZenityCode Studio
+            </h2>
+
+            <p>
+                Jedno miejsce dla narzędzi potrzebnych
+                do tworzenia i rozwijania serwerów
+                Minecraft oraz społeczności Discord.
+            </p>
+
+            <div class="about-grid">
+
+                <div class="about-card">
+
+                    <h3>
+                        Grafiki
+                    </h3>
+
+                    <p>
+                        Narzędzia do tworzenia
+                        profesjonalnych materiałów
+                        dla Twojego projektu.
+                    </p>
+
+                </div>
+
+
+                <div class="about-card">
+
+                    <h3>
+                        Pluginy
+                    </h3>
+
+                    <p>
+                        Gotowe rozwiązania rozszerzające
+                        możliwości serwerów Minecraft.
+                    </p>
+
+                </div>
+
+
+                <div class="about-card">
+
+                    <h3>
+                        Skrypty
+                    </h3>
+
+                    <p>
+                        Przydatne skrypty pozwalające
+                        szybciej rozwijać serwer.
+                    </p>
+
+                </div>
+
+
+                <div class="about-card">
+
+                    <h3>
+                        Premium
+                    </h3>
+
+                    <p>
+                        Rozszerzone materiały i funkcje
+                        dostępne dla użytkowników Premium.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <footer>
+
+            <p>
+                © 2026 ZenityCode Studio.
+                Wszystkie prawa zastrzeżone.
+            </p>
+
+        </footer>
+
+    </main>
+
+
+    <!-- =================================================
+         JAVASCRIPT
+    ================================================== -->
+
+    <script src="/script.js"></script>
 
 </body>
+
 </html>
