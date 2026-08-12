@@ -15,9 +15,14 @@ router.get(
     }),
     (req, res) => {
 
-        req.session.save(() => {
+        req.session.save((err) => {
 
-            res.redirect("/");
+            if (err) {
+                console.error("SESSION SAVE ERROR:", err);
+                return res.redirect("/");
+            }
+
+            res.redirect("/dashboard");
 
         });
 
@@ -26,9 +31,20 @@ router.get(
 
 router.get("/logout", (req, res) => {
 
-    req.logout(() => {
+    req.logout((err) => {
 
-        req.session.destroy(() => {
+        if (err) {
+            console.error("LOGOUT ERROR:", err);
+        }
+
+        req.session.destroy((sessionErr) => {
+
+            if (sessionErr) {
+                console.error(
+                    "SESSION DESTROY ERROR:",
+                    sessionErr
+                );
+            }
 
             res.redirect("/");
 

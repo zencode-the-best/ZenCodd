@@ -1,123 +1,185 @@
 async function generate() {
 
-    const topText =
-        document.getElementById("topText").value || "ZET";
+const topText =
+    document.getElementById("topText").value.trim() || "PIOTRK";
 
-    const bottomText =
-        document.getElementById("bottomText").value || "SIGMA";
+const bottomText =
+    document.getElementById("bottomText").value.trim() || "SIGMA";
 
-    const topColor =
-        document.getElementById("topColor").value;
+const topColor =
+    document.getElementById("topColor").value;
 
-    const bottomColor =
-        document.getElementById("bottomColor").value;
+const bottomColor =
+    document.getElementById("bottomColor").value;
 
-    const canvas =
-        document.getElementById("canvas");
+const canvas =
+    document.getElementById("canvas");
 
-    const ctx =
-        canvas.getContext("2d");
+const ctx =
+    canvas.getContext("2d");
 
-    /* TŁO */
+const width = canvas.width;
+const height = canvas.height;
 
-    const bg =
-        ctx.createLinearGradient(
-            0,
-            0,
-            1200,
-            600
-        );
 
-    bg.addColorStop(0, "#050816");
-    bg.addColorStop(1, "#08142b");
+/*
+ * CZYSTE, PROFESJONALNE TŁO
+ * Bez neonów i świecenia.
+ */
 
-    ctx.fillStyle = bg;
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+ctx.clearRect(
+    0,
+    0,
+    width,
+    height
+);
 
-    /* LINIE */
+ctx.fillStyle =
+    "#08111f";
 
-    ctx.strokeStyle =
-        "rgba(255,255,255,.05)";
+ctx.fillRect(
+    0,
+    0,
+    width,
+    height
+);
 
-    for (let i = 0; i < 1200; i += 40) {
 
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, 600);
-        ctx.stroke();
+/*
+ * DELIKATNA SIATKA
+ */
 
-    }
+ctx.strokeStyle =
+    "rgba(255,255,255,0.035)";
 
-    /* GÓRNY NAPIS */
+ctx.lineWidth = 1;
 
-    ctx.textAlign = "center";
+for (
+    let x = 0;
+    x <= width;
+    x += 50
+) {
 
-    ctx.font =
-        "bold 150px Arial";
+    ctx.beginPath();
 
-    ctx.shadowBlur = 35;
-    ctx.shadowColor = topColor;
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
 
-    ctx.fillStyle = topColor;
+    ctx.stroke();
 
-    ctx.fillText(
-        topText.toUpperCase(),
-        600,
-        250
-    );
+}
 
-    /* DOLNY */
+for (
+    let y = 0;
+    y <= height;
+    y += 50
+) {
 
-    ctx.font =
-        "bold 90px Arial";
+    ctx.beginPath();
 
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = bottomColor;
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
 
-    ctx.fillStyle = bottomColor;
+    ctx.stroke();
 
-    ctx.fillText(
-        bottomText.toUpperCase(),
-        600,
-        360
-    );
+}
 
-    /* FREE */
 
-    ctx.shadowBlur = 0;
+/*
+ * GÓRNY NAPIS
+ */
 
-    ctx.font =
-        "28px Arial";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
 
-    ctx.fillStyle =
-        "#ffffff";
+ctx.shadowBlur = 0;
+ctx.shadowColor = "transparent";
 
-    ctx.fillText(
-        "ZenCode FREE",
-        600,
-        560
-    );
+ctx.font =
+    "900 150px Arial";
 
-    const download =
-        document.getElementById("download");
+ctx.fillStyle =
+    topColor;
 
-    download.href =
-        canvas.toDataURL("image/png");
+ctx.fillText(
+    topText.toUpperCase(),
+    width / 2,
+    225
+);
 
-    download.style.display =
-        "inline-block";
 
-    /* LOG DISCORD */
+/*
+ * SEPARATOR
+ */
 
-    try {
+ctx.fillStyle =
+    "rgba(255,255,255,0.12)";
 
-        await fetch("/api/log-create", {
+ctx.fillRect(
+    350,
+    305,
+    500,
+    2
+);
 
+
+/*
+ * DOLNY NAPIS
+ */
+
+ctx.font =
+    "800 90px Arial";
+
+ctx.fillStyle =
+    bottomColor;
+
+ctx.fillText(
+    bottomText.toUpperCase(),
+    width / 2,
+    380
+);
+
+
+/*
+ * STOPKA
+ */
+
+ctx.font =
+    "600 28px Arial";
+
+ctx.fillStyle =
+    "rgba(255,255,255,0.65)";
+
+ctx.fillText(
+    "ZenityCode Studio",
+    width / 2,
+    545
+);
+
+
+/*
+ * PRZYGOTOWANIE PNG
+ */
+
+const download =
+    document.getElementById("download");
+
+download.href =
+    canvas.toDataURL("image/png");
+
+download.style.display =
+    "inline-block";
+
+
+/*
+ * LOGOWANIE UŻYCIA CREATORA
+ */
+
+try {
+
+    await fetch(
+        "/api/log-create",
+        {
             method: "POST",
 
             headers: {
@@ -126,22 +188,35 @@ async function generate() {
             },
 
             body: JSON.stringify({
-
                 creator:
                     "Grafika Creator"
-
             })
+        }
+    );
 
-        });
+} catch (error) {
 
-    } catch (e) {
-
-        console.log(e);
-
-    }
+    console.log(
+        "Nie udało się zapisać logu:",
+        error
+    );
 
 }
 
-/* AUTOMATYCZNY START */
+}
 
-generate();
+/*
+
+* AUTOMATYCZNE WYGENEROWANIE
+* przy otwarciu strony.
+  */
+
+window.addEventListener(
+"DOMContentLoaded",
+() => {
+
+    generate();
+
+}
+
+);
