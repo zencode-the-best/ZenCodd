@@ -1,67 +1,76 @@
 const passport = require("passport");
-const DiscordStrategy = require("passport-discord").Strategy;
-const axios = require("axios");
-
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((obj, done) => {
-    done(null, obj);
-});
+const DiscordStrategy =
+    require("passport-discord");
 
 passport.use(
     new DiscordStrategy(
         {
-            clientID: process.env.CLIENT_ID,
-            clientSecret: process.env.CLIENT_SECRET,
-            callbackURL: `${process.env.BASE_URL}/auth/discord/callback`,
-            scope: ["identify"]
-        },
-        async (accessToken, refreshToken, profile, done) => {
+            clientID:
+                process.env.CLIENT_ID,
 
-            profile.premium = false;
-            profile.subscriber = false;
+            clientSecret:
+                process.env.CLIENT_SECRET,
+
+            callbackURL:
+                `${process.env.BASE_URL}/auth/discord/callback`,
+
+            scope: [
+                "identify",
+                "email",
+                "guilds"
+            ]
+        },
+
+        async (
+            accessToken,
+            refreshToken,
+            profile,
+            done
+        ) => {
 
             try {
 
-                const response = await axios.get(
-                    `https://discord.com/api/v10/guilds/${process.env.GUILD_ID}/members/${profile.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bot ${process.env.BOT_TOKEN}`
-                        }
-                    }
+                profile.email =
+                    profile.email || null;
+
+                done(
+                    null,
+                    profile
                 );
-
-                const roles = response.data.roles || [];
-
-                console.log("USER:", profile.username);
-                console.log("ROLES:", roles);
-
-                profile.premium = roles.includes(
-                    process.env.PREMIUM_ROLE_ID
-                );
-
-                profile.subscriber = roles.includes(
-                    process.env.SUB_ROLE_ID
-                );
-
-                console.log("PREMIUM:", profile.premium);
-                console.log("SUBSCRIBER:", profile.subscriber);
 
             } catch (error) {
 
-                console.log("ROLE ERROR:");
-                console.log(
-                    error?.response?.data ||
-                    error?.message ||
-                    error
+                done(
+                    error,
+                    null
                 );
 
             }
 
-            return done(null, profile);
         }
     )
+);
+
+
+passport.serializeUser(
+    (user, done) => {
+
+        done(
+            null,
+            user
+        );
+
+    }
+);
+
+
+passport.deserializeUser(
+    (user, done) => {
+
+        done(
+            null,
+            user
+        );
+
+    }
 );

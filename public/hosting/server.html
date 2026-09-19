@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>ZenityHost — Minecraft</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #070a10;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .box {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 30px;
+            background: #0c121b;
+            border: 1px solid #1d2a3b;
+            border-radius: 15px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        input,
+        select {
+            background: #101721;
+            color: #fff;
+            border: 1px solid #26364b;
+        }
+
+        button {
+            background: #287cf0;
+            color: #fff;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #101721;
+            border-radius: 9px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>🖥️ Utwórz serwer Minecraft</h1>
+
+    <p>
+        Wybierz nazwę, wersję i okres hostingu.
+    </p>
+
+    <input
+        id="name"
+        maxlength="32"
+        placeholder="Nazwa serwera">
+
+    <select id="version">
+
+        <option value="">
+            Wybierz wersję
+        </option>
+
+        <option value="1.21.8">
+            Minecraft 1.21.8
+        </option>
+
+        <option value="1.21.7">
+            Minecraft 1.21.7
+        </option>
+
+        <option value="1.21.6">
+            Minecraft 1.21.6
+        </option>
+
+        <option value="1.21.5">
+            Minecraft 1.21.5
+        </option>
+
+        <option value="1.21.4">
+            Minecraft 1.21.4
+        </option>
+
+        <option value="1.20.6">
+            Minecraft 1.20.6
+        </option>
+
+        <option value="1.20.4">
+            Minecraft 1.20.4
+        </option>
+
+        <option value="1.20.1">
+            Minecraft 1.20.1
+        </option>
+
+    </select>
+
+    <select id="plan">
+
+        <option>
+            Pakiet Dirt
+        </option>
+
+        <option>
+            Pakiet Obsidian
+        </option>
+
+        <option>
+            Pakiet Złoto
+        </option>
+
+        <option>
+            Pakiet Szmaragd
+        </option>
+
+        <option>
+            Pakiet Diament
+        </option>
+
+    </select>
+
+    <select id="days">
+
+        <option value="7">
+            7 dni
+        </option>
+
+        <option value="30">
+            30 dni
+        </option>
+
+        <option value="90">
+            90 dni
+        </option>
+
+    </select>
+
+    <button id="create">
+        Utwórz serwer
+    </button>
+
+    <div
+        id="result"
+        class="result">
+    </div>
+
+</div>
+
+
+<script>
+
+const result =
+    document.getElementById("result");
+
+document
+    .getElementById("create")
+    .addEventListener(
+        "click",
+        async () => {
+
+            const name =
+                document
+                    .getElementById("name")
+                    .value
+                    .trim();
+
+            const version =
+                document
+                    .getElementById("version")
+                    .value;
+
+            const plan =
+                document
+                    .getElementById("plan")
+                    .value;
+
+            const days =
+                Number(
+                    document
+                        .getElementById("days")
+                        .value
+                );
+
+            if (!name || !version) {
+
+                result.textContent =
+                    "Podaj nazwę i wersję.";
+
+                return;
+
+            }
+
+            result.textContent =
+                "Tworzenie serwera...";
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/hosting/minecraft/create",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    name,
+                                    version,
+                                    plan,
+                                    days
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!data.success) {
+
+                    result.textContent =
+                        data.message;
+
+                    return;
+
+                }
+
+                result.innerHTML = `
+
+                    <strong>
+                        Serwer utworzony!
+                    </strong>
+
+                    <p>
+                        Nazwa:
+                        ${data.server.name}
+                    </p>
+
+                    <p>
+                        Wersja:
+                        ${data.server.version}
+                    </p>
+
+                    <p>
+                        Adres:
+                        ${data.server.ip}
+                    </p>
+
+                    <p>
+                        IPv4:
+                        ${
+                            data.server.ipv4 ||
+                            "Zostanie przydzielone przez infrastrukturę."
+                        }
+                    </p>
+
+                    <p>
+                        Port:
+                        ${
+                            data.server.port ||
+                            "Zostanie przydzielony."
+                        }
+                    </p>
+
+                `;
+
+            } catch (error) {
+
+                console.error(error);
+
+                result.textContent =
+                    "Błąd tworzenia serwera.";
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
