@@ -1,0 +1,245 @@
+body{
+
+margin:0;
+font-family:Arial,sans-serif;
+background:#0b1220;
+color:white;
+
+}
+
+nav{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 30px;
+background:#111827;
+border-bottom:1px solid #1f2937;
+
+}
+
+.logo img{
+
+height:48px;
+
+}
+
+nav button{
+
+background:#2563eb;
+color:white;
+border:none;
+padding:12px 18px;
+border-radius:10px;
+cursor:pointer;
+transition:.2s;
+
+}
+
+nav button:hover{
+
+background:#1d4ed8;
+
+}
+
+.panel{
+
+max-width:1200px;
+margin:40px auto;
+padding:20px;
+
+}
+
+.panel h1{
+
+font-size:42px;
+margin-bottom:10px;
+
+}
+
+.panel p{
+
+color:#9ca3af;
+
+}
+.ceo-grid{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+margin-top:35px;
+
+}
+
+.ceo-grid button{
+
+background:#111827;
+border:1px solid #1f2937;
+border-radius:16px;
+padding:22px;
+color:white;
+font-size:18px;
+cursor:pointer;
+transition:.25s;
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+.ceo-grid button:hover{
+
+transform:translateY(-4px);
+border-color:#3b82f6;
+box-shadow:0 0 25px rgba(59,130,246,.35);
+
+}
+
+.status{
+
+font-weight:bold;
+font-size:15px;
+
+}
+.admin-info{
+
+margin-top:45px;
+
+}
+
+.admin-card{
+
+background:#111827;
+border:1px solid #1f2937;
+border-radius:16px;
+padding:24px;
+
+}
+
+.admin-card p{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:14px 0;
+margin:0;
+border-bottom:1px solid #1f2937;
+
+}
+
+.admin-card p:last-child{
+
+border-bottom:none;
+
+}
+
+.admin-card strong{
+
+color:#60a5fa;
+
+}
+
+footer{
+
+margin-top:50px;
+padding:25px;
+text-align:center;
+color:#9ca3af;
+border-top:1px solid #1f2937;
+
+}
+/* ===== RESPONSYWNOŚĆ ===== */
+
+@media (max-width:900px){
+
+.ceo-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.panel{
+
+padding:15px;
+
+}
+
+.panel h1{
+
+font-size:32px;
+
+}
+
+nav{
+
+flex-direction:column;
+gap:15px;
+
+}
+
+nav button{
+
+width:100%;
+
+}
+
+}
+
+/* ===== ANIMACJE ===== */
+
+@keyframes fadeIn{
+
+from{
+
+opacity:0;
+transform:translateY(15px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+.panel,
+.admin-card,
+.ceo-grid button{
+
+animation:fadeIn .35s ease;
+
+}
+
+.ceo-grid button:active{
+
+transform:scale(.98);
+
+}
+
+::-webkit-scrollbar{
+
+width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+background:#0b1220;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+background:#2563eb;
+border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+background:#1d4ed8;
+
+}

@@ -1,2 +1,2 @@
-# ZenCode
-ZenCode.pl jest najlepsze
+# ZenityCode
+ZenityCode.pl jest najlepsze

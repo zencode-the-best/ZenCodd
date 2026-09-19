@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`
 =================================
-🚀 ZenCode Studio
+🚀 ZenityCode Studio
 🌐 http://localhost:${PORT}
 ✅ Serwer uruchomiony
 =================================

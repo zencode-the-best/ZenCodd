@@ -6,10 +6,10 @@ const client = new Client({
     ]
 });
 
-client.login(process.env.BOT_TOKEN);
-
-client.once("ready", () => {
+client.once("clientReady", () => {
     console.log(`🤖 Zalogowano jako ${client.user.tag}`);
 });
+
+client.login(process.env.BOT_TOKEN);
 
 module.exports = client;

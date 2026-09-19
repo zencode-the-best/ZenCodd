@@ -1,112 +1,635 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - ZenCode Studio</title>
-<link rel="stylesheet" href="/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ZenityCode Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/dashboard/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/components/sidebar.css"
+    >
+
 </head>
+
 <body>
+
+<div id="sidebarContainer"></div>
 
 <nav>
 
-<div class="logo">
-<img src="/assets/logo.png" alt="ZenCode">
-</div>
+    <div class="logo">
 
-<button class="login-btn" id="userBtn">
-Ładowanie...
-</button>
+        <img
+            src="/assets/logo.png"
+            alt="ZenityCode"
+        >
+
+    </div>
+
+    <div id="userBox">
+        Ładowanie...
+    </div>
 
 </nav>
 
-<div class="container">
 
-<h1>👋 Dashboard</h1>
+<main class="dashboard">
 
-<div class="grid">
+    <h1>
+        👋 Witaj w ZenityCode Studio
+    </h1>
 
-<div class="card">
-<h2>🎨</h2>
-<h3>Kreatory</h3>
-<p>Twórz projekty Minecraft i Discord.</p>
-<button onclick="location.href='/creator'">
-Otwórz
-</button>
-</div>
+    <p>
+        Panel użytkownika.
+    </p>
 
-<div class="card">
-<h2>📦</h2>
-<h3>Pluginy</h3>
-<p>Pobieraj pluginy ZenCode.</p>
-<button onclick="location.href='/plugins'">
-Otwórz
-</button>
-</div>
 
-<div class="card">
-<h2>👤</h2>
-<h3>Profil</h3>
-<p>Informacje o koncie.</p>
-<button>
-Już wkrótce
-</button>
-</div>
+    <div class="cards">
 
-<div
-class="card"
-id="adminCard"
-style="display:none;">
+        <!-- KONTO -->
 
-<h2>🛠</h2>
+        <div class="card">
 
-<h3>Panel Administratora</h3>
+            <h2>
+                👤 Konto
+            </h2>
 
-<p>
-Dodawanie pluginów i zarządzanie.
-</p>
+            <p id="username">
+                Ładowanie...
+            </p>
 
-<button onclick="location.href='/admin'">
-Otwórz
-</button>
+        </div>
 
-</div>
 
-</div>
+        <!-- RANGA -->
 
-</div>
+        <div class="card">
+
+            <h2>
+                ⭐ Ranga
+            </h2>
+
+            <p id="rank">
+                Ładowanie...
+            </p>
+
+        </div>
+
+
+        <!-- MARKETPLACE -->
+
+        <div class="card">
+
+            <h2>
+                📦 Marketplace
+            </h2>
+
+            <p>
+                Przeglądaj pluginy, skrypty i grafiki.
+            </p>
+
+            <button
+                type="button"
+                onclick="location.href='/plugins'"
+            >
+                Otwórz
+            </button>
+
+        </div>
+
+
+        <!-- CREATORZY -->
+
+        <div class="card">
+
+            <h2>
+                🎨 Kreatorzy
+            </h2>
+
+            <p>
+                Twórz grafiki, pluginy oraz skrypty.
+            </p>
+
+            <button
+                type="button"
+                onclick="scrollToCreators()"
+            >
+                Przejdź do Creatorów
+            </button>
+
+        </div>
+
+
+        <!-- SKRYPTY -->
+
+        <div class="card">
+
+            <h2>
+                📜 Skrypty
+            </h2>
+
+            <p>
+                Przeglądaj darmowe i Premium skrypty.
+            </p>
+
+            <button
+                type="button"
+                onclick="location.href='/scripts'"
+            >
+                Otwórz
+            </button>
+
+        </div>
+
+
+        <!-- PREMIUM -->
+
+        <div class="card">
+
+            <h2>
+                ⭐ Premium
+            </h2>
+
+            <p>
+                Odblokuj wszystkie funkcje ZenityCode Studio.
+            </p>
+
+            <button
+                id="premiumButton"
+                type="button"
+            >
+                Kup Premium
+            </button>
+
+        </div>
+
+
+        <!-- USTAWIENIA -->
+
+        <div class="card">
+
+            <h2>
+                ⚙️ Ustawienia
+            </h2>
+
+            <p>
+                Zarządzaj swoim kontem i ustawieniami.
+            </p>
+
+            <button
+                id="settingsButton"
+                type="button"
+            >
+                Otwórz
+            </button>
+
+        </div>
+
+
+        <!-- DISCORD -->
+
+        <div class="card">
+
+            <h2>
+                💬 Discord
+            </h2>
+
+            <p>
+                Dołącz do społeczności ZenityCode.
+            </p>
+
+            <button
+                type="button"
+                onclick="window.open('https://discord.gg/zenitycode', '_blank')"
+            >
+                Dołącz
+            </button>
+
+        </div>
+
+
+        <!-- STATYSTYKI -->
+
+        <div class="card">
+
+            <h2>
+                📊 Statystyki
+            </h2>
+
+            <p>
+                Już wkrótce zobaczysz swoje statystyki
+                oraz historię projektów.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================
+         CREATORZY
+    ================================== -->
+
+    <section
+        id="creatorsSection"
+        class="creators-section"
+    >
+
+        <div class="creators-header">
+
+            <span class="section-label">
+                ZENITYCODE STUDIO
+            </span>
+
+            <h2>
+                Creatorzy
+            </h2>
+
+            <p>
+                Wybierz narzędzie, którego chcesz użyć.
+            </p>
+
+        </div>
+
+
+        <!-- ZAKŁADKI -->
+
+        <div class="creator-tabs">
+
+            <button
+                type="button"
+                class="creator-tab active"
+                data-creator="graphic"
+            >
+                🎨 Grafika Creator
+            </button>
+
+            <button
+                type="button"
+                class="creator-tab"
+                data-creator="plugin"
+            >
+                ⚙️ Plugin Creator
+            </button>
+
+            <button
+                type="button"
+                class="creator-tab"
+                data-creator="skript"
+            >
+                📜 Skript Creator
+            </button>
+
+        </div>
+
+
+        <!-- ZAWARTOŚĆ -->
+
+        <div class="creator-content-area">
+
+
+            <!-- GRAFIKA -->
+
+            <div
+                class="creator-panel active"
+                id="creator-graphic"
+            >
+
+                <div class="creator-panel-header">
+
+                    <div>
+
+                        <span class="creator-panel-label">
+                            CREATOR
+                        </span>
+
+                        <h3>
+                            🎨 Grafika Creator
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Twórz własne grafiki, bannery oraz
+                    materiały dla swoich projektów.
+                </p>
+
+                <div class="creator-actions">
+
+                    <a
+                        href="/creator"
+                        class="creator-action"
+                    >
+                        Otwórz Grafika Creator
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- PLUGIN -->
+
+            <div
+                class="creator-panel"
+                id="creator-plugin"
+            >
+
+                <div class="creator-panel-header">
+
+                    <div>
+
+                        <span class="creator-panel-label">
+                            CREATOR
+                        </span>
+
+                        <h3>
+                            ⚙️ Plugin Creator
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Przygotuj konfigurację swojego
+                    pluginu Minecraft.
+                </p>
+
+                <div class="creator-actions">
+
+                    <button
+                        type="button"
+                        class="creator-action"
+                        onclick="creatorComingSoon('Plugin Creator')"
+                    >
+                        Plugin Creator — wkrótce
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SKRIPT -->
+
+            <div
+                class="creator-panel"
+                id="creator-skript"
+            >
+
+                <div class="creator-panel-header">
+
+                    <div>
+
+                        <span class="creator-panel-label">
+                            CREATOR
+                        </span>
+
+                        <h3>
+                            📜 Skript Creator
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Twórz własne skrypty dla serwerów
+                    Minecraft.
+                </p>
+
+                <div class="creator-actions">
+
+                    <button
+                        type="button"
+                        class="creator-action"
+                        onclick="creatorComingSoon('Skript Creator')"
+                    >
+                        Skript Creator — wkrótce
+                    </button>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- INFORMACJE -->
+
+    <div class="dashboard-info">
+
+        <h2>
+            🚀 ZenityCode Studio
+        </h2>
+
+        <p>
+            Witaj w panelu użytkownika ZenityCode Studio.
+            Tutaj możesz zarządzać kreatorami, pluginami,
+            skryptami, grafikami oraz swoim kontem.
+        </p>
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <p>
+        © 2026 ZenityCode Studio
+    </p>
+
+</footer>
+
+
+<script src="/dashboard/script.js"></script>
+
 
 <script>
 
-fetch("/api/user")
+    /* =========================================
+       PRZEJŚCIE DO CREATORÓW
+    ========================================= */
 
-.then(r=>r.json())
+    function scrollToCreators() {
 
-.then(user=>{
+        const section =
+            document.getElementById("creatorsSection");
 
-const btn =
-document.getElementById("userBtn");
+        if (!section) {
+            return;
+        }
 
-if(!user.logged){
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
 
-location.href="/";
+    }
 
-return;
 
-}
+    /* =========================================
+       ZMIANA CREATORA
+    ========================================= */
 
-btn.innerHTML=
-`<img src="${user.avatar}" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;"> ${user.username}`;
+    function setupCreators() {
 
-if(user.id==="1238570679465410571"){
+        const tabs =
+            document.querySelectorAll(".creator-tab");
 
-document.getElementById("adminCard").style.display="block";
+        const panels =
+            document.querySelectorAll(".creator-panel");
 
-}
 
-});
+        tabs.forEach(tab => {
+
+            tab.addEventListener("click", () => {
+
+                const creator =
+                    tab.dataset.creator;
+
+
+                tabs.forEach(item => {
+
+                    item.classList.remove("active");
+
+                });
+
+
+                panels.forEach(panel => {
+
+                    panel.classList.remove("active");
+
+                });
+
+
+                tab.classList.add("active");
+
+
+                const selected =
+                    document.getElementById(
+                        "creator-" + creator
+                    );
+
+
+                if (selected) {
+
+                    selected.classList.add("active");
+
+                }
+
+            });
+
+        });
+
+    }
+
+
+    /* =========================================
+       CREATOR WKRÓTCE
+    ========================================= */
+
+    function creatorComingSoon(name) {
+
+        alert(
+            name +
+            " będzie dostępny wkrótce."
+        );
+
+    }
+
+
+    /* =========================================
+       SIDEBAR
+    ========================================= */
+
+    fetch("/components/sidebar.html")
+
+        .then(response => response.text())
+
+        .then(html => {
+
+            const container =
+                document.getElementById(
+                    "sidebarContainer"
+                );
+
+            if (!container) {
+                return;
+            }
+
+            container.innerHTML = html;
+
+            const script =
+                document.createElement("script");
+
+            script.src =
+                "/components/sidebar.js";
+
+            document.body.appendChild(script);
+
+        })
+
+        .catch(console.error);
+
+
+    /* =========================================
+       START
+    ========================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            setupCreators();
+
+            /*
+             * Jeśli użytkownik wszedł przez:
+             * /dashboard#creatorsSection
+             */
+            if (
+                window.location.hash ===
+                "#creatorsSection"
+            ) {
+
+                setTimeout(() => {
+
+                    scrollToCreators();
+
+                }, 150);
+
+            }
+
+        }
+    );
 
 </script>
 
 </body>
+
 </html>

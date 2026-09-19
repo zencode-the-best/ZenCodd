@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ZenityCode Studio</title>
+
+<link rel="stylesheet" href="/style.css">
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">
+
+<img src="/assets/logo.png" alt="ZenityCode">
+
+</div>
+
+<div class="nav-right">
+
+<button class="login-btn">
+
+🔐 Zaloguj przez Discord
+
+</button>
+
+</div>
+
+</nav>
+
+<section class="hero">
+
+<h1>ZENITYCODE STUDIO</h1>
+
+<p>
+
+Twórz projekty Minecraft, Discord oraz pobieraj pluginy i skrypty.
+
+</p>
+
+<div class="buttons">
+
+<a href="/creator">
+
+<button>
+
+🎨 Grafika Creator
+
+</button>
+
+</a>
+
+<button onclick="document.getElementById('panel').scrollIntoView({behavior:'smooth'})">
+
+🚀 Przejdź do Centrum
+
+</button>
+
+</div>
+
+</section>
+<section id="panel" class="panel">
+
+<h2>📂 Centrum ZenityCode</h2>
+
+<div class="tabs">
+
+<button class="tab active" data-tab="graphics">
+🎨 Grafiki
+</button>
+
+<button class="tab" id="subscriberTab">
+⭐ Subskrybent
+</button>
+
+<button class="tab" id="scriptsTab" style="display:none">
+📜 Skrypty
+</button>
+
+<button class="tab" id="pluginsTab" style="display:none">
+📦 Pluginy
+</button>
+
+<button class="tab" id="premiumTab">
+💎 Strefa Premium
+</button>
+
+<button class="tab" id="ceoTab" style="display:none">
+👑 CEO
+</button>
+
+</div>
+
+<div id="tabContent">
+
+<div class="tab-page active" id="graphics">
+
+<h2>🎨 Grafiki</h2>
+
+<p>
+Twórz profesjonalne grafiki Minecraft i Discord za pomocą ZenityCode Studio.
+</p>
+
+<a href="/creator">
+<button>
+Otwórz Grafika Creator
+</button>
+</a>
+
+</div>
+
+<div class="tab-page" id="subscriber">
+
+<h2>⭐ SUBSKRYBENT</h2>
+
+<p>
+
+Odblokuj dostęp do darmowych pluginów, skryptów oraz dodatkowych materiałów przygotowanych dla Subskrybentów.
+
+</p>
+
+<p>
+
+📋 Wymagania uzyskania rangi Subskrybent znajdziesz na serwerze Discord <b>ZenityCode.pl</b>.
+
+</p>
+
+</div>
+<div class="tab-page" id="scripts" style="display:none">
+
+<h2>📜 SKRYPTY</h2>
+
+<p>
+
+Tutaj znajdziesz wszystkie dostępne skrypty dla Subskrybentów.
+
+</p>
+
+<a href="/scripts">
+
+<button>
+
+Przejdź do Skryptów
+
+</button>
+
+</a>
+
+</div>
+
+<div class="tab-page" id="plugins" style="display:none">
+
+<h2>📦 PLUGINY</h2>
+
+<p>
+
+Przeglądaj oraz pobieraj pluginy dostępne w ZenityCode Studio.
+
+</p>
+
+<a href="/plugins">
+
+<button>
+
+Przejdź do Pluginów
+
+</button>
+
+</a>
+
+</div>
+
+<div class="tab-page" id="premium">
+
+<h2>💎 STREFA PREMIUM</h2>
+
+<p>
+
+Uzyskaj dostęp do wszystkich materiałów Premium dostępnych w ZenityCode Studio.
+
+</p>
+
+<ul>
+
+<li>📦 Ekskluzywne pluginy</li>
+
+<li>📜 Ekskluzywne skrypty</li>
+
+<li>🚀 Najnowsze aktualizacje</li>
+
+<li>💬 Priorytetowe wsparcie</li>
+
+</ul>
+
+<p>
+
+🎫 Zakupu dokonasz poprzez utworzenie Ticketa na Discordzie <b>ZenityCode.pl</b>.
+
+</p>
+
+</div>
+
+<div class="tab-page" id="ceo" style="display:none">
+
+<h2>👑 PANEL CEO</h2>
+
+<p>
+
+Panel zarządzania ZenityCode Studio.
+
+</p>
+
+<div class="ceo-grid">
+
+<button>⚙️ Generatory</button>
+
+<button>🎨 Grafiki</button>
+
+<button>📜 Skrypty</button>
+
+<button>📦 Pluginy</button>
+
+<button>💎 Premium</button>
+
+<button>📊 Statystyki</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+<section class="about">
+
+<h2>🚀 ZenityCode Studio</h2>
+
+<p>
+
+Tworzymy nowoczesne narzędzia dla społeczności Minecraft i Discord.
+
+</p>
+
+<div class="about-grid">
+
+<div class="about-card">
+
+<h3>🎨 Grafiki</h3>
+
+<p>
+Profesjonalne grafiki tworzone w kilka sekund.
+</p>
+
+</div>
+
+<div class="about-card">
+
+<h3>📦 Pluginy</h3>
+
+<p>
+Darmowe oraz Premium pluginy do Minecraft.
+</p>
+
+</div>
+
+<div class="about-card">
+
+<h3>📜 Skrypty</h3>
+
+<p>
+Gotowe skrypty dla serwerów Minecraft.
+</p>
+
+</div>
+
+<div class="about-card">
+
+<h3>💎 Premium</h3>
+
+<p>
+Ekskluzywne materiały dostępne wyłącznie dla użytkowników Premium.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<footer>
+
+<p>© 2026 ZenityCode Studio • Wszystkie prawa zastrzeżone.</p>
+
+</footer>
+
+<script src="/script.js"></script>
+
+</body>
+
+</html>

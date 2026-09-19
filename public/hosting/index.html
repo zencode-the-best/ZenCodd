@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZenityHost | ZenityCode</title>
+
+    <link rel="stylesheet" href="/hosting/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="topbar">
+
+        <div class="brand">
+            <div class="brand-logo">Z</div>
+
+            <div>
+                <div class="brand-name">
+                    Zenity<span>Host</span>
+                </div>
+
+                <div class="brand-sub">
+                    by ZenityCode
+                </div>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <a href="/hosting" class="active">
+                Dashboard
+            </a>
+
+            <a href="#hosting">
+                Hosting
+            </a>
+
+            <a href="#services">
+                Moje usługi
+            </a>
+
+            <a href="/">
+                ZenityCode
+            </a>
+
+        </nav>
+
+        <div class="account">
+
+            <div class="balance">
+                <span>Saldo</span>
+                <strong id="balance">0,00 zł</strong>
+            </div>
+
+            <div class="user">
+                <div class="avatar" id="avatar">
+                    ?
+                </div>
+
+                <div class="user-info">
+                    <strong id="username">
+                        Gość
+                    </strong>
+
+                    <span>
+                        Konto ZenityCode
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <div class="badge">
+                    <span class="dot"></span>
+                    ZENITYHOST
+                </div>
+
+                <h1>
+                    Hosting dla Twoich
+                    <span>projektów.</span>
+                </h1>
+
+                <p>
+                    Uruchamiaj boty Discord, serwery Minecraft
+                    i strony internetowe w jednym miejscu.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a href="#hosting" class="button primary">
+                        Zobacz hosting
+                    </a>
+
+                    <a href="#services" class="button secondary">
+                        Moje usługi
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="hero-card">
+
+                <div class="server-header">
+                    <div>
+                        <span class="small">
+                            ZENITYHOST
+                        </span>
+
+                        <h3>
+                            Centrum usług
+                        </h3>
+                    </div>
+
+                    <div class="status">
+                        <span></span>
+                        Online
+                    </div>
+                </div>
+
+                <div class="server-line"></div>
+
+                <div class="stats">
+
+                    <div class="stat">
+                        <span>Usługi</span>
+                        <strong id="servicesCount">0</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>Aktywne</span>
+                        <strong id="activeCount">0</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>Saldo</span>
+                        <strong id="cardBalance">0 zł</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="section" id="hosting">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">
+                        HOSTING
+                    </span>
+
+                    <h2>
+                        Wybierz usługę
+                    </h2>
+                </div>
+
+                <p>
+                    Wybierz rodzaj hostingu dopasowany
+                    do Twojego projektu.
+                </p>
+
+            </div>
+
+
+            <div class="hosting-grid">
+
+
+                <article class="hosting-card">
+
+                    <div class="card-icon discord">
+                        🤖
+                    </div>
+
+                    <div class="card-top">
+                        <span class="card-label">
+                            DISCORD
+                        </span>
+
+                        <span class="available">
+                            Dostępny
+                        </span>
+                    </div>
+
+                    <h3>
+                        Discord Bot Hosting
+                    </h3>
+
+                    <p>
+                        Stabilne środowisko dla botów
+                        Discord napisanych w Node.js,
+                        Pythonie i innych technologiach.
+                    </p>
+
+                    <div class="features">
+
+                        <span>✓ 24/7</span>
+                        <span>✓ Panel</span>
+                        <span>✓ Automatyczny restart</span>
+
+                    </div>
+
+                    <div class="card-footer">
+
+                        <div class="price">
+                            <strong>
+                                Od 5 zł
+                            </strong>
+
+                            <span>
+                                / miesiąc
+                            </span>
+                        </div>
+
+                        <button
+                            class="order-button"
+                            data-service="Discord Bot Hosting"
+                        >
+                            Wybierz
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="hosting-card featured">
+
+                    <div class="popular">
+                        Najpopularniejszy
+                    </div>
+
+                    <div class="card-icon minecraft">
+                        ⛏️
+                    </div>
+
+                    <div class="card-top">
+                        <span class="card-label">
+                            MINECRAFT
+                        </span>
+
+                        <span class="available">
+                            Dostępny
+                        </span>
+                    </div>
+
+                    <h3>
+                        Minecraft Hosting
+                    </h3>
+
+                    <p>
+                        Serwery Minecraft dla małych
+                        i większych projektów. Paper,
+                        Spigot i inne silniki.
+                    </p>
+
+                    <div class="features">
+
+                        <span>✓ Panel serwera</span>
+                        <span>✓ Backupy</span>
+                        <span>✓ Ochrona DDoS</span>
+
+                    </div>
+
+                    <div class="card-footer">
+
+                        <div class="price">
+                            <strong>
+                                Od 10 zł
+                            </strong>
+
+                            <span>
+                                / miesiąc
+                            </span>
+                        </div>
+
+                        <button
+                            class="order-button"
+                            data-service="Minecraft Hosting"
+                        >
+                            Wybierz
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="hosting-card">
+
+                    <div class="card-icon web">
+                        🌐
+                    </div>
+
+                    <div class="card-top">
+                        <span class="card-label">
+                            WEB
+                        </span>
+
+                        <span class="available">
+                            Dostępny
+                        </span>
+                    </div>
+
+                    <h3>
+                        Web Hosting
+                    </h3>
+
+                    <p>
+                        Hosting stron internetowych,
+                        panel administracyjny i miejsce
+                        na pliki Twojego projektu.
+                    </p>
+
+                    <div class="features">
+
+                        <span>✓ SSL</span>
+                        <span>✓ PHP</span>
+                        <span>✓ Baza danych</span>
+
+                    </div>
+
+                    <div class="card-footer">
+
+                        <div class="price">
+                            <strong>
+                                Od 5 zł
+                            </strong>
+
+                            <span>
+                                / miesiąc
+                            </span>
+                        </div>
+
+                        <button
+                            class="order-button"
+                            data-service="Web Hosting"
+                        >
+                            Wybierz
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <section class="section services-section" id="services">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">
+                        TWOJE KONTO
+                    </span>
+
+                    <h2>
+                        Moje usługi
+                    </h2>
+                </div>
+
+            </div>
+
+
+            <div class="empty-services">
+
+                <div class="empty-icon">
+                    📦
+                </div>
+
+                <h3>
+                    Nie masz jeszcze żadnych usług
+                </h3>
+
+                <p>
+                    Wybierz hosting powyżej, aby rozpocząć.
+                </p>
+
+                <a href="#hosting" class="button primary">
+                    Przejdź do hostingu
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <section class="info-section">
+
+            <div class="info-box">
+
+                <div class="info-icon">
+                    🛡️
+                </div>
+
+                <div>
+
+                    <h3>
+                        Hosting od ZenityCode
+                    </h3>
+
+                    <p>
+                        ZenityHost jest częścią platformy
+                        ZenityCode. Wszystkimi usługami
+                        zarządzasz z jednego konta.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <div class="info-icon">
+                    ⚡
+                </div>
+
+                <div>
+
+                    <h3>
+                        Jeden panel
+                    </h3>
+
+                    <p>
+                        Usługi, płatności i zarządzanie
+                        projektami znajdziesz w jednym miejscu.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <div>
+            <strong>
+                Zenity<span>Host</span>
+            </strong>
+
+            <span>
+                by ZenityCode.pl
+            </span>
+        </div>
+
+        <span>
+            © 2026 ZenityCode
+        </span>
+
+    </footer>
+
+</div>
+
+
+<div class="modal" id="orderModal">
+
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box">
+
+        <button
+            class="modal-close"
+            id="closeModal"
+        >
+            ×
+        </button>
+
+        <span class="eyebrow">
+            ZAMÓWIENIE
+        </span>
+
+        <h2>
+            <span id="selectedService">
+                Hosting
+            </span>
+        </h2>
+
+        <p>
+            System zamówień ZenityHost jest obecnie
+            przygotowywany.
+        </p>
+
+        <div class="modal-info">
+
+            <div>
+                <span>Status</span>
+                <strong>Wkrótce</strong>
+            </div>
+
+            <div>
+                <span>Twoje saldo</span>
+                <strong id="modalBalance">
+                    0,00 zł
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="button primary full"
+            id="modalButton"
+        >
+            Zamknij
+        </button>
+
+    </div>
+
+</div>
+
+
+<script src="/hosting/script.js"></script>
+
+</body>
+</html>

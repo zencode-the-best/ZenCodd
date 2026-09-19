@@ -168,7 +168,7 @@ app.listen(PORT, () => {
 
     console.log(`
 =================================
-🚀 ZenCode Studio
+🚀 ZenityCode Studio
 🌐 http://localhost:${PORT}
 🌍 ${process.env.BASE_URL}
 👤 CLIENT_ID: ${process.env.CLIENT_ID}

@@ -1,0 +1,7 @@
+{
+    "maintenance": false,
+    "creators": true,
+    "plugins": true,
+    "scripts": true,
+    "premium": true
+}

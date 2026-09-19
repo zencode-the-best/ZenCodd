@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="pl"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Skrypty — ZenityCode Studio</title><link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/components/sidebar.css"><style>
+
+.scripts-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 25px;
+}
+
+.scripts-header {
+    margin-bottom: 40px;
+}
+
+.scripts-header h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.scripts-header p {
+    color: #94a3b8;
+    font-size: 17px;
+}
+
+.scripts-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+
+    gap: 20px;
+}
+
+.script-card {
+    background: #0f172a;
+    border: 1px solid rgba(148,163,184,.12);
+    border-radius: 16px;
+    padding: 24px;
+    transition: .2s ease;
+}
+
+.script-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(59,130,246,.45);
+}
+
+.script-card h2 {
+    font-size: 21px;
+    margin-bottom: 12px;
+}
+
+.script-card p {
+    color: #94a3b8;
+    line-height: 1.6;
+    min-height: 52px;
+}
+
+.script-badge {
+    display: inline-block;
+    margin: 15px 0;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(168,85,247,.12);
+    color: #c084fc;
+}
+
+.script-card button {
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 9px;
+    background: #2563eb;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.script-card button:hover {
+    background: #1d4ed8;
+}
+
+.empty-scripts {
+    padding: 50px 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+</style></head><body><div id="sidebarContainer"></div><nav><div class="logo">
+
+    <img
+        src="/assets/logo.png"
+        alt="ZenityCode"
+    >
+
+</div>
+
+<div id="userBox">
+    Ładowanie...
+</div>
+
+</nav><main class="scripts-page"><div class="scripts-header">
+
+    <h1>Skrypty</h1>
+
+    <p>
+        Gotowe skrypty Minecraft dostępne
+        w ZenityCode Studio.
+    </p>
+
+</div>
+
+
+<section class="scripts-grid">
+
+    <article class="script-card">
+
+        <h2>BoxPvP Skript</h2>
+
+        <p>
+            Gotowy skrypt do trybu BoxPvP
+            przygotowany dla serwerów Minecraft.
+        </p>
+
+        <span class="script-badge">
+            SUBSKRYBENT
+        </span>
+
+        <button
+            onclick="downloadScript()"
+        >
+            Odblokuj
+        </button>
+
+    </article>
+
+
+    <article class="script-card">
+
+        <h2>Lifesteal Skript</h2>
+
+        <p>
+            Podstawowy zestaw funkcji
+            dla serwera Lifesteal.
+        </p>
+
+        <span class="script-badge">
+            WKRÓTCE
+        </span>
+
+        <button disabled>
+            Wkrótce
+        </button>
+
+    </article>
+
+</section>
+
+</main><footer><p>
+    © 2026 ZenityCode Studio
+</p>
+
+</footer><script>
+
+async function downloadScript() {
+
+    try {
+
+        const response =
+            await fetch("/api/user");
+
+        const user =
+            await response.json();
+
+        if (!user.logged) {
+
+            location.href =
+                "/auth/discord";
+
+            return;
+
+        }
+
+        if (
+            user.id !== "1238570679465410571" &&
+            !user.subscriber &&
+            !user.premium
+        ) {
+
+            alert(
+                "Ten skrypt jest dostępny dla Subskrybentów."
+            );
+
+            return;
+
+        }
+
+        location.href =
+            "/downloads/boxpvp.sk";
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+fetch("/components/sidebar.html")
+    .then(response => response.text())
+    .then(html => {
+
+        document
+            .getElementById("sidebarContainer")
+            .innerHTML = html;
+
+        const script =
+            document.createElement("script");
+
+        script.src =
+            "/components/sidebar.js";
+
+        document.body.appendChild(script);
+
+    })
+    .catch(console.error);
+
+
+fetch("/api/user")
+    .then(response => response.json())
+    .then(user => {
+
+        const userBox =
+            document.getElementById("userBox");
+
+        if (!userBox) return;
+
+        if (!user.logged) {
+
+            userBox.textContent =
+                "Niezalogowany";
+
+            return;
+
+        }
+
+        userBox.innerHTML = `
+            <img
+                src="${user.avatar}"
+                alt=""
+                style="
+                    width:32px;
+                    height:32px;
+                    border-radius:50%;
+                    vertical-align:middle;
+                    margin-right:8px;
+                "
+            >
+            ${user.username}
+        `;
+
+    });
+
+</script></body></html>

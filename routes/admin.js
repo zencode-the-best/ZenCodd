@@ -1,0 +1,149 @@
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+
+const router = express.Router();
+
+const OWNER_ID = "1238570679465410571";
+
+const DATA_FILE = path.join(
+    __dirname,
+    "..",
+    "data",
+    "plugins.json"
+);
+
+function getPlugins() {
+
+    try {
+
+        return JSON.parse(
+            fs.readFileSync(DATA_FILE, "utf8")
+        );
+
+    } catch {
+
+        return [];
+
+    }
+
+}
+
+function savePlugins(data) {
+
+    fs.writeFileSync(
+        DATA_FILE,
+        JSON.stringify(data, null, 4)
+    );
+
+}
+
+router.use((req, res, next) => {
+
+    if (!req.user) {
+
+        return res.status(401).json({
+            success: false,
+            message: "Musisz być zalogowany."
+        });
+
+    }
+
+    if (req.user.id !== OWNER_ID) {
+
+        return res.status(403).json({
+            success: false,
+            message: "Brak uprawnień."
+        });
+
+    }
+
+    next();
+
+});
+
+router.get("/stats", (req, res) => {
+
+    const plugins = getPlugins();
+
+    const downloads = plugins.reduce(
+        (sum, plugin) => sum + (plugin.downloads || 0),
+        0
+    );
+
+    res.json({
+
+        success: true,
+
+        stats: {
+
+            plugins: plugins.length,
+            downloads
+
+        }
+
+    });
+
+});
+
+router.put("/plugin/:id", (req, res) => {
+
+    const plugins = getPlugins();
+
+    const plugin = plugins.find(
+        p => String(p.id) === String(req.params.id)
+    );
+
+    if (!plugin) {
+
+        return res.status(404).json({
+            success: false,
+            message: "Plugin nie istnieje."
+        });
+
+    }
+
+    plugin.name = req.body.name ?? plugin.name;
+    plugin.description = req.body.description ?? plugin.description;
+    plugin.version = req.body.version ?? plugin.version;
+    plugin.premium = req.body.premium ?? plugin.premium;
+
+    savePlugins(plugins);
+
+    res.json({
+        success: true,
+        plugin
+    });
+
+});
+
+router.delete("/plugin/:id", (req, res) => {
+
+    let plugins = getPlugins();
+
+    const plugin = plugins.find(
+        p => String(p.id) === String(req.params.id)
+    );
+
+    if (!plugin) {
+
+        return res.status(404).json({
+            success: false,
+            message: "Plugin nie istnieje."
+        });
+
+    }
+
+    plugins = plugins.filter(
+        p => String(p.id) !== String(req.params.id)
+    );
+
+    savePlugins(plugins);
+
+    res.json({
+        success: true
+    });
+
+});
+
+module.exports = router;

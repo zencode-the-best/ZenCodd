@@ -1,173 +1,272 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pluginy - ZenCode Studio</title>
+
+<title>ZenityCode Marketplace</title>
+
 <link rel="stylesheet" href="/style.css">
-<style>
+<link rel="stylesheet" href="/components/sidebar.css">
+<link rel="stylesheet" href="/plugins/style.css">
 
-.container{
-    max-width:1400px;
-    margin:auto;
-    padding:40px 20px;
-}
-
-.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:15px;
-    margin-bottom:30px;
-}
-
-.search{
-    width:350px;
-    max-width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:#0f172a;
-    color:white;
-}
-
-.addBtn{
-    display:none;
-    padding:14px 20px;
-    border:none;
-    border-radius:12px;
-    background:#16a34a;
-    color:white;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-    gap:25px;
-}
-
-.plugin{
-    background:#0f172a;
-    border:1px solid rgba(59,130,246,.2);
-    border-radius:20px;
-    padding:22px;
-    transition:.25s;
-}
-
-.plugin:hover{
-    transform:translateY(-5px);
-    border-color:#3b82f6;
-}
-
-.plugin h2{
-    margin-bottom:10px;
-}
-
-.plugin p{
-    color:#cbd5e1;
-    line-height:1.5;
-    margin-bottom:18px;
-}
-
-.badges{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:18px;
-}
-
-.badge{
-    background:#1e293b;
-    border-radius:999px;
-    padding:6px 12px;
-    font-size:14px;
-}
-
-.download{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:#2563eb;
-    color:white;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-.download:hover{
-    background:#1d4ed8;
-}
-
-</style>
 </head>
+
 <body>
+
+<div id="sidebarContainer"></div>
 
 <nav>
 
 <div class="logo">
-<img src="/assets/logo.png" alt="ZenCode">
+
+<img src="/assets/logo.png" alt="ZenityCode">
+
 </div>
 
-<button class="login-btn" id="userBtn">
+<div id="userBox">
+
 Ładowanie...
-</button>
+
+</div>
 
 </nav>
 
-<div class="container">
+<div class="marketplace">
 
-<div class="top">
+<h1>
 
-<div>
+📦 Marketplace
 
-<h1>📦 Pluginy ZenCode</h1>
-
-<p style="color:#94a3b8;">
-Pobieraj najnowsze pluginy stworzone przez ZenCode Studio.
-</p>
-
-</div>
-
-<div>
-
-<input
-class="search"
-id="search"
-placeholder="🔍 Wyszukaj plugin...">
-
-<button
-class="addBtn"
-id="addPlugin">
-➕ Dodaj Plugin
-</button>
-
-</div>
-
-</div>
-
-<div class="grid" id="plugins">
-
-<div class="plugin">
-
-<h2>📦 ZenTrade</h2>
+</h1>
 
 <p>
-System wymian z nowoczesnym GUI dla serwerów Minecraft.
+
+Pobieraj pluginy, skrypty i grafiki.
+
 </p>
 
-<div class="badges">
-<span class="badge">⭐ 1.0.0</span>
-<span class="badge">⬇ 0 pobrań</span>
+<div class="tabs">
+
+<button class="tab active">
+
+📦 Pluginy
+
+</button>
+
+<button class="tab">
+
+📜 Skrypty
+
+</button>
+
+<button class="tab">
+
+🎨 Grafiki
+
+</button>
+
 </div>
 
-<button
-class="download"
-onclick="downloadPlugin('ZenTrade')">
+<input
+type="text"
+id="search"
+placeholder="🔍 Wyszukaj...">
 
-📥 Pobierz
+<div class="products">
+<div class="product free">
+
+<h2>
+
+⚙️ Essentials Config
+
+</h2>
+
+<span class="badge free">
+
+FREE
+
+</span>
+
+<p>
+
+Gotowa konfiguracja EssentialsX.
+
+</p>
+
+<button>
+
+Pobierz
+
+</button>
+
+</div>
+
+<div class="product subscriber">
+
+<h2>
+
+📜 BoxPvP Skript
+
+</h2>
+
+<span class="badge subscriber">
+
+SUBSKRYBENT
+
+</span>
+
+<p>
+
+Gotowy skrypt BoxPvP.
+
+</p>
+
+<button>
+
+Odblokuj
+
+</button>
+
+</div>
+
+<div class="product premium">
+
+<h2>
+
+⭐ GUI Creator Pack
+
+</h2>
+
+<span class="badge premium">
+
+PREMIUM
+
+</span>
+
+<p>
+
+Nowoczesne GUI do serwera Minecraft.
+
+</p>
+
+<button>
+
+Kup Premium
+
+</button>
+
+</div>
+
+<div class="product free">
+
+<h2>
+
+🎨 Discord Banner
+
+</h2>
+
+<span class="badge free">
+
+FREE
+
+</span>
+
+<p>
+
+Baner Discord gotowy do użycia.
+
+</p>
+
+<button>
+
+Pobierz
+
+</button>
+
+</div>
+<div class="product premium">
+
+<h2>
+
+🤖 Discord Bot Pack
+
+</h2>
+
+<span class="badge premium">
+
+PREMIUM
+
+</span>
+
+<p>
+
+Kompletny bot Discord z ticketami, economy, moderacją i panelem.
+
+</p>
+
+<button>
+
+Kup Premium
+
+</button>
+
+</div>
+
+<div class="product subscriber">
+
+<h2>
+
+⚔️ Lifesteal Pack
+
+</h2>
+
+<span class="badge subscriber">
+
+SUBSKRYBENT
+
+</span>
+
+<p>
+
+Gotowy zestaw pluginów i konfiguracji Lifesteal.
+
+</p>
+
+<button>
+
+Odblokuj
+
+</button>
+
+</div>
+
+<div class="product free">
+
+<h2>
+
+🖼️ Minecraft Logo
+
+</h2>
+
+<span class="badge free">
+
+FREE
+
+</span>
+
+<p>
+
+Logo serwera Minecraft w wysokiej jakości.
+
+</p>
+
+<button>
+
+Pobierz
 
 </button>
 
@@ -175,89 +274,50 @@ onclick="downloadPlugin('ZenTrade')">
 
 </div>
 
+<div class="marketplace-info">
+
+<h2>
+
+🚀 ZenityCode Marketplace
+
+</h2>
+
+<p>
+
+Znajdziesz tutaj darmowe i premium pluginy, skrypty, grafiki oraz gotowe projekty tworzone przez społeczność ZenityCode.
+
+</p>
+
 </div>
+<script src="/plugins/script.js"></script>
 
 <script>
 
-let currentUser=null;
+fetch("/components/sidebar.html")
+.then(response => response.text())
+.then(html => {
 
-fetch("/api/user")
+    document.getElementById("sidebarContainer").innerHTML = html;
 
-.then(r=>r.json())
-
-.then(user=>{
-
-currentUser=user;
-
-const btn=document.getElementById("userBtn");
-
-if(!user.logged){
-
-btn.innerHTML="🔐 Zaloguj";
-
-btn.onclick=()=>location="/auth/discord";
-
-return;
-
-}
-
-btn.innerHTML=`
-<img src="${user.avatar}" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px;">
-${user.username}
-`;
-
-btn.onclick=()=>location="/logout";
-
-if(user.id==="1238570679465410571"){
-
-document.getElementById("addPlugin").style.display="inline-block";
-
-}
-
-});
-
-function downloadPlugin(name){
-
-fetch("/api/log-download",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-plugin:name
+    const script = document.createElement("script");
+    script.src = "/components/sidebar.js";
+    document.body.appendChild(script);
 
 })
-
-}).catch(()=>{});
-
-alert("Rozpoczynanie pobierania pluginu: "+name);
-
-}
-
-document
-.getElementById("search")
-.addEventListener("input",function(){
-
-const value=this.value.toLowerCase();
-
-document
-.querySelectorAll(".plugin")
-.forEach(plugin=>{
-
-plugin.style.display=
-plugin.innerText.toLowerCase().includes(value)
-? "block"
-: "none";
-
-});
-
-});
+.catch(console.error);
 
 </script>
 
+<footer>
+
+<p>
+
+© 2026 ZenityCode Studio
+
+</p>
+
+</footer>
+
 </body>
+
 </html>

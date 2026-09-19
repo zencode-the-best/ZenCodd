@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZenityCode Studio</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+
+    <div class="logo">
+        <img src="/assets/logo.png" alt="ZenityCode">
+    </div>
+
+    <button class="login-btn">
+        🔐 Zaloguj przez Discord
+    </button>
+
+</nav>
+
+<section class="hero">
+
+    <h1>ZENITYCODE STUDIO</h1>
+
+    <p>
+        Profesjonalne kreatory Minecraft, Discord i Grafiki.
+    </p>
+
+    <div class="buttons">
+
+        <a href="/creator">
+            <button>
+                🎨 Grafika Creator
+            </button>
+        </a>
+
+        <button onclick="document.getElementById('creators').scrollIntoView({behavior:'smooth'})">
+            📦 Kreatory
+        </button>
+
+    </div>
+
+</section>
+
+<section class="stats">
+
+    <div class="card">
+        <h2>👥</h2>
+        <h3>1245</h3>
+        <p>Użytkowników</p>
+    </div>
+
+    <div class="card">
+        <h2>⭐</h2>
+        <h3>143</h3>
+        <p>Premium</p>
+    </div>
+
+    <div class="card">
+        <h2>👑</h2>
+        <h3>321</h3>
+        <p>Subskrybentów</p>
+    </div>
+
+    <div class="card">
+        <h2>📦</h2>
+        <h3>12531</h3>
+        <p>Projektów</p>
+    </div>
+
+</section>
+
+<section id="creators" class="creators">
+
+<h2>Dostępne Kreatory</h2>
+
+<div class="grid">
+
+<div class="creator free">
+    <span>🎨 Grafika Creator</span>
+    <span>FREE</span>
+</div>
+
+<div class="creator premium" data-role="premium">
+    <span>⭐ GUI Creator</span>
+    <span>PREMIUM</span>
+</div>
+
+<div class="creator premium" data-role="premium">
+    <span>⭐ Rank Creator</span>
+    <span>PREMIUM</span>
+</div>
+
+<div class="creator subscriber" data-role="subscriber">
+    <span>👑 Skript Creator</span>
+    <span>SUB</span>
+</div>
+
+<div class="creator subscriber" data-role="subscriber">
+    <span>👑 Pack Creator</span>
+    <span>SUB</span>
+</div>
+
+<div class="creator premium" data-role="premium">
+    <span>⭐ Discord Creator</span>
+    <span>PREMIUM</span>
+</div>
+
+</div>
+
+</section>
+
+<section class="logs">
+
+<h2>📜 ZenityCode Studio</h2>
+
+<p>
+Twórz projekty Minecraft i Discord jednym kliknięciem.
+</p>
+
+</section>
+
+<footer>
+© 2026 ZenityCode.pl
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>

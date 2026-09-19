@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "name": "Essentials Config",
+        "type": "plugin",
+        "access": "free",
+        "description": "Gotowa konfiguracja EssentialsX.",
+        "image": "/assets/products/essentials.png",
+        "download": "/downloads/essentials.zip",
+        "downloads": 0
+    },
+    {
+        "id": 2,
+        "name": "BoxPvP Skript",
+        "type": "script",
+        "access": "subscriber",
+        "description": "Gotowy skrypt BoxPvP.",
+        "image": "/assets/products/boxpvp.png",
+        "download": "/downloads/boxpvp.sk",
+        "downloads": 0
+    },
+    {
+        "id": 3,
+        "name": "GUI Creator Pack",
+        "type": "plugin",
+        "access": "premium",
+        "description": "Nowoczesne GUI do serwera Minecraft.",
+        "image": "/assets/products/gui-pack.png",
+        "download": "/downloads/gui-pack.zip",
+        "downloads": 0
+    },
+    {
+        "id": 4,
+        "name": "Discord Banner",
+        "type": "graphic",
+        "access": "free",
+        "description": "Baner Discord gotowy do użycia.",
+        "image": "/assets/products/banner.png",
+        "download": "/downloads/banner.zip",
+        "downloads": 0
+    },
+    {
+        "id": 5,
+        "name": "Lifesteal Pack",
+        "type": "plugin",
+        "access": "subscriber",
+        "description": "Gotowy zestaw pluginów i konfiguracji Lifesteal.",
+        "image": "/assets/products/lifesteal.png",
+        "download": "/downloads/lifesteal.zip",
+        "downloads": 0
+    },
+    {
+        "id": 6,
+        "name": "Discord Bot Pack",
+        "type": "bot",
+        "access": "premium",
+        "description": "Kompletny bot Discord z ticketami i moderacją.",
+        "image": "/assets/products/bot-pack.png",
+        "download": "/downloads/bot-pack.zip",
+        "downloads": 0
+    }
+]
