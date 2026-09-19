@@ -1,213 +1,305 @@
-document.addEventListener("DOMContentLoaded", () => {
+const categories = document.querySelectorAll(".category");
+const sections = document.querySelectorAll(".plans-section");
 
-    const modal = document.getElementById("orderModal");
-    const closeModal = document.getElementById("closeModal");
-    const modalButton = document.getElementById("modalButton");
+const modal = document.getElementById("orderModal");
+const closeModal = document.getElementById("closeModal");
 
-    const selectedService =
-        document.getElementById("selectedService");
+const modalPlan = document.getElementById("modalPlan");
+const selectedDuration = document.getElementById("selectedDuration");
+const selectedPrice = document.getElementById("selectedPrice");
 
-    const modalBalance =
-        document.getElementById("modalBalance");
+const price7 = document.getElementById("price7");
+const price30 = document.getElementById("price30");
+const price90 = document.getElementById("price90");
 
-    const username =
-        document.getElementById("username");
+const durationButtons =
+    document.querySelectorAll(".duration");
 
-    const avatar =
-        document.getElementById("avatar");
+const buyButtons =
+    document.querySelectorAll(".buy-button");
 
-    const balance =
-        document.getElementById("balance");
+const confirmOrder =
+    document.getElementById("confirmOrder");
 
-    const cardBalance =
-        document.getElementById("cardBalance");
-
-
-    let userData = {
-        username: "Gość",
-        avatar: null,
-        balance: 0
-    };
+let selectedPlan = "";
+let selectedDays = 7;
 
 
-    function formatMoney(value) {
+/* =========================================
+   CENY
+========================================= */
 
-        return Number(value || 0)
-            .toFixed(2)
-            .replace(".", ",") + " zł";
+const prices = {
 
+    "Pakiet Dirt": {
+        7: "2,99 zł",
+        30: "9,99 zł",
+        90: "24,99 zł"
+    },
+
+    "Pakiet Obsidian": {
+        7: "6,99 zł",
+        30: "19,99 zł",
+        90: "49,99 zł"
+    },
+
+    "Pakiet Złoto": {
+        7: "11,99 zł",
+        30: "34,99 zł",
+        90: "89,99 zł"
+    },
+
+    "Pakiet Szmaragd": {
+        7: "18,99 zł",
+        30: "54,99 zł",
+        90: "139,99 zł"
+    },
+
+    "Pakiet Diament": {
+        7: "29,99 zł",
+        30: "84,99 zł",
+        90: "219,99 zł"
     }
 
-
-    function updateUI() {
-
-        username.textContent =
-            userData.username || "Gość";
+};
 
 
-        if (userData.avatar) {
+/* =========================================
+   KATEGORIE
+========================================= */
 
-            avatar.innerHTML =
-                `<img src="${userData.avatar}" alt="Avatar">`;
+categories.forEach(category => {
 
-        } else {
+    category.addEventListener("click", () => {
 
-            avatar.textContent =
-                (userData.username || "G")
-                    .charAt(0)
-                    .toUpperCase();
+        categories.forEach(item => {
+            item.classList.remove("active");
+        });
 
-        }
+        category.classList.add("active");
 
+        const target =
+            category.dataset.category;
 
-        const formatted =
-            formatMoney(userData.balance);
+        sections.forEach(section => {
 
+            section.classList.remove(
+                "active-section"
+            );
 
-        balance.textContent =
-            formatted;
+        });
 
+        const selectedSection =
+            document.getElementById(target);
 
-        cardBalance.textContent =
-            formatted;
+        if (selectedSection) {
 
-
-        modalBalance.textContent =
-            formatted;
-
-    }
-
-
-    async function loadUser() {
-
-        try {
-
-            const response =
-                await fetch("/api/user", {
-                    credentials: "include"
-                });
-
-
-            if (!response.ok) {
-
-                updateUI();
-
-                return;
-
-            }
-
-
-            const data =
-                await response.json();
-
-
-            if (data) {
-
-                userData = {
-
-                    username:
-                        data.username ||
-                        data.globalName ||
-                        "Użytkownik",
-
-                    avatar:
-                        data.avatar ||
-                        null,
-
-                    balance:
-                        Number(data.balance || 0)
-
-                };
-
-            }
-
-        } catch (error) {
-
-            console.log(
-                "Nie udało się pobrać danych użytkownika."
+            selectedSection.classList.add(
+                "active-section"
             );
 
         }
 
+    });
 
-        updateUI();
-
-    }
+});
 
 
-    function openModal(service) {
+/* =========================================
+   OTWIERANIE MODALA
+========================================= */
 
-        selectedService.textContent =
-            service;
+buyButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        selectedPlan =
+            button.dataset.plan;
+
+        const basePlan =
+            selectedPlan.split(" — ")[0];
+
+        modalPlan.textContent =
+            selectedPlan;
+
+        const planPrices =
+            prices[basePlan];
+
+        if (!planPrices) {
+            return;
+        }
+
+        price7.textContent =
+            planPrices[7];
+
+        price30.textContent =
+            planPrices[30];
+
+        price90.textContent =
+            planPrices[90];
+
+        selectedDays = 7;
+
+        durationButtons.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        durationButtons[0].classList.add("active");
+
+        selectedDuration.textContent =
+            "7 dni";
+
+        selectedPrice.textContent =
+            planPrices[7];
 
         modal.classList.add("show");
 
-        document.body.style.overflow =
-            "hidden";
+    });
 
-    }
+});
 
 
-    function hideModal() {
+/* =========================================
+   CZAS TRWANIA
+========================================= */
+
+durationButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const days =
+            Number(button.dataset.days);
+
+        const basePlan =
+            selectedPlan.split(" — ")[0];
+
+        const planPrices =
+            prices[basePlan];
+
+        if (!planPrices) {
+            return;
+        }
+
+        durationButtons.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        selectedDays = days;
+
+        selectedDuration.textContent =
+            `${days} dni`;
+
+        selectedPrice.textContent =
+            planPrices[days];
+
+    });
+
+});
+
+
+/* =========================================
+   ZAMKNIĘCIE
+========================================= */
+
+closeModal.addEventListener("click", () => {
+
+    modal.classList.remove("show");
+
+});
+
+
+modal.addEventListener("click", event => {
+
+    if (event.target === modal) {
 
         modal.classList.remove("show");
 
-        document.body.style.overflow =
-            "";
+    }
+
+});
+
+
+/* =========================================
+   ZAMÓWIENIE
+========================================= */
+
+confirmOrder.addEventListener("click", async () => {
+
+    if (!selectedPlan) {
+        return;
+    }
+
+    const basePlan =
+        selectedPlan.split(" — ")[0];
+
+    const planPrices =
+        prices[basePlan];
+
+    const price =
+        planPrices[selectedDays];
+
+    alert(
+        `Wybrano ${selectedPlan}\n` +
+        `Okres: ${selectedDays} dni\n` +
+        `Cena: ${price}\n\n` +
+        `System płatności i tworzenia usługi zostanie podłączony w kolejnym etapie.`
+    );
+
+});
+
+
+/* =========================================
+   UŻYTKOWNIK
+========================================= */
+
+async function loadUser() {
+
+    try {
+
+        const response =
+            await fetch("/api/user");
+
+        const data =
+            await response.json();
+
+        if (!data.logged) {
+
+            document.getElementById(
+                "username"
+            ).textContent = "Gość";
+
+            return;
+
+        }
+
+        document.getElementById(
+            "username"
+        ).textContent =
+            data.username || "Użytkownik";
+
+        document.getElementById(
+            "userAvatar"
+        ).src =
+            data.avatar ||
+            "https://cdn.discordapp.com/embed/avatars/0.png";
+
+    } catch (error) {
+
+        console.error(
+            "Nie udało się pobrać użytkownika:",
+            error
+        );
+
+        document.getElementById(
+            "username"
+        ).textContent =
+            "Użytkownik";
 
     }
 
-
-    document
-        .querySelectorAll(".order-button")
-        .forEach(button => {
-
-            button.addEventListener("click", () => {
-
-                const service =
-                    button.dataset.service;
-
-                openModal(service);
-
-            });
-
-        });
+}
 
 
-    closeModal.addEventListener(
-        "click",
-        hideModal
-    );
-
-
-    modalButton.addEventListener(
-        "click",
-        hideModal
-    );
-
-
-    modal
-        .querySelector(".modal-overlay")
-        .addEventListener(
-            "click",
-            hideModal
-        );
-
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (event.key === "Escape") {
-
-                hideModal();
-
-            }
-
-        }
-    );
-
-
-    loadUser();
-
-});
+loadUser();

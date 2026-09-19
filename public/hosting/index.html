@@ -4,358 +4,397 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ZenityHost | ZenityCode</title>
+    <title>ZenityHost — Hosting</title>
 
     <link rel="stylesheet" href="/hosting/style.css">
 </head>
 
 <body>
 
-<div class="app">
+<div class="hosting-app">
 
-    <header class="topbar">
+    <aside class="sidebar">
 
         <div class="brand">
-            <div class="brand-logo">Z</div>
-
+            <img src="/assets/logo.png" alt="ZenityCode">
             <div>
-                <div class="brand-name">
-                    Zenity<span>Host</span>
-                </div>
-
-                <div class="brand-sub">
-                    by ZenityCode
-                </div>
+                <strong>ZenityHost</strong>
+                <span>by ZenityCode</span>
             </div>
         </div>
 
-        <nav class="navigation">
+        <nav>
 
-            <a href="/hosting" class="active">
-                Dashboard
+            <a href="/dashboard">
+                🏠 Dashboard
             </a>
 
-            <a href="#hosting">
-                Hosting
+            <a href="/hosting" class="active">
+                🖥️ Hosting
             </a>
 
             <a href="#services">
-                Moje usługi
+                📦 Moje usługi
             </a>
 
-            <a href="/">
-                ZenityCode
+            <a href="/dashboard">
+                ↩️ ZenityCode
             </a>
 
         </nav>
 
-        <div class="account">
+        <div class="sidebar-bottom">
 
             <div class="balance">
                 <span>Saldo</span>
                 <strong id="balance">0,00 zł</strong>
             </div>
 
-            <div class="user">
-                <div class="avatar" id="avatar">
-                    ?
-                </div>
-
-                <div class="user-info">
-                    <strong id="username">
-                        Gość
-                    </strong>
-
-                    <span>
-                        Konto ZenityCode
-                    </span>
-                </div>
-            </div>
+            <a href="/logout" class="logout">
+                🚪 Wyloguj
+            </a>
 
         </div>
 
-    </header>
+    </aside>
 
 
-    <main>
+    <main class="content">
+
+        <header class="topbar">
+
+            <div>
+                <h1>ZenityHost</h1>
+                <p>Wybierz hosting dla swojego projektu.</p>
+            </div>
+
+            <div class="user-box">
+
+                <img
+                    id="userAvatar"
+                    src="https://cdn.discordapp.com/embed/avatars/0.png"
+                    alt="Avatar">
+
+                <span id="username">
+                    Ładowanie...
+                </span>
+
+            </div>
+
+        </header>
+
 
         <section class="hero">
 
-            <div class="hero-content">
+            <div>
 
-                <div class="badge">
-                    <span class="dot"></span>
+                <span class="hero-label">
                     ZENITYHOST
-                </div>
+                </span>
 
-                <h1>
-                    Hosting dla Twoich
-                    <span>projektów.</span>
-                </h1>
+                <h2>
+                    Twój projekt.
+                    <br>
+                    Nasza infrastruktura.
+                </h2>
 
                 <p>
-                    Uruchamiaj boty Discord, serwery Minecraft
-                    i strony internetowe w jednym miejscu.
+                    Wybierz odpowiedni pakiet i uruchom swój serwer
+                    bez zbędnej konfiguracji.
                 </p>
-
-                <div class="hero-buttons">
-
-                    <a href="#hosting" class="button primary">
-                        Zobacz hosting
-                    </a>
-
-                    <a href="#services" class="button secondary">
-                        Moje usługi
-                    </a>
-
-                </div>
-
-            </div>
-
-            <div class="hero-card">
-
-                <div class="server-header">
-                    <div>
-                        <span class="small">
-                            ZENITYHOST
-                        </span>
-
-                        <h3>
-                            Centrum usług
-                        </h3>
-                    </div>
-
-                    <div class="status">
-                        <span></span>
-                        Online
-                    </div>
-                </div>
-
-                <div class="server-line"></div>
-
-                <div class="stats">
-
-                    <div class="stat">
-                        <span>Usługi</span>
-                        <strong id="servicesCount">0</strong>
-                    </div>
-
-                    <div class="stat">
-                        <span>Aktywne</span>
-                        <strong id="activeCount">0</strong>
-                    </div>
-
-                    <div class="stat">
-                        <span>Saldo</span>
-                        <strong id="cardBalance">0 zł</strong>
-                    </div>
-
-                </div>
 
             </div>
 
         </section>
 
 
-        <section class="section" id="hosting">
+        <section class="hosting-section">
+
+            <div class="section-title">
+
+                <div>
+                    <h2>Wybierz usługę</h2>
+                    <p>Wybierz rodzaj hostingu.</p>
+                </div>
+
+            </div>
+
+
+            <div class="categories">
+
+                <button
+                    class="category active"
+                    data-category="minecraft">
+
+                    ⛏️
+                    <span>
+                        <strong>Serwery Minecraft</strong>
+                        <small>Hosting serwerów Minecraft</small>
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="category"
+                    data-category="discord">
+
+                    🤖
+                    <span>
+                        <strong>Boty Discord</strong>
+                        <small>Hosting botów Discord</small>
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="category"
+                    data-category="web">
+
+                    🌐
+                    <span>
+                        <strong>Web Hosting</strong>
+                        <small>Strony i aplikacje</small>
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- MINECRAFT -->
+
+        <section
+            id="minecraft"
+            class="plans-section active-section">
 
             <div class="section-heading">
 
-                <div>
-                    <span class="eyebrow">
-                        HOSTING
-                    </span>
-
-                    <h2>
-                        Wybierz usługę
-                    </h2>
-                </div>
+                <h2>Serwery Minecraft</h2>
 
                 <p>
-                    Wybierz rodzaj hostingu dopasowany
-                    do Twojego projektu.
+                    Wybierz pakiet odpowiedni dla swojego serwera.
                 </p>
 
             </div>
 
 
-            <div class="hosting-grid">
+            <div class="plans">
 
 
-                <article class="hosting-card">
+                <!-- DIRT -->
 
-                    <div class="card-icon discord">
-                        🤖
-                    </div>
+                <article class="plan">
 
-                    <div class="card-top">
-                        <span class="card-label">
-                            DISCORD
-                        </span>
-
-                        <span class="available">
-                            Dostępny
-                        </span>
-                    </div>
-
-                    <h3>
-                        Discord Bot Hosting
-                    </h3>
-
-                    <p>
-                        Stabilne środowisko dla botów
-                        Discord napisanych w Node.js,
-                        Pythonie i innych technologiach.
-                    </p>
-
-                    <div class="features">
-
-                        <span>✓ 24/7</span>
-                        <span>✓ Panel</span>
-                        <span>✓ Automatyczny restart</span>
-
-                    </div>
-
-                    <div class="card-footer">
-
-                        <div class="price">
-                            <strong>
-                                Od 5 zł
-                            </strong>
-
-                            <span>
-                                / miesiąc
-                            </span>
-                        </div>
-
-                        <button
-                            class="order-button"
-                            data-service="Discord Bot Hosting"
-                        >
-                            Wybierz
-                        </button>
-
-                    </div>
-
-                </article>
-
-
-                <article class="hosting-card featured">
-
-                    <div class="popular">
-                        Najpopularniejszy
-                    </div>
-
-                    <div class="card-icon minecraft">
+                    <div class="plan-icon dirt">
                         ⛏️
                     </div>
 
-                    <div class="card-top">
-                        <span class="card-label">
-                            MINECRAFT
-                        </span>
-
-                        <span class="available">
-                            Dostępny
-                        </span>
-                    </div>
+                    <span class="plan-name">
+                        Pakiet Dirt
+                    </span>
 
                     <h3>
-                        Minecraft Hosting
+                        2,99 zł
+                        <small>/ 7 dni</small>
                     </h3>
 
                     <p>
-                        Serwery Minecraft dla małych
-                        i większych projektów. Paper,
-                        Spigot i inne silniki.
+                        Podstawowy pakiet Minecraft.
                     </p>
 
-                    <div class="features">
+                    <ul>
 
-                        <span>✓ Panel serwera</span>
-                        <span>✓ Backupy</span>
-                        <span>✓ Ochrona DDoS</span>
+                        <li>✓ Serwer Minecraft</li>
+                        <li>✓ Panel zarządzania</li>
+                        <li>✓ Automatyczne uruchamianie</li>
+                        <li>✓ Backup serwera</li>
 
-                    </div>
+                    </ul>
 
-                    <div class="card-footer">
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Dirt">
 
-                        <div class="price">
-                            <strong>
-                                Od 10 zł
-                            </strong>
+                        Wybierz pakiet
 
-                            <span>
-                                / miesiąc
-                            </span>
-                        </div>
-
-                        <button
-                            class="order-button"
-                            data-service="Minecraft Hosting"
-                        >
-                            Wybierz
-                        </button>
-
-                    </div>
+                    </button>
 
                 </article>
 
 
-                <article class="hosting-card">
+                <!-- OBSIDIAN -->
 
-                    <div class="card-icon web">
-                        🌐
+                <article class="plan">
+
+                    <div class="plan-icon obsidian">
+                        ◆
                     </div>
 
-                    <div class="card-top">
-                        <span class="card-label">
-                            WEB
-                        </span>
-
-                        <span class="available">
-                            Dostępny
-                        </span>
-                    </div>
+                    <span class="plan-name">
+                        Pakiet Obsidian
+                    </span>
 
                     <h3>
-                        Web Hosting
+                        6,99 zł
+                        <small>/ 7 dni</small>
                     </h3>
 
                     <p>
-                        Hosting stron internetowych,
-                        panel administracyjny i miejsce
-                        na pliki Twojego projektu.
+                        Więcej zasobów dla większego serwera.
                     </p>
 
-                    <div class="features">
+                    <ul>
 
-                        <span>✓ SSL</span>
-                        <span>✓ PHP</span>
-                        <span>✓ Baza danych</span>
+                        <li>✓ Serwer Minecraft</li>
+                        <li>✓ Panel zarządzania</li>
+                        <li>✓ Backup serwera</li>
+                        <li>✓ Pełny dostęp do plików</li>
 
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Obsidian">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <!-- ZŁOTO -->
+
+                <article class="plan featured">
+
+                    <div class="popular">
+                        POPULARNY
                     </div>
 
-                    <div class="card-footer">
-
-                        <div class="price">
-                            <strong>
-                                Od 5 zł
-                            </strong>
-
-                            <span>
-                                / miesiąc
-                            </span>
-                        </div>
-
-                        <button
-                            class="order-button"
-                            data-service="Web Hosting"
-                        >
-                            Wybierz
-                        </button>
-
+                    <div class="plan-icon gold">
+                        🥇
                     </div>
+
+                    <span class="plan-name">
+                        Pakiet Złoto
+                    </span>
+
+                    <h3>
+                        11,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Pakiet dla rozwijających się serwerów.
+                    </p>
+
+                    <ul>
+
+                        <li>✓ Więcej zasobów</li>
+                        <li>✓ Panel zarządzania</li>
+                        <li>✓ Backup</li>
+                        <li>✓ Pełny dostęp do plików</li>
+
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Złoto">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <!-- SZMARAGD -->
+
+                <article class="plan">
+
+                    <div class="plan-icon emerald">
+                        💎
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Szmaragd
+                    </span>
+
+                    <h3>
+                        18,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Duży pakiet dla wymagających projektów.
+                    </p>
+
+                    <ul>
+
+                        <li>✓ Dużo zasobów</li>
+                        <li>✓ Panel zarządzania</li>
+                        <li>✓ Backup</li>
+                        <li>✓ Pełny dostęp do plików</li>
+
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Szmaragd">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <!-- DIAMENT -->
+
+                <article class="plan diamond">
+
+                    <div class="premium-label">
+                        PREMIUM
+                    </div>
+
+                    <div class="plan-icon diamond-icon">
+                        💎
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Diament
+                    </span>
+
+                    <h3>
+                        29,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Najwyższy pakiet ZenityHost.
+                    </p>
+
+                    <ul>
+
+                        <li>✓ Największe zasoby</li>
+                        <li>✓ Panel zarządzania</li>
+                        <li>✓ Backup</li>
+                        <li>✓ Pełny dostęp do plików</li>
+                        <li>✓ Priorytetowa obsługa</li>
+
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Diament">
+
+                        Wybierz pakiet
+
+                    </button>
 
                 </article>
 
@@ -364,26 +403,437 @@
         </section>
 
 
-        <section class="section services-section" id="services">
+        <!-- DISCORD -->
+
+        <section
+            id="discord"
+            class="plans-section">
 
             <div class="section-heading">
 
-                <div>
-                    <span class="eyebrow">
-                        TWOJE KONTO
-                    </span>
+                <h2>Boty Discord</h2>
 
-                    <h2>
-                        Moje usługi
-                    </h2>
-                </div>
+                <p>
+                    Hosting dla botów Discord 24/7.
+                </p>
 
             </div>
 
+            <div class="plans">
+
+                <article class="plan">
+
+                    <div class="plan-icon">
+                        🤖
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Dirt
+                    </span>
+
+                    <h3>
+                        2,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Podstawowy hosting bota Discord.
+                    </p>
+
+                    <ul>
+                        <li>✓ Bot 24/7</li>
+                        <li>✓ Panel zarządzania</li>
+                        <li>✓ Restart bota</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Dirt — Bot Discord">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan">
+
+                    <div class="plan-icon">
+                        ◆
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Obsidian
+                    </span>
+
+                    <h3>
+                        6,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Więcej zasobów dla botów.
+                    </p>
+
+                    <ul>
+                        <li>✓ Bot 24/7</li>
+                        <li>✓ Panel</li>
+                        <li>✓ Logi</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Obsidian — Bot Discord">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan">
+
+                    <div class="plan-icon gold">
+                        🥇
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Złoto
+                    </span>
+
+                    <h3>
+                        11,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Rozszerzony hosting Discord.
+                    </p>
+
+                    <ul>
+                        <li>✓ Bot 24/7</li>
+                        <li>✓ Więcej RAM</li>
+                        <li>✓ Backup</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Złoto — Bot Discord">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan">
+
+                    <div class="plan-icon emerald">
+                        💎
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Szmaragd
+                    </span>
+
+                    <h3>
+                        18,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Hosting dla większych botów.
+                    </p>
+
+                    <ul>
+                        <li>✓ Bot 24/7</li>
+                        <li>✓ Dużo RAM</li>
+                        <li>✓ Backup</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Szmaragd — Bot Discord">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan diamond">
+
+                    <div class="premium-label">
+                        PREMIUM
+                    </div>
+
+                    <div class="plan-icon diamond-icon">
+                        💎
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Diament
+                    </span>
+
+                    <h3>
+                        29,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Najwyższy poziom hostingu Discord.
+                    </p>
+
+                    <ul>
+                        <li>✓ Największe zasoby</li>
+                        <li>✓ Bot 24/7</li>
+                        <li>✓ Backup</li>
+                        <li>✓ Priorytet</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Diament — Bot Discord">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- WEB -->
+
+        <section
+            id="web"
+            class="plans-section">
+
+            <div class="section-heading">
+
+                <h2>Web Hosting</h2>
+
+                <p>
+                    Hosting stron internetowych i aplikacji.
+                </p>
+
+            </div>
+
+            <div class="plans">
+
+                <article class="plan">
+
+                    <div class="plan-icon">
+                        🌐
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Dirt
+                    </span>
+
+                    <h3>
+                        2,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Podstawowy hosting strony.
+                    </p>
+
+                    <ul>
+                        <li>✓ Hosting WWW</li>
+                        <li>✓ SSL</li>
+                        <li>✓ Panel</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Dirt — Web">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan">
+
+                    <div class="plan-icon">
+                        ◆
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Obsidian
+                    </span>
+
+                    <h3>
+                        6,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Rozszerzony hosting WWW.
+                    </p>
+
+                    <ul>
+                        <li>✓ Hosting WWW</li>
+                        <li>✓ SSL</li>
+                        <li>✓ Więcej miejsca</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Obsidian — Web">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan">
+
+                    <div class="plan-icon gold">
+                        🥇
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Złoto
+                    </span>
+
+                    <h3>
+                        11,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Hosting dla większych stron.
+                    </p>
+
+                    <ul>
+                        <li>✓ Więcej miejsca</li>
+                        <li>✓ SSL</li>
+                        <li>✓ Backup</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Złoto — Web">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan">
+
+                    <div class="plan-icon emerald">
+                        💎
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Szmaragd
+                    </span>
+
+                    <h3>
+                        18,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Hosting dla wymagających projektów.
+                    </p>
+
+                    <ul>
+                        <li>✓ Dużo miejsca</li>
+                        <li>✓ SSL</li>
+                        <li>✓ Backup</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Szmaragd — Web">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+
+                <article class="plan diamond">
+
+                    <div class="premium-label">
+                        PREMIUM
+                    </div>
+
+                    <div class="plan-icon diamond-icon">
+                        💎
+                    </div>
+
+                    <span class="plan-name">
+                        Pakiet Diament
+                    </span>
+
+                    <h3>
+                        29,99 zł
+                        <small>/ 7 dni</small>
+                    </h3>
+
+                    <p>
+                        Najwyższy pakiet Web Hosting.
+                    </p>
+
+                    <ul>
+                        <li>✓ Największe zasoby</li>
+                        <li>✓ SSL</li>
+                        <li>✓ Backup</li>
+                        <li>✓ Priorytet</li>
+                    </ul>
+
+                    <button
+                        class="buy-button"
+                        data-plan="Pakiet Diament — Web">
+
+                        Wybierz pakiet
+
+                    </button>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- MOJE USŁUGI -->
+
+        <section id="services" class="services-section">
+
+            <div class="section-heading">
+
+                <h2>Moje usługi</h2>
+
+                <p>
+                    Tutaj pojawią się zakupione usługi.
+                </p>
+
+            </div>
 
             <div class="empty-services">
 
-                <div class="empty-icon">
+                <div>
                     📦
                 </div>
 
@@ -392,61 +842,8 @@
                 </h3>
 
                 <p>
-                    Wybierz hosting powyżej, aby rozpocząć.
+                    Wybierz pakiet powyżej, aby rozpocząć.
                 </p>
-
-                <a href="#hosting" class="button primary">
-                    Przejdź do hostingu
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <section class="info-section">
-
-            <div class="info-box">
-
-                <div class="info-icon">
-                    🛡️
-                </div>
-
-                <div>
-
-                    <h3>
-                        Hosting od ZenityCode
-                    </h3>
-
-                    <p>
-                        ZenityHost jest częścią platformy
-                        ZenityCode. Wszystkimi usługami
-                        zarządzasz z jednego konta.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <div class="info-icon">
-                    ⚡
-                </div>
-
-                <div>
-
-                    <h3>
-                        Jeden panel
-                    </h3>
-
-                    <p>
-                        Usługi, płatności i zarządzanie
-                        projektami znajdziesz w jednym miejscu.
-                    </p>
-
-                </div>
 
             </div>
 
@@ -454,77 +851,104 @@
 
     </main>
 
-
-    <footer>
-
-        <div>
-            <strong>
-                Zenity<span>Host</span>
-            </strong>
-
-            <span>
-                by ZenityCode.pl
-            </span>
-        </div>
-
-        <span>
-            © 2026 ZenityCode
-        </span>
-
-    </footer>
-
 </div>
 
 
-<div class="modal" id="orderModal">
+<!-- MODAL ZAMÓWIENIA -->
 
-    <div class="modal-overlay"></div>
+<div
+    id="orderModal"
+    class="modal">
 
     <div class="modal-box">
 
         <button
-            class="modal-close"
             id="closeModal"
-        >
+            class="close-modal">
+
             ×
+
         </button>
 
-        <span class="eyebrow">
-            ZAMÓWIENIE
+        <span class="modal-label">
+            ZENITYHOST
         </span>
 
-        <h2>
-            <span id="selectedService">
-                Hosting
-            </span>
+        <h2 id="modalPlan">
+            Pakiet
         </h2>
 
         <p>
-            System zamówień ZenityHost jest obecnie
-            przygotowywany.
+            Wybierz długość usługi.
         </p>
 
-        <div class="modal-info">
 
-            <div>
-                <span>Status</span>
-                <strong>Wkrótce</strong>
-            </div>
+        <div class="duration-options">
 
-            <div>
-                <span>Twoje saldo</span>
-                <strong id="modalBalance">
-                    0,00 zł
-                </strong>
-            </div>
+            <button
+                class="duration active"
+                data-days="7">
+
+                <strong>7 dni</strong>
+                <span id="price7">2,99 zł</span>
+
+            </button>
+
+
+            <button
+                class="duration"
+                data-days="30">
+
+                <strong>30 dni</strong>
+                <span id="price30">9,99 zł</span>
+
+            </button>
+
+
+            <button
+                class="duration"
+                data-days="90">
+
+                <strong>90 dni</strong>
+                <span id="price90">24,99 zł</span>
+
+            </button>
 
         </div>
 
+
+        <div class="order-summary">
+
+            <span>
+                Wybrany okres
+            </span>
+
+            <strong id="selectedDuration">
+                7 dni
+            </strong>
+
+        </div>
+
+
+        <div class="order-summary">
+
+            <span>
+                Do zapłaty
+            </span>
+
+            <strong id="selectedPrice">
+                2,99 zł
+            </strong>
+
+        </div>
+
+
         <button
-            class="button primary full"
-            id="modalButton"
-        >
-            Zamknij
+            id="confirmOrder"
+            class="confirm-order">
+
+            Kup pakiet
+
         </button>
 
     </div>
