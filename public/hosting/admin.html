@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>ZenityHost — Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="/hosting/admin.css">
+
+</head>
+
+<body>
+
+<div class="admin">
+
+    <header>
+
+        <div>
+
+            <span>ZENITYHOST</span>
+
+            <h1>
+                Panel właściciela
+            </h1>
+
+            <p>
+                Zarządzanie serwerami i kodami.
+            </p>
+
+        </div>
+
+        <a href="/hosting">
+            ← ZenityHost
+        </a>
+
+    </header>
+
+
+    <section>
+
+        <div class="title">
+
+            <div>
+
+                <h2>
+                    🖥️ Serwery Admin
+                </h2>
+
+                <p>
+                    Wszystkie usługi użytkowników.
+                </p>
+
+            </div>
+
+            <button
+                id="refreshServices">
+
+                Odśwież
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="services"
+            class="services">
+
+            Ładowanie...
+
+        </div>
+
+    </section>
+
+
+    <section>
+
+        <div class="title">
+
+            <div>
+
+                <h2>
+                    🔑 Admin Kody
+                </h2>
+
+                <p>
+                    Twórz kody rabatowe do zamówień.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="create-code">
+
+            <input
+                id="code"
+                placeholder="Np. ZENITY50"
+                maxlength="30">
+
+            <input
+                id="discount"
+                type="number"
+                min="1"
+                max="100"
+                placeholder="Rabat %">
+
+            <input
+                id="days"
+                type="number"
+                min="0"
+                placeholder="Ważność dni">
+
+            <button id="create">
+                Utwórz kod
+            </button>
+
+        </div>
+
+
+        <p class="hint">
+            Wpisz 0 przy ważności, aby kod nie miał
+            automatycznej daty wygaśnięcia.
+        </p>
+
+
+        <div
+            id="codes"
+            class="codes">
+
+            Ładowanie...
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script src="/hosting/admin.js"></script>
+
+</body>
+</html>

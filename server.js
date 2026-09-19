@@ -14,14 +14,11 @@ const adminRoutes = require("./routes/admin");
 const logRoutes = require("./routes/logs");
 const settingsRoutes = require("./routes/settings");
 const productsRoutes = require("./routes/products");
+const hostingRoutes = require("./routes/hosting");
 
 const app = express();
 
 app.set("trust proxy", 1);
-
-/* =========================================
-   MIDDLEWARE
-========================================= */
 
 app.use(express.json());
 
@@ -44,13 +41,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-/* =========================================
-   PLIKI PUBLICZNE
-========================================= */
-
 app.use(express.static(
     path.join(__dirname, "public")
 ));
+
 
 /* =========================================
    STRONA GŁÓWNA
@@ -67,6 +61,7 @@ app.get("/", (req, res) => {
     );
 
 });
+
 
 /* =========================================
    PLUGINY
@@ -85,8 +80,9 @@ app.get("/plugins", (req, res) => {
 
 });
 
+
 /* =========================================
-   GRAFIKA CREATOR
+   CREATOR
 ========================================= */
 
 app.get("/creator", (req, res) => {
@@ -102,40 +98,24 @@ app.get("/creator", (req, res) => {
 
 });
 
+
 /* =========================================
    SKRYPTY
 ========================================= */
 
 app.get("/scripts", (req, res) => {
 
-    const scriptsPage = path.join(
-        __dirname,
-        "public",
-        "scripts",
-        "index.html"
-    );
-
     res.sendFile(
-        scriptsPage,
-        (err) => {
-
-            if (err) {
-
-                console.error(
-                    "Nie znaleziono strony /scripts:",
-                    err.message
-                );
-
-                res.status(404).send(
-                    "Strona Skrypty nie jest jeszcze dostępna."
-                );
-
-            }
-
-        }
+        path.join(
+            __dirname,
+            "public",
+            "scripts",
+            "index.html"
+        )
     );
 
 });
+
 
 /* =========================================
    DASHBOARD
@@ -154,6 +134,7 @@ app.get("/dashboard", (req, res) => {
 
 });
 
+
 /* =========================================
    ZENITYHOST
 ========================================= */
@@ -171,6 +152,36 @@ app.get("/hosting", (req, res) => {
 
 });
 
+
+/* =========================================
+   ADMIN HOSTING
+========================================= */
+
+app.get("/hosting/admin", (req, res) => {
+
+    if (!req.user) {
+        return res.redirect("/");
+    }
+
+    if (
+        req.user.id !==
+        process.env.OWNER_ID
+    ) {
+        return res.redirect("/hosting");
+    }
+
+    res.sendFile(
+        path.join(
+            __dirname,
+            "public",
+            "hosting",
+            "admin.html"
+        )
+    );
+
+});
+
+
 /* =========================================
    PANEL ADMINISTRATORA
 ========================================= */
@@ -178,17 +189,14 @@ app.get("/hosting", (req, res) => {
 app.get("/admin", (req, res) => {
 
     if (!req.user) {
-
         return res.redirect("/");
-
     }
 
     if (
-        req.user.id !== "1238570679465410571"
+        req.user.id !==
+        process.env.OWNER_ID
     ) {
-
         return res.redirect("/dashboard");
-
     }
 
     res.sendFile(
@@ -202,6 +210,7 @@ app.get("/admin", (req, res) => {
 
 });
 
+
 /* =========================================
    AUTORYZACJA
 ========================================= */
@@ -210,6 +219,7 @@ app.use(
     "/auth",
     authRoutes
 );
+
 
 /* =========================================
    API PLUGINÓW
@@ -220,6 +230,7 @@ app.use(
     pluginRoutes
 );
 
+
 /* =========================================
    API PRODUKTÓW
 ========================================= */
@@ -229,14 +240,16 @@ app.use(
     productsRoutes
 );
 
+
 /* =========================================
-   API ADMINISTRATORA
+   API ADMINA
 ========================================= */
 
 app.use(
     "/api/admin",
     adminRoutes
 );
+
 
 /* =========================================
    API LOGÓW
@@ -247,6 +260,7 @@ app.use(
     logRoutes
 );
 
+
 /* =========================================
    API USTAWIEŃ
 ========================================= */
@@ -255,6 +269,17 @@ app.use(
     "/api/settings",
     settingsRoutes
 );
+
+
+/* =========================================
+   API ZENITYHOST
+========================================= */
+
+app.use(
+    "/api/hosting",
+    hostingRoutes
+);
+
 
 /* =========================================
    API UŻYTKOWNIKA
@@ -284,13 +309,20 @@ app.get("/api/user", (req, res) => {
 
         avatar,
 
-        premium: req.user.premium || false,
+        owner:
+            req.user.id ===
+            process.env.OWNER_ID,
 
-        subscriber: req.user.subscriber || false
+        premium:
+            req.user.premium || false,
+
+        subscriber:
+            req.user.subscriber || false
 
     });
 
 });
+
 
 /* =========================================
    WYLOGOWANIE
@@ -310,6 +342,7 @@ app.get("/logout", (req, res) => {
 
 });
 
+
 /* =========================================
    404
 ========================================= */
@@ -326,8 +359,9 @@ app.use((req, res) => {
 
 });
 
+
 /* =========================================
-   OBSŁUGA BŁĘDÓW
+   BŁĘDY
 ========================================= */
 
 app.use((err, req, res, next) => {
@@ -338,11 +372,13 @@ app.use((err, req, res, next) => {
 
         success: false,
 
-        message: "Wystąpił błąd serwera."
+        message:
+            "Wystąpił błąd serwera."
 
     });
 
 });
+
 
 /* =========================================
    START
@@ -354,15 +390,14 @@ const PORT =
 app.listen(PORT, () => {
 
     console.log(`
-
 ========================================
 🚀 ZenityCode Studio uruchomione
 🌐 http://localhost:${PORT}
 🌍 ${process.env.BASE_URL}
 🤖 Discord Client: ${process.env.CLIENT_ID}
 🏰 Guild: ${process.env.GUILD_ID}
+👑 Owner: ${process.env.OWNER_ID}
 ========================================
-
 `);
 
 });
