@@ -9,7 +9,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title>ZenityHost — Admin</title>
+    <title>ZenityHost | CEO</title>
 
     <link
         rel="stylesheet"
@@ -21,49 +21,82 @@
 
 <div class="admin">
 
-    <header>
+    <header class="header">
 
         <div>
 
-            <span>ZENITYHOST</span>
+            <div class="ceo-badge">
+                ZENITYCODE • CEO
+            </div>
 
             <h1>
-                Panel właściciela
+                ZenityHost Control
             </h1>
 
             <p>
-                Zarządzanie serwerami i kodami.
+                Centrum zarządzania usługami i portfelami.
             </p>
 
         </div>
 
-        <a href="/hosting">
+        <a
+            href="/hosting"
+            class="back">
+
             ← ZenityHost
+
         </a>
 
     </header>
 
 
+    <div class="notice">
+
+        <span>⚡</span>
+
+        <div>
+
+            <strong>
+                Panel właściciela
+            </strong>
+
+            <p>
+                Uprawnienia CEO pozwalają zarządzać
+                usługami, kodami oraz środkami użytkowników.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- USŁUGI -->
+
     <section>
 
-        <div class="title">
+        <div class="section-title">
 
             <div>
 
+                <span>
+                    HOSTING
+                </span>
+
                 <h2>
-                    🖥️ Serwery Admin
+                    🖥️ Usługi użytkowników
                 </h2>
 
                 <p>
-                    Wszystkie usługi użytkowników.
+                    Wszystkie utworzone usługi ZenityHost.
                 </p>
 
             </div>
 
             <button
-                id="refreshServices">
+                id="refreshServices"
+                class="action-button">
 
-                Odśwież
+                ↻ Odśwież
 
             </button>
 
@@ -81,18 +114,24 @@
     </section>
 
 
+    <!-- KODY -->
+
     <section>
 
-        <div class="title">
+        <div class="section-title">
 
             <div>
 
+                <span>
+                    PROMOCJE
+                </span>
+
                 <h2>
-                    🔑 Admin Kody
+                    🎟️ Kody rabatowe
                 </h2>
 
                 <p>
-                    Twórz kody rabatowe do zamówień.
+                    Twórz i zarządzaj kodami używanymi przy zamówieniach.
                 </p>
 
             </div>
@@ -104,7 +143,7 @@
 
             <input
                 id="code"
-                placeholder="Np. ZENITY50"
+                placeholder="Kod, np. ZENITY50"
                 maxlength="30">
 
             <input
@@ -120,16 +159,19 @@
                 min="0"
                 placeholder="Ważność dni">
 
-            <button id="create">
+            <button
+                id="create"
+                class="primary">
+
                 Utwórz kod
+
             </button>
 
         </div>
 
 
         <p class="hint">
-            Wpisz 0 przy ważności, aby kod nie miał
-            automatycznej daty wygaśnięcia.
+            0 = kod bez automatycznej daty wygaśnięcia.
         </p>
 
 
@@ -143,10 +185,110 @@
 
     </section>
 
+
+    <!-- PORTFELE -->
+
+    <section class="wallet-section">
+
+        <div class="section-title">
+
+            <div>
+
+                <span>
+                    FINANSE
+                </span>
+
+                <h2>
+                    💰 Portfele użytkowników
+                </h2>
+
+                <p>
+                    Wyszukaj użytkownika i administracyjnie dodaj środki.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="wallet-admin">
+
+            <div class="wallet-search">
+
+                <div class="search-heading">
+
+                    <strong>
+                        🔎 Wyszukaj użytkownika
+                    </strong>
+
+                    <span>
+                        Discord ID / nick / e-mail
+                    </span>
+
+                </div>
+
+                <div class="search-row">
+
+                    <input
+                        id="walletSearch"
+                        type="text"
+                        placeholder="np. 123456789012345678">
+
+                    <button
+                        id="walletSearchButton"
+                        class="primary">
+
+                        Szukaj
+
+                    </button>
+
+                </div>
+
+                <div
+                    id="walletSearchMessage"
+                    class="wallet-message">
+
+                </div>
+
+                <div
+                    id="walletResults"
+                    class="wallet-results">
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="walletEditor"
+                class="wallet-editor">
+
+                <div class="empty-wallet">
+
+                    <span>💳</span>
+
+                    <strong>
+                        Nie wybrano użytkownika
+                    </strong>
+
+                    <p>
+                        Wyszukaj użytkownika po lewej,
+                        aby zobaczyć jego saldo.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
 </div>
 
 
 <script src="/hosting/admin.js"></script>
 
 </body>
+
 </html>
