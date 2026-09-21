@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZenityHost — Minecraft</title>
+
+    <link rel="stylesheet" href="/hosting/services/minecraft/style.css">
+</head>
+
+<body>
+
+<div class="background-glow glow-one"></div>
+<div class="background-glow glow-two"></div>
+
+<header class="topbar">
+
+    <div class="brand">
+        <div class="brand-icon">Z</div>
+
+        <div>
+            <div class="brand-name">
+                ZENITY<span>HOST</span>
+            </div>
+
+            <div class="brand-subtitle">
+                Minecraft Hosting
+            </div>
+        </div>
+    </div>
+
+    <div class="top-actions">
+
+        <a href="/hosting" class="back-button">
+            ← Panel
+        </a>
+
+        <div class="wallet">
+            <span class="wallet-icon">◆</span>
+            <span id="walletBalance">0.00 zł</span>
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <section class="server-header">
+
+        <div class="server-title-area">
+
+            <div class="minecraft-icon">
+                ⛏
+            </div>
+
+            <div>
+                <div class="server-label">
+                    SERWER MINECRAFT
+                </div>
+
+                <h1 id="serverName">
+                    Ładowanie...
+                </h1>
+
+                <div class="server-meta">
+
+                    <span id="serverId">
+                        ID: —
+                    </span>
+
+                    <span class="separator">•</span>
+
+                    <span id="serverStatus" class="status provisioning">
+                        Sprawdzanie...
+                    </span>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="server-actions">
+
+            <button id="startButton" class="primary-button" disabled>
+                ▶ Uruchom
+            </button>
+
+            <button id="stopButton" class="danger-button" disabled>
+                ■ Zatrzymaj
+            </button>
+
+            <button id="restartButton" class="secondary-button" disabled>
+                ↻ Restart
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section id="provisioningBox" class="provisioning-box hidden">
+
+        <div class="loader"></div>
+
+        <div>
+            <strong>Przygotowujemy Twój serwer</strong>
+
+            <p>
+                Jeszcze kilka sekund i serwer będzie gotowy.
+            </p>
+        </div>
+
+        <div id="provisioningTime" class="provisioning-time">
+            —
+        </div>
+
+    </section>
+
+
+    <nav class="tabs">
+
+        <button class="tab active" data-tab="console">
+            <span>⌘</span>
+            Konsola
+        </button>
+
+        <button class="tab" data-tab="files">
+            <span>▣</span>
+            Pliki
+        </button>
+
+        <button class="tab" data-tab="settings">
+            <span>⚙</span>
+            Ustawienia
+        </button>
+
+        <button class="tab" data-tab="runtime">
+            <span>◈</span>
+            Oprogramowanie
+        </button>
+
+        <button class="tab" data-tab="info">
+            <span>ⓘ</span>
+            Informacje
+        </button>
+
+    </nav>
+
+
+    <!-- KONSOLA -->
+
+    <section id="tab-console" class="tab-content active">
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Konsola</h2>
+                    <p>Podgląd działania serwera Minecraft</p>
+                </div>
+
+                <button id="clearConsole" class="small-button">
+                    Wyczyść
+                </button>
+
+            </div>
+
+            <div id="consoleOutput" class="console">
+
+                <div class="console-line system">
+                    <span>[ZenityHost]</span>
+                    Ładowanie konsoli...
+                </div>
+
+            </div>
+
+            <form id="consoleForm" class="console-form">
+
+                <span class="console-prefix">›</span>
+
+                <input
+                    id="consoleInput"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Wpisz komendę, np. say Witaj na serwerze"
+                >
+
+                <button type="submit">
+                    Wyślij
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- PLIKI -->
+
+    <section id="tab-files" class="tab-content">
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Pliki serwera</h2>
+                    <p>Pliki dostępne w panelu ZenityHost</p>
+                </div>
+
+                <button id="refreshFiles" class="small-button">
+                    ↻ Odśwież
+                </button>
+
+            </div>
+
+            <div class="path-bar">
+                /home/container
+            </div>
+
+            <div id="filesList" class="files-list">
+
+                <div class="file-loading">
+                    Ładowanie plików...
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- USTAWIENIA -->
+
+    <section id="tab-settings" class="tab-content">
+
+        <div class="settings-grid">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Podstawowe</h2>
+                        <p>Podstawowe ustawienia serwera</p>
+                    </div>
+
+                </div>
+
+                <form id="settingsForm">
+
+                    <label>
+                        Nazwa serwera
+
+                        <input
+                            id="settingName"
+                            type="text"
+                            maxlength="50"
+                            placeholder="Mój serwer Minecraft"
+                        >
+                    </label>
+
+                    <label>
+                        Adres serwera
+
+                        <input
+                            id="settingAddress"
+                            type="text"
+                            readonly
+                            placeholder="Adres zostanie pokazany po uruchomieniu"
+                        >
+                    </label>
+
+                    <button class="primary-button full-width" type="submit">
+                        Zapisz ustawienia
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Tryb serwera</h2>
+                        <p>Konfiguracja działania serwera</p>
+                    </div>
+
+                </div>
+
+                <label>
+                    Tryb gry
+
+                    <select id="gameMode">
+                        <option value="survival">Survival</option>
+                        <option value="creative">Creative</option>
+                        <option value="adventure">Adventure</option>
+                        <option value="spectator">Spectator</option>
+                    </select>
+
+                </label>
+
+                <label>
+                    Maksymalna liczba graczy
+
+                    <input
+                        id="maxPlayers"
+                        type="number"
+                        min="1"
+                        max="500"
+                        value="20"
+                    >
+                </label>
+
+                <label class="switch-row">
+
+                    <span>
+                        PvP
+                        <small>Zezwól na walkę między graczami</small>
+                    </span>
+
+                    <input id="pvp" type="checkbox" checked>
+
+                </label>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- OPROGRAMOWANIE -->
+
+    <section id="tab-runtime" class="tab-content">
+
+        <div class="settings-grid">
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Silnik serwera</h2>
+                        <p>Wybierz oprogramowanie Minecraft</p>
+                    </div>
+
+                </div>
+
+                <div id="softwareOptions" class="software-options">
+
+                    <button class="software-card" data-software="paper">
+
+                        <div class="software-icon">
+                            P
+                        </div>
+
+                        <div>
+                            <strong>Paper</strong>
+                            <span>Szybki i zoptymalizowany</span>
+                        </div>
+
+                    </button>
+
+
+                    <button class="software-card" data-software="purpur">
+
+                        <div class="software-icon">
+                            P+
+                        </div>
+
+                        <div>
+                            <strong>Purpur</strong>
+                            <span>Paper + dodatkowe możliwości</span>
+                        </div>
+
+                    </button>
+
+
+                    <button class="software-card" data-software="vanilla">
+
+                        <div class="software-icon">
+                            V
+                        </div>
+
+                        <div>
+                            <strong>Vanilla</strong>
+                            <span>Czysty Minecraft</span>
+                        </div>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Wersja Minecraft</h2>
+                        <p>Wybierz wersję kompatybilną z serwerem</p>
+                    </div>
+
+                </div>
+
+                <label>
+
+                    Wersja
+
+                    <select id="minecraftVersion">
+                        <option value="">Ładowanie...</option>
+                    </select>
+
+                </label>
+
+                <div class="version-info">
+                    <span>Aktualnie wybrana</span>
+                    <strong id="selectedVersion">—</strong>
+                </div>
+
+                <button id="saveRuntime" class="primary-button full-width">
+                    Zapisz konfigurację
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- INFORMACJE -->
+
+    <section id="tab-info" class="tab-content">
+
+        <div class="info-grid">
+
+            <div class="stat-card">
+
+                <span>Pakiet</span>
+                <strong id="infoPackage">—</strong>
+
+            </div>
+
+            <div class="stat-card">
+
+                <span>Okres</span>
+                <strong id="infoDays">—</strong>
+
+            </div>
+
+            <div class="stat-card">
+
+                <span>Cena</span>
+                <strong id="infoPrice">—</strong>
+
+            </div>
+
+            <div class="stat-card">
+
+                <span>Wygasa</span>
+                <strong id="infoExpires">—</strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Informacje techniczne</h2>
+                    <p>Informacje dotyczące usługi</p>
+                </div>
+
+            </div>
+
+            <div class="details-list">
+
+                <div>
+                    <span>ID usługi</span>
+                    <strong id="detailId">—</strong>
+                </div>
+
+                <div>
+                    <span>Typ</span>
+                    <strong>Minecraft</strong>
+                </div>
+
+                <div>
+                    <span>Utworzono</span>
+                    <strong id="detailCreated">—</strong>
+                </div>
+
+                <div>
+                    <span>Status</span>
+                    <strong id="detailStatus">—</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<div id="toastContainer" class="toast-container"></div>
+
+
+<script src="/hosting/services/minecraft/script.js"></script>
+
+</body>
+</html>

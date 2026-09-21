@@ -1,444 +1,254 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>ZenityHost — Usługa</title>
 
-    <title>Serwery Minecraft | ZenityHost</title>
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            min-height: 100vh;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at top,
-                    #102b4f,
-                    #050b14 65%
-                );
-
-            color: white;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .top {
-            padding: 18px 6%;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            border-bottom:
-                1px solid rgba(255,255,255,.08);
-
-            background:
-                rgba(4,9,19,.88);
-
-            backdrop-filter: blur(12px);
-        }
-
-        .brand {
-            font-size: 21px;
-            font-weight: 800;
-        }
-
-        .brand span {
-            color: #4da3ff;
-        }
-
-        .wallet {
-            padding: 10px 15px;
-
-            border-radius: 10px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #d4a72c,
-                    #f4d05c
-                );
-
-            color: #111827;
-            font-weight: 800;
-        }
-
-        .container {
-            width: min(1100px, 92%);
-            margin: auto;
-            padding: 45px 0 70px;
-        }
-
-        .back {
-            display: inline-block;
-            margin-bottom: 25px;
-
-            color: #70b5ff;
-            font-size: 14px;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-            font-size: 42px;
-        }
-
-        .description {
-            margin-bottom: 35px;
-
-            color: #91a1b4;
-            line-height: 1.6;
-        }
-
-        .plans {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        .plan {
-            padding: 25px;
-
-            border-radius: 16px;
-
-            background: #0b1728;
-
-            border:
-                1px solid rgba(255,255,255,.08);
-        }
-
-        .plan h2 {
-            margin-bottom: 15px;
-        }
-
-        .features {
-            list-style: none;
-
-            color: #9baabd;
-
-            line-height: 1.9;
-            font-size: 14px;
-        }
-
-        .periods {
-            margin-top: 20px;
-
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-
-            gap: 8px;
-        }
-
-        .period {
-            padding: 11px 7px;
-
-            border-radius: 9px;
-
-            background: #10243c;
-
-            border:
-                1px solid rgba(255,255,255,.08);
-
-            text-align: center;
-
-            font-size: 13px;
-            font-weight: 800;
-
-            transition: .2s;
-        }
-
-        .period:hover {
-            background: #1764a8;
-            transform: translateY(-2px);
-        }
-
-        @media(max-width:700px) {
-
-            .plans {
-                grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 34px;
-            }
-
-        }
-
-    </style>
-
+    <link rel="stylesheet" href="/hosting/server.css">
 </head>
 
 <body>
 
-<header class="top">
+<div class="background background-one"></div>
+<div class="background background-two"></div>
+
+<header class="topbar">
 
     <a href="/hosting" class="brand">
-        Zenity<span>Host</span>
+
+        <div class="brand-logo">
+            Z
+        </div>
+
+        <div class="brand-text">
+            <strong>ZENITY<span>HOST</span></strong>
+            <small>Panel usług</small>
+        </div>
+
     </a>
 
-    <a href="/wallet" class="wallet">
-        💰 Portfel:
-        <span id="walletBalance">...</span>
-    </a>
+    <div class="top-right">
+
+        <a href="/hosting" class="back-button">
+            ← Wróć do panelu
+        </a>
+
+        <div class="wallet">
+            <span>◆</span>
+            <strong id="walletBalance">0.00 zł</strong>
+        </div>
+
+    </div>
 
 </header>
 
-<main class="container">
 
-    <a
-        href="/hosting"
-        class="back"
-    >
-        ← Wróć do ZenityHost
-    </a>
+<main class="page">
 
-    <h1>
-        Serwery Minecraft
-    </h1>
+    <section class="loading-card" id="loading">
 
-    <p class="description">
-        Najpierw wybierz pakiet, a następnie okres
-        hostingu. Dopiero później przejdziesz
-        do konfiguracji i podsumowania zamówienia.
-    </p>
+        <div class="loader"></div>
 
-    <section class="plans">
+        <h1>Ładowanie usługi</h1>
 
-        <article class="plan">
+        <p>
+            Pobieramy informacje z panelu ZenityHost...
+        </p>
 
-            <h2>⛏️ Dirt</h2>
-
-            <ul class="features">
-                <li>RAM: 1 GB</li>
-                <li>Dysk: 5 GB</li>
-                <li>Gracze: 10</li>
-            </ul>
-
-            <div class="periods">
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=dirt&days=7"
-                >
-                    7 dni<br>2 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=dirt&days=30"
-                >
-                    30 dni<br>5 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=dirt&days=90"
-                >
-                    90 dni<br>12 zł
-                </a>
-
-            </div>
-
-        </article>
+    </section>
 
 
-        <article class="plan">
+    <section class="error-card hidden" id="error">
 
-            <h2>⚫ Obsidian</h2>
+        <div class="error-icon">
+            !
+        </div>
 
-            <ul class="features">
-                <li>RAM: 2 GB</li>
-                <li>Dysk: 10 GB</li>
-                <li>Gracze: 20</li>
-            </ul>
+        <h1>Nie udało się otworzyć usługi</h1>
 
-            <div class="periods">
+        <p id="errorMessage">
+            Nie znaleziono usługi.
+        </p>
 
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=obsidian&days=7"
-                >
-                    7 dni<br>5 zł
-                </a>
+        <a href="/hosting" class="primary-button">
+            Wróć do panelu
+        </a>
 
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=obsidian&days=30"
-                >
-                    30 dni<br>12 zł
-                </a>
+    </section>
 
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=obsidian&days=90"
-                >
-                    90 dni<br>30 zł
-                </a>
+
+    <section id="service" class="hidden">
+
+        <div class="service-header">
+
+            <div class="service-left">
+
+                <div id="serviceIcon" class="service-icon">
+                    Z
+                </div>
+
+                <div>
+
+                    <span id="serviceType" class="service-type">
+                        USŁUGA
+                    </span>
+
+                    <h1 id="serviceName">
+                        —
+                    </h1>
+
+                    <div class="service-meta">
+
+                        <span id="serviceId">
+                            ID: —
+                        </span>
+
+                        <span>•</span>
+
+                        <span id="serviceStatus" class="status">
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </article>
+            <div class="service-actions">
 
-
-        <article class="plan">
-
-            <h2>🟡 Złoto</h2>
-
-            <ul class="features">
-                <li>RAM: 4 GB</li>
-                <li>Dysk: 20 GB</li>
-                <li>Gracze: 50</li>
-            </ul>
-
-            <div class="periods">
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=gold&days=7"
+                <button
+                    id="openService"
+                    class="primary-button"
                 >
-                    7 dni<br>8 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=gold&days=30"
-                >
-                    30 dni<br>20 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=gold&days=90"
-                >
-                    90 dni<br>50 zł
-                </a>
+                    Otwórz panel →
+                </button>
 
             </div>
 
-        </article>
+        </div>
 
 
-        <article class="plan">
+        <div id="provisioning" class="provisioning hidden">
 
-            <h2>🟢 Szmaragd</h2>
+            <div class="loader small"></div>
 
-            <ul class="features">
-                <li>RAM: 6 GB</li>
-                <li>Dysk: 40 GB</li>
-                <li>Gracze: 80</li>
-            </ul>
+            <div>
 
-            <div class="periods">
+                <strong>Usługa jest przygotowywana</strong>
 
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=emerald&days=7"
-                >
-                    7 dni<br>12 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=emerald&days=30"
-                >
-                    30 dni<br>30 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=emerald&days=90"
-                >
-                    90 dni<br>75 zł
-                </a>
+                <p>
+                    ZenityHost przygotowuje środowisko.
+                    Zwykle trwa to tylko kilka sekund.
+                </p>
 
             </div>
 
-        </article>
+            <strong id="countdown">
+                —
+            </strong>
+
+        </div>
 
 
-        <article class="plan">
+        <div class="grid">
 
-            <h2>💎 Diament</h2>
+            <div class="info-card">
 
-            <ul class="features">
-                <li>RAM: 8 GB</li>
-                <li>Dysk: 60 GB</li>
-                <li>Gracze: 120</li>
-            </ul>
+                <span>Pakiet</span>
 
-            <div class="periods">
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=diamond&days=7"
-                >
-                    7 dni<br>20 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=diamond&days=30"
-                >
-                    30 dni<br>50 zł
-                </a>
-
-                <a
-                    class="period"
-                    href="/hosting/order.html?service=minecraft&plan=diamond&days=90"
-                >
-                    90 dni<br>120 zł
-                </a>
+                <strong id="package">
+                    —
+                </strong>
 
             </div>
 
-        </article>
+            <div class="info-card">
+
+                <span>Okres</span>
+
+                <strong id="days">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="info-card">
+
+                <span>Cena</span>
+
+                <strong id="price">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="info-card">
+
+                <span>Wygasa</span>
+
+                <strong id="expires">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Szczegóły usługi</h2>
+
+                    <p>
+                        Informacje zapisane w panelu ZenityHost
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="details">
+
+                <div>
+                    <span>Typ usługi</span>
+                    <strong id="detailType">—</strong>
+                </div>
+
+                <div>
+                    <span>ID usługi</span>
+                    <strong id="detailId">—</strong>
+                </div>
+
+                <div>
+                    <span>Utworzono</span>
+                    <strong id="created">—</strong>
+                </div>
+
+                <div>
+                    <span>Data wygaśnięcia</span>
+                    <strong id="detailExpires">—</strong>
+                </div>
+
+            </div>
+
+        </section>
 
     </section>
 
 </main>
 
-<script>
 
-fetch("/api/wallet")
-    .then(response => response.json())
-    .then(data => {
+<div id="toast" class="toast hidden"></div>
 
-        document.getElementById(
-            "walletBalance"
-        ).textContent =
-            Number(
-                data.balance || 0
-            ).toFixed(2) + " zł";
 
-    })
-    .catch(() => {
-
-        document.getElementById(
-            "walletBalance"
-        ).textContent = "—";
-
-    });
-
-</script>
+<script src="/hosting/server.js"></script>
 
 </body>
 </html>

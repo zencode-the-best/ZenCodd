@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Discord Bot — ZenityHost</title>
+
+    <link rel="stylesheet" href="/hosting/services/discord/style.css">
+</head>
+
+<body>
+
+<header>
+    <a href="/hosting">← ZenityHost</a>
+
+    <strong>
+        Zenity<span>Host</span>
+    </strong>
+</header>
+
+<main>
+
+    <section class="service-header">
+
+        <div>
+            <small>DISCORD BOT</small>
+
+            <h1 id="botName">
+                Mój Discord Bot
+            </h1>
+
+            <p id="botInfo">
+                Ładowanie usługi...
+            </p>
+        </div>
+
+        <div id="status" class="status">
+            Ładowanie
+        </div>
+
+    </section>
+
+
+    <nav class="tabs">
+
+        <button class="tab active" data-tab="console">
+            Console
+        </button>
+
+        <button class="tab" data-tab="files">
+            Files
+        </button>
+
+        <button class="tab" data-tab="runtime">
+            Runtime
+        </button>
+
+        <button class="tab" data-tab="settings">
+            Settings
+        </button>
+
+    </nav>
+
+
+    <section id="console" class="tab-content active">
+
+        <div class="console">
+
+            <div id="consoleOutput">
+                ZenityHost Discord Console<br>
+                Oczekiwanie na backend...
+            </div>
+
+            <div class="command">
+
+                <input
+                    id="commandInput"
+                    placeholder="Komenda procesu..."
+                >
+
+                <button id="sendCommand">
+                    Wyślij
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section id="files" class="tab-content">
+
+        <div class="section-head">
+
+            <h2>Files</h2>
+
+            <button>
+                + Nowy plik
+            </button>
+
+        </div>
+
+        <div id="filesList">
+
+            <div class="file">
+                bot.js
+            </div>
+
+            <div class="file">
+                package.json
+            </div>
+
+            <div class="file">
+                node_modules/
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section id="runtime" class="tab-content">
+
+        <h2>Runtime</h2>
+
+        <div class="info-card">
+
+            <span>Środowisko</span>
+
+            <strong>
+                Node.js
+            </strong>
+
+        </div>
+
+        <div class="info-card">
+
+            <span>Wersja Node.js</span>
+
+            <strong id="nodeVersion">
+                —
+            </strong>
+
+        </div>
+
+        <div class="node-options">
+
+            <button data-node="22">
+                Node.js 22
+            </button>
+
+            <button data-node="20">
+                Node.js 20
+            </button>
+
+            <button data-node="18">
+                Node.js 18
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <section id="settings" class="tab-content">
+
+        <h2>Settings</h2>
+
+        <label>
+
+            Nazwa usługi
+
+            <input
+                id="serviceName"
+                placeholder="Mój Discord Bot"
+            >
+
+        </label>
+
+        <label>
+
+            Start command
+
+            <input
+                value="node bot.js"
+                readonly
+            >
+
+        </label>
+
+        <button
+            id="saveSettings"
+            class="save"
+        >
+            Zapisz ustawienia
+        </button>
+
+    </section>
+
+</main>
+
+<script src="/hosting/services/discord/script.js"></script>
+
+</body>
+</html>

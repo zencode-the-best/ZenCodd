@@ -8,157 +8,263 @@ const OWNER_ID =
     process.env.OWNER_ID ||
     "1238570679465410571";
 
-const dataPath =
-    path.join(
-        __dirname,
-        "..",
-        "data",
-        "hosting"
-    );
 
-const codesFile =
-    path.join(
-        dataPath,
-        "codes.json"
-    );
+/* =========================================================
+   ŚCIEŻKI
+========================================================= */
 
-const servicesFile =
-    path.join(
-        dataPath,
-        "services.json"
-    );
+const DATA_DIR = path.join(
+    __dirname,
+    "..",
+    "data",
+    "hosting"
+);
 
-const walletsDir =
-    path.join(
-        __dirname,
-        "..",
-        "data",
-        "wallet"
-    );
+const SERVICES_FILE = path.join(
+    DATA_DIR,
+    "services.json"
+);
 
-const walletsFile =
-    path.join(
-        walletsDir,
-        "wallets.json"
-    );
+const CODES_FILE = path.join(
+    DATA_DIR,
+    "codes.json"
+);
 
-const transactionsFile =
-    path.join(
-        walletsDir,
-        "transactions.json"
-    );
+const WALLET_FILE = path.join(
+    __dirname,
+    "..",
+    "data",
+    "wallet",
+    "wallets.json"
+);
 
-function ensureFiles() {
-    if (!fs.existsSync(dataPath)) {
-        fs.mkdirSync(dataPath, {
-            recursive: true
-        });
-    }
+const TRANSACTIONS_FILE = path.join(
+    __dirname,
+    "..",
+    "data",
+    "wallet",
+    "transactions.json"
+);
 
-    if (!fs.existsSync(walletsDir)) {
-        fs.mkdirSync(walletsDir, {
-            recursive: true
-        });
-    }
 
-    if (!fs.existsSync(codesFile)) {
-        fs.writeFileSync(
-            codesFile,
-            "[]"
+/* =========================================================
+   TWORZENIE KATALOGÓW / PLIKÓW
+========================================================= */
+
+function ensureFile(
+    file,
+    defaultValue
+) {
+
+    const directory =
+        path.dirname(file);
+
+    if (
+        !fs.existsSync(directory)
+    ) {
+        fs.mkdirSync(
+            directory,
+            {
+                recursive: true
+            }
         );
     }
 
-    if (!fs.existsSync(servicesFile)) {
+    if (
+        !fs.existsSync(file)
+    ) {
+
         fs.writeFileSync(
-            servicesFile,
-            "[]"
+            file,
+            JSON.stringify(
+                defaultValue,
+                null,
+                2
+            )
         );
+
     }
 
-    if (!fs.existsSync(walletsFile)) {
-        fs.writeFileSync(
-            walletsFile,
-            "[]"
-        );
-    }
-
-    if (!fs.existsSync(transactionsFile)) {
-        fs.writeFileSync(
-            transactionsFile,
-            "[]"
-        );
-    }
 }
 
-function readJSON(file) {
-    ensureFiles();
+
+/* =========================================================
+   INIT
+========================================================= */
+
+ensureFile(
+    SERVICES_FILE,
+    []
+);
+
+ensureFile(
+    CODES_FILE,
+    []
+);
+
+ensureFile(
+    WALLET_FILE,
+    []
+);
+
+ensureFile(
+    TRANSACTIONS_FILE,
+    []
+);
+
+
+/* =========================================================
+   POMOCNICZE JSON
+========================================================= */
+
+function readJSON(
+    file,
+    fallback = []
+) {
 
     try {
-        return JSON.parse(
+
+        if (
+            !fs.existsSync(file)
+        ) {
+            return fallback;
+        }
+
+        const content =
             fs.readFileSync(
                 file,
                 "utf8"
-            )
+            );
+
+        if (!content.trim()) {
+            return fallback;
+        }
+
+        return JSON.parse(
+            content
         );
+
     } catch {
-        return [];
+
+        return fallback;
+
     }
+
 }
 
-function writeJSON(file, data) {
-    ensureFiles();
+
+function writeJSON(
+    file,
+    data
+) {
+
+    const directory =
+        path.dirname(file);
+
+    if (
+        !fs.existsSync(directory)
+    ) {
+
+        fs.mkdirSync(
+            directory,
+            {
+                recursive: true
+            }
+        );
+
+    }
 
     fs.writeFileSync(
         file,
         JSON.stringify(
             data,
             null,
-            4
+            2
         )
     );
+
 }
 
-function requireLogin(req, res, next) {
-    if (!req.user) {
-        return res.status(401).json({
-            success: false,
-            message:
-                "Musisz być zalogowany."
-        });
-    }
 
-    next();
-}
+/* =========================================================
+   LOGOWANIE
+========================================================= */
 
-function ownerOnly(req, res, next) {
-    if (!req.user) {
-        return res.status(401).json({
-            success: false,
-            message:
-                "Musisz być zalogowany."
-        });
-    }
+function requireLogin(
+    req,
+    res,
+    next
+) {
 
     if (
-        String(req.user.id) !==
-        String(OWNER_ID)
+        !req.user
     ) {
-        return res.status(403).json({
-            success: false,
-            message:
-                "Brak dostępu."
-        });
+
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message:
+                    "Musisz być zalogowany."
+            });
+
     }
 
     next();
+
 }
 
-/* =========================================
+
+/* =========================================================
+   CEO
+========================================================= */
+
+function isCEO(
+    req
+) {
+
+    return (
+        req.user &&
+        String(req.user.id) ===
+            String(OWNER_ID)
+    );
+
+}
+
+
+function requireCEO(
+    req,
+    res,
+    next
+) {
+
+    if (
+        !isCEO(req)
+    ) {
+
+        return res
+            .status(403)
+            .json({
+                success: false,
+                message:
+                    "Brak dostępu CEO."
+            });
+
+    }
+
+    next();
+
+}
+
+
+/* =========================================================
    CENY
-========================================= */
+========================================================= */
 
 const PRICES = {
+
     minecraft: {
+
         Dirt: {
             7: 2.99,
             30: 9.99,
@@ -188,9 +294,12 @@ const PRICES = {
             30: 84.99,
             90: 219.99
         }
+
     },
 
+
     discord: {
+
         "Bot Start": {
             7: 1,
             30: 3,
@@ -208,9 +317,12 @@ const PRICES = {
             30: 10,
             90: 25
         }
+
     },
 
+
     web: {
+
         "WWW Start": {
             7: 2,
             30: 5,
@@ -228,17 +340,318 @@ const PRICES = {
             30: 18,
             90: 45
         }
+
     }
+
 };
 
-/* =========================================
-   SPRAWDZENIE KODU
-========================================= */
+
+/* =========================================================
+   DOZWOLONE OPCJE
+========================================================= */
+
+const MINECRAFT_SOFTWARE = [
+    "paper",
+    "purpur",
+    "vanilla"
+];
+
+const MINECRAFT_VERSIONS = {
+
+    paper: [
+        "1.21.4",
+        "1.21.3",
+        "1.21.1",
+        "1.21",
+        "1.20.6",
+        "1.20.4",
+        "1.20.2",
+        "1.20.1"
+    ],
+
+    purpur: [
+        "1.21.4",
+        "1.21.3",
+        "1.21.1",
+        "1.21",
+        "1.20.6",
+        "1.20.4",
+        "1.20.1"
+    ],
+
+    vanilla: [
+        "1.21.4",
+        "1.21.3",
+        "1.21.1",
+        "1.21",
+        "1.20.6",
+        "1.20.4",
+        "1.20.1"
+    ]
+
+};
+
+const NODE_VERSIONS = [
+    "22",
+    "20",
+    "18"
+];
+
+const WEB_TYPES = [
+    "static",
+    "php"
+];
+
+
+/* =========================================================
+   GENERATOR ID
+========================================================= */
+
+function createId(
+    prefix
+) {
+
+    return (
+        prefix +
+        "-" +
+        Date.now().toString(36) +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2, 8)
+    );
+
+}
+
+
+/* =========================================================
+   TYPY
+========================================================= */
+
+function serviceName(
+    type
+) {
+
+    if (
+        type === "minecraft"
+    ) {
+        return "Serwer Minecraft";
+    }
+
+    if (
+        type === "discord"
+    ) {
+        return "Hosting Discord Bot";
+    }
+
+    if (
+        type === "web"
+    ) {
+        return "Web Hosting";
+    }
+
+    return type;
+
+}
+
+
+/* =========================================================
+   PORTFEL
+========================================================= */
+
+function getWallet(
+    userId
+) {
+
+    const wallets =
+        readJSON(
+            WALLET_FILE,
+            []
+        );
+
+    let wallet =
+        wallets.find(
+            item =>
+                String(item.userId) ===
+                String(userId)
+        );
+
+    if (!wallet) {
+
+        wallet = {
+
+            userId:
+                String(userId),
+
+            username:
+                "Nieznany",
+
+            globalName:
+                null,
+
+            email:
+                null,
+
+            avatar:
+                null,
+
+            balance:
+                0,
+
+            createdAt:
+                new Date().toISOString(),
+
+            updatedAt:
+                new Date().toISOString()
+
+        };
+
+        wallets.push(
+            wallet
+        );
+
+        writeJSON(
+            WALLET_FILE,
+            wallets
+        );
+
+    }
+
+    return wallet;
+
+}
+
+
+/* =========================================================
+   ZMIANA PORTFELA
+========================================================= */
+
+function changeBalance(
+    userId,
+    amount
+) {
+
+    const wallets =
+        readJSON(
+            WALLET_FILE,
+            []
+        );
+
+    let wallet =
+        wallets.find(
+            item =>
+                String(item.userId) ===
+                String(userId)
+        );
+
+    if (!wallet) {
+
+        wallet = {
+
+            userId:
+                String(userId),
+
+            username:
+                "Nieznany",
+
+            globalName:
+                null,
+
+            email:
+                null,
+
+            avatar:
+                null,
+
+            balance:
+                0,
+
+            createdAt:
+                new Date().toISOString(),
+
+            updatedAt:
+                new Date().toISOString()
+
+        };
+
+        wallets.push(
+            wallet
+        );
+
+    }
+
+    const oldBalance =
+        Number(
+            wallet.balance || 0
+        );
+
+    const newBalance =
+        Number(
+            (
+                oldBalance +
+                Number(amount)
+            ).toFixed(2)
+        );
+
+    if (
+        newBalance < 0
+    ) {
+        return null;
+    }
+
+    wallet.balance =
+        newBalance;
+
+    wallet.updatedAt =
+        new Date().toISOString();
+
+    writeJSON(
+        WALLET_FILE,
+        wallets
+    );
+
+    return wallet;
+
+}
+
+
+/* =========================================================
+   TRANSAKCJA
+========================================================= */
+
+function addTransaction(
+    transaction
+) {
+
+    const transactions =
+        readJSON(
+            TRANSACTIONS_FILE,
+            []
+        );
+
+    transactions.push(
+        transaction
+    );
+
+    writeJSON(
+        TRANSACTIONS_FILE,
+        transactions
+    );
+
+}
+
+
+/* =========================================================
+   KOD RABATOWY
+========================================================= */
 
 router.post(
     "/codes/check",
-    requireLogin,
-    (req, res) => {
+    async (
+        req,
+        res
+    ) => {
+
         const code =
             String(
                 req.body.code || ""
@@ -247,68 +660,731 @@ router.post(
             .toUpperCase();
 
         if (!code) {
+
             return res.json({
                 success: false,
                 message:
-                    "Nie podano kodu."
+                    "Podaj kod rabatowy."
             });
+
         }
 
         const codes =
-            readJSON(codesFile);
+            readJSON(
+                CODES_FILE,
+                []
+            );
 
         const found =
             codes.find(
                 item =>
-                    item.code === code &&
-                    item.active === true
+                    String(
+                        item.code
+                    ).toUpperCase() ===
+                    code
             );
 
         if (!found) {
+
             return res.json({
                 success: false,
                 message:
                     "Nieprawidłowy kod."
             });
+
+        }
+
+        if (
+            found.active === false
+        ) {
+
+            return res.json({
+                success: false,
+                message:
+                    "Ten kod jest nieaktywny."
+            });
+
         }
 
         if (
             found.expiresAt &&
             Date.now() >
-            new Date(
-                found.expiresAt
-            ).getTime()
+                new Date(
+                    found.expiresAt
+                ).getTime()
         ) {
+
             return res.json({
                 success: false,
                 message:
-                    "Kod wygasł."
+                    "Ten kod wygasł."
             });
+
+        }
+
+        if (
+            found.maxUses &&
+            Number(found.used || 0) >=
+                Number(found.maxUses)
+        ) {
+
+            return res.json({
+                success: false,
+                message:
+                    "Limit użyć tego kodu został wykorzystany."
+            });
+
         }
 
         res.json({
+
             success: true,
-            code: found.code,
+
             discount:
-                Number(found.discount) || 0,
-            message:
-                `Kod aktywny. Rabat ${found.discount}%.`
+                Number(
+                    found.discount || 0
+                ),
+
+            code:
+                found.code
+
         });
+
     }
 );
 
-/* =========================================
-   ZAKUP HOSTINGU
-========================================= */
+
+/* =========================================================
+   INFORMACJE O CENACH
+========================================================= */
+
+router.get(
+    "/prices",
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+            success: true,
+            prices: PRICES
+        });
+
+    }
+);
+
+
+/* =========================================================
+   OPCJE MINECRAFT
+========================================================= */
+
+router.get(
+    "/minecraft/options",
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
+            success: true,
+
+            software:
+                MINECRAFT_SOFTWARE,
+
+            versions:
+                MINECRAFT_VERSIONS
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   OPCJE DISCORD
+========================================================= */
+
+router.get(
+    "/discord/options",
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
+            success: true,
+
+            nodeVersions:
+                NODE_VERSIONS
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   OPCJE WEB
+========================================================= */
+
+router.get(
+    "/web/options",
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
+            success: true,
+
+            types:
+                WEB_TYPES
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   AKTUALIZACJA STATUSU PROVISIONING
+========================================================= */
+
+function updateProvisioning(
+    services
+) {
+
+    let changed = false;
+
+    const now =
+        Date.now();
+
+    services.forEach(
+        service => {
+
+            if (
+                service.status !==
+                    "provisioning"
+            ) {
+                return;
+            }
+
+            if (
+                !service.readyAt
+            ) {
+                return;
+            }
+
+            if (
+                now >=
+                new Date(
+                    service.readyAt
+                ).getTime()
+            ) {
+
+                service.status =
+                    "ready";
+
+                service.readyAt =
+                    null;
+
+                service.updatedAt =
+                    new Date().toISOString();
+
+                changed = true;
+
+            }
+
+        }
+    );
+
+    return changed;
+
+}
+
+
+/* =========================================================
+   USŁUGA PO ID
+========================================================= */
+
+function getServiceById(
+    serviceId,
+    userId
+) {
+
+    const services =
+        readJSON(
+            SERVICES_FILE,
+            []
+        );
+
+    const changed =
+        updateProvisioning(
+            services
+        );
+
+    if (changed) {
+
+        writeJSON(
+            SERVICES_FILE,
+            services
+        );
+
+    }
+
+    const service =
+        services.find(
+            item =>
+                String(item.id) ===
+                String(serviceId)
+        );
+
+    if (!service) {
+        return null;
+    }
+
+    const ceo =
+        String(userId) ===
+        String(OWNER_ID);
+
+    if (
+        String(service.ownerId) !==
+            String(userId) &&
+        !ceo
+    ) {
+
+        return null;
+
+    }
+
+    return service;
+
+}
+
+
+/* =========================================================
+   LISTA MOICH USŁUG
+========================================================= */
+
+router.get(
+    "/services",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
+
+        const changed =
+            updateProvisioning(
+                services
+            );
+
+        if (changed) {
+
+            writeJSON(
+                SERVICES_FILE,
+                services
+            );
+
+        }
+
+        const userServices =
+            services.filter(
+                service =>
+                    String(
+                        service.ownerId
+                    ) ===
+                    String(
+                        req.user.id
+                    )
+            );
+
+        res.json({
+
+            success: true,
+
+            services:
+                userServices.map(
+                    service => ({
+                        id:
+                            service.id,
+
+                        type:
+                            serviceName(
+                                service.type
+                            ),
+
+                        package:
+                            service.package,
+
+                        days:
+                            service.days,
+
+                        price:
+                            service.price,
+
+                        status:
+                            service.status,
+
+                        software:
+                            service.software ||
+                            null,
+
+                        minecraftVersion:
+                            service.minecraftVersion ||
+                            null,
+
+                        nodeVersion:
+                            service.nodeVersion ||
+                            null,
+
+                        webType:
+                            service.webType ||
+                            null,
+
+                        createdAt:
+                            service.createdAt,
+
+                        expiresAt:
+                            service.expiresAt
+
+                    })
+                )
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   POJEDYNCZA USŁUGA
+========================================================= */
+
+router.get(
+    "/service/:id",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const service =
+            getServiceById(
+                req.params.id,
+                req.user.id
+            );
+
+        if (!service) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nie znaleziono usługi lub brak dostępu."
+
+                });
+
+        }
+
+        res.json({
+
+            success: true,
+
+            service
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   AKTUALIZACJA USŁUGI
+========================================================= */
+
+router.patch(
+    "/service/:id",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
+
+        const index =
+            services.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(req.params.id)
+            );
+
+        if (index === -1) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Usługa nie istnieje."
+
+                });
+
+        }
+
+        const service =
+            services[index];
+
+        const ceo =
+            String(req.user.id) ===
+            String(OWNER_ID);
+
+        if (
+            String(service.ownerId) !==
+                String(req.user.id) &&
+            !ceo
+        ) {
+
+            return res
+                .status(403)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Brak dostępu."
+
+                });
+
+        }
+
+
+        /* Minecraft */
+
+        if (
+            service.type ===
+            "minecraft"
+        ) {
+
+            if (
+                req.body.software
+            ) {
+
+                const software =
+                    String(
+                        req.body.software
+                    );
+
+                if (
+                    !MINECRAFT_SOFTWARE.includes(
+                        software
+                    )
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+
+                            success: false,
+
+                            message:
+                                "Nieprawidłowy silnik Minecraft."
+
+                        });
+
+                }
+
+                service.software =
+                    software;
+
+            }
+
+
+            if (
+                req.body.minecraftVersion
+            ) {
+
+                const version =
+                    String(
+                        req.body.minecraftVersion
+                    );
+
+                const software =
+                    service.software ||
+                    "paper";
+
+                if (
+                    !MINECRAFT_VERSIONS[
+                        software
+                    ].includes(
+                        version
+                    )
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+
+                            success: false,
+
+                            message:
+                                "Ta wersja nie jest dostępna dla wybranego silnika."
+
+                        });
+
+                }
+
+                service.minecraftVersion =
+                    version;
+
+            }
+
+        }
+
+
+        /* Discord */
+
+        if (
+            service.type ===
+            "discord"
+        ) {
+
+            if (
+                req.body.nodeVersion
+            ) {
+
+                const nodeVersion =
+                    String(
+                        req.body.nodeVersion
+                    );
+
+                if (
+                    !NODE_VERSIONS.includes(
+                        nodeVersion
+                    )
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+
+                            success: false,
+
+                            message:
+                                "Nieprawidłowa wersja Node.js."
+
+                        });
+
+                }
+
+                service.nodeVersion =
+                    nodeVersion;
+
+            }
+
+        }
+
+
+        /* Web */
+
+        if (
+            service.type ===
+            "web"
+        ) {
+
+            if (
+                req.body.webType
+            ) {
+
+                const webType =
+                    String(
+                        req.body.webType
+                    );
+
+                if (
+                    !WEB_TYPES.includes(
+                        webType
+                    )
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+
+                            success: false,
+
+                            message:
+                                "Nieprawidłowy typ hostingu."
+
+                        });
+
+                }
+
+                service.webType =
+                    webType;
+
+            }
+
+        }
+
+
+        service.updatedAt =
+            new Date().toISOString();
+
+
+        writeJSON(
+            SERVICES_FILE,
+            services
+        );
+
+
+        res.json({
+
+            success: true,
+
+            service
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   ZAKUP USŁUGI
+========================================================= */
 
 router.post(
     "/purchase",
     requireLogin,
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
+
         const service =
             String(
                 req.body.service || ""
-            ).toLowerCase();
+            );
 
         const packageName =
             String(
@@ -316,7 +1392,9 @@ router.post(
             );
 
         const days =
-            Number(req.body.days);
+            Number(
+                req.body.days
+            );
 
         const discountCode =
             String(
@@ -325,147 +1403,491 @@ router.post(
             .trim()
             .toUpperCase();
 
-        if (
-            !PRICES[service] ||
-            !PRICES[service][packageName]
-        ) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Nieprawidłowa usługa lub pakiet."
-            });
-        }
+
+        /* -------------------------
+           WALIDACJA
+        ------------------------- */
 
         if (
-            ![7, 30, 90].includes(days)
+            !PRICES[
+                service
+            ]
         ) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Nieprawidłowy czas trwania."
-            });
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nieprawidłowy typ usługi."
+
+                });
+
         }
 
-        let price =
+
+        if (
+            !PRICES[
+                service
+            ][
+                packageName
+            ]
+        ) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nieprawidłowy pakiet."
+
+                });
+
+        }
+
+
+        if (
+            ![
+                7,
+                30,
+                90
+            ].includes(days)
+        ) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nieprawidłowy czas usługi."
+
+                });
+
+        }
+
+
+        const originalPrice =
             Number(
-                PRICES[service][packageName][days]
+                PRICES[
+                    service
+                ][
+                    packageName
+                ][
+                    days
+                ]
             );
 
-        let discount = 0;
+
+        /* -------------------------
+           RABAT
+        ------------------------- */
+
+        let discount =
+            0;
+
+        let usedCode =
+            null;
+
 
         if (discountCode) {
+
             const codes =
-                readJSON(codesFile);
+                readJSON(
+                    CODES_FILE,
+                    []
+                );
 
             const code =
                 codes.find(
                     item =>
-                        item.code ===
-                            discountCode &&
-                        item.active === true
+                        String(
+                            item.code
+                        ).toUpperCase() ===
+                        discountCode
                 );
 
+            if (!code) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Kod rabatowy nie istnieje."
+
+                    });
+
+            }
+
+
             if (
-                code &&
-                (
-                    !code.expiresAt ||
-                    Date.now() <=
+                code.active === false
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Kod rabatowy jest nieaktywny."
+
+                    });
+
+            }
+
+
+            if (
+                code.expiresAt &&
+                Date.now() >
                     new Date(
                         code.expiresAt
                     ).getTime()
-                )
             ) {
-                discount =
-                    Number(code.discount) || 0;
 
-                price =
-                    Number(
-                        (
-                            price *
-                            (1 - discount / 100)
-                        ).toFixed(2)
-                    );
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Kod rabatowy wygasł."
+
+                    });
+
             }
+
+
+            if (
+                code.maxUses &&
+                Number(
+                    code.used || 0
+                ) >=
+                    Number(
+                        code.maxUses
+                    )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Kod rabatowy osiągnął limit użyć."
+
+                    });
+
+            }
+
+
+            discount =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        Number(
+                            code.discount || 0
+                        )
+                    )
+                );
+
+            usedCode =
+                code;
+
         }
 
-        const wallets =
-            readJSON(walletsFile);
 
-        let wallet =
-            wallets.find(
-                item =>
-                    String(item.userId) ===
-                    String(req.user.id)
-            );
-
-        if (!wallet) {
-            wallet = {
-                userId:
-                    String(req.user.id),
-
-                username:
-                    req.user.username ||
-                    req.user.globalName ||
-                    "Nieznany",
-
-                globalName:
-                    req.user.globalName ||
-                    req.user.username ||
-                    "Nieznany",
-
-                email:
-                    req.user.email ||
-                    null,
-
-                balance: 0,
-
-                createdAt:
-                    new Date().toISOString()
-            };
-
-            wallets.push(wallet);
-        }
-
-        const balance =
-            Number(wallet.balance || 0);
-
-        if (balance < price) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    `Niewystarczające środki. Potrzebujesz ${price.toFixed(2)} zł.`
-            });
-        }
-
-        wallet.balance =
+        const price =
             Number(
                 (
-                    balance - price
+                    originalPrice *
+                    (
+                        1 -
+                        discount / 100
+                    )
                 ).toFixed(2)
             );
 
-        wallet.updatedAt =
-            new Date().toISOString();
 
-        writeJSON(
-            walletsFile,
-            wallets
-        );
+        /* -------------------------
+           PORTFEL
+        ------------------------- */
 
-        const serviceId =
-            `HOST-${Date.now()}-${Math.random()
-                .toString(36)
-                .substring(2, 8)}`;
+        const wallet =
+            getWallet(
+                req.user.id
+            );
+
+        const balance =
+            Number(
+                wallet.balance || 0
+            );
+
+
+        if (
+            balance <
+            price
+        ) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        `Brakuje Ci ${(price - balance).toFixed(2)} zł w portfelu.`,
+
+                    balance
+
+                });
+
+        }
+
+
+        /* -------------------------
+           OPCJE MINECRAFT
+        ------------------------- */
+
+        let software =
+            null;
+
+        let minecraftVersion =
+            null;
+
+
+        if (
+            service ===
+            "minecraft"
+        ) {
+
+            software =
+                String(
+                    req.body.software ||
+                    "paper"
+                );
+
+
+            minecraftVersion =
+                String(
+                    req.body.minecraftVersion ||
+                    ""
+                );
+
+
+            if (
+                !MINECRAFT_SOFTWARE.includes(
+                    software
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Nieprawidłowy silnik Minecraft."
+
+                    });
+
+            }
+
+
+            if (
+                !MINECRAFT_VERSIONS[
+                    software
+                ].includes(
+                    minecraftVersion
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Nieprawidłowa wersja Minecraft."
+
+                    });
+
+            }
+
+        }
+
+
+        /* -------------------------
+           OPCJE DISCORD
+        ------------------------- */
+
+        let nodeVersion =
+            null;
+
+
+        if (
+            service ===
+            "discord"
+        ) {
+
+            nodeVersion =
+                String(
+                    req.body.nodeVersion ||
+                    "22"
+                );
+
+
+            if (
+                !NODE_VERSIONS.includes(
+                    nodeVersion
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Nieprawidłowa wersja Node.js."
+
+                    });
+
+            }
+
+        }
+
+
+        /* -------------------------
+           OPCJE WEB
+        ------------------------- */
+
+        let webType =
+            null;
+
+
+        if (
+            service ===
+            "web"
+        ) {
+
+            webType =
+                String(
+                    req.body.webType ||
+                    "static"
+                );
+
+
+            if (
+                !WEB_TYPES.includes(
+                    webType
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success: false,
+
+                        message:
+                            "Nieprawidłowy typ hostingu."
+
+                    });
+
+            }
+
+        }
+
+
+        /* -------------------------
+           ODEJMOWANIE PIENIĘDZY
+        ------------------------- */
+
+        const updatedWallet =
+            changeBalance(
+                req.user.id,
+                -price
+            );
+
+
+        if (!updatedWallet) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nie udało się pobrać środków z portfela."
+
+                });
+
+        }
+
+
+        /* -------------------------
+           USŁUGA
+        ------------------------- */
 
         const services =
-            readJSON(servicesFile);
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
+
+
+        /*
+         * Kilka sekund przygotowania
+         * panelu/usługi.
+         *
+         * Nie oznacza to uruchomienia
+         * prawdziwego procesu serwera.
+         */
+
+        const provisioningSeconds =
+            6;
+
+
+        const readyAt =
+            new Date(
+                Date.now() +
+                provisioningSeconds *
+                1000
+            ).toISOString();
+
+
+        const serviceId =
+            createId(
+                service
+            );
+
 
         const newService = {
+
             id:
                 serviceId,
 
             ownerId:
-                String(req.user.id),
+                String(
+                    req.user.id
+                ),
 
             ownerUsername:
                 req.user.username ||
@@ -482,26 +1904,51 @@ router.post(
             package:
                 packageName,
 
-            days,
+            days:
+                days,
 
-            price,
+            price:
+                price,
 
             originalPrice:
-                Number(
-                    PRICES[
-                        service
-                    ][packageName][days]
-                ),
+                originalPrice,
 
-            discount,
+            discount:
+                discount,
 
             discountCode:
-                discountCode || null,
+                usedCode
+                    ? usedCode.code
+                    : null,
+
+            software:
+                software,
+
+            minecraftVersion:
+                minecraftVersion,
+
+            nodeVersion:
+                nodeVersion,
+
+            webType:
+                webType,
 
             status:
-                "awaiting_provisioning",
+                "provisioning",
+
+            readyAt:
+                readyAt,
+
+            console:
+                [],
+
+            files:
+                [],
 
             createdAt:
+                new Date().toISOString(),
+
+            updatedAt:
                 new Date().toISOString(),
 
             expiresAt:
@@ -513,35 +1960,84 @@ router.post(
                     60 *
                     1000
                 ).toISOString()
+
         };
 
-        services.push(newService);
+
+        services.push(
+            newService
+        );
+
 
         writeJSON(
-            servicesFile,
+            SERVICES_FILE,
             services
         );
 
-        const transactions =
-            readJSON(transactionsFile);
 
-        transactions.push({
+        /* -------------------------
+           KOD — UŻYCIE
+        ------------------------- */
+
+        if (usedCode) {
+
+            const codes =
+                readJSON(
+                    CODES_FILE,
+                    []
+                );
+
+            const index =
+                codes.findIndex(
+                    item =>
+                        String(
+                            item.code
+                        ).toUpperCase() ===
+                        String(
+                            usedCode.code
+                        ).toUpperCase()
+                );
+
+            if (
+                index !== -1
+            ) {
+
+                codes[index].used =
+                    Number(
+                        codes[index].used ||
+                        0
+                    ) + 1;
+
+                writeJSON(
+                    CODES_FILE,
+                    codes
+                );
+
+            }
+
+        }
+
+
+        /* -------------------------
+           TRANSAKCJA
+        ------------------------- */
+
+        addTransaction({
+
             id:
-                `HOST-${Date.now()}-${Math.random()
-                    .toString(36)
-                    .substring(2, 8)}`,
+                createId(
+                    "tx"
+                ),
 
             userId:
-                String(req.user.id),
+                String(
+                    req.user.id
+                ),
 
             username:
                 req.user.username ||
                 req.user.globalName ||
                 "Nieznany",
-
-            email:
-                req.user.email ||
-                null,
 
             type:
                 "hosting_purchase",
@@ -549,140 +2045,565 @@ router.post(
             amount:
                 -price,
 
-            method:
-                "wallet",
-
             status:
                 "completed",
 
-            serviceId,
+            serviceId:
+                serviceId,
 
-            service,
+            service:
+                service,
 
             package:
                 packageName,
 
-            days,
+            days:
+                days,
 
             createdAt:
                 new Date().toISOString()
+
         });
 
-        writeJSON(
-            transactionsFile,
-            transactions
-        );
 
         res.json({
+
             success: true,
 
             message:
-                "Zamówienie zostało zapisane.",
+                "Usługa została utworzona i jest przygotowywana.",
 
-            service:
-                newService,
+            service: {
+
+                id:
+                    newService.id,
+
+                type:
+                    newService.type,
+
+                package:
+                    newService.package,
+
+                status:
+                    newService.status,
+
+                readyAt:
+                    newService.readyAt
+
+            },
 
             balance:
-                wallet.balance
+                updatedWallet.balance
+
         });
+
     }
 );
 
-/* =========================================
-   ADMIN — USŁUGI
-========================================= */
+
+/* =========================================================
+   SPRAWDZENIE GOTOWOŚCI
+========================================================= */
+
+router.get(
+    "/service/:id/status",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const service =
+            getServiceById(
+                req.params.id,
+                req.user.id
+            );
+
+        if (!service) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Usługa nie istnieje."
+
+                });
+
+        }
+
+
+        res.json({
+
+            success: true,
+
+            id:
+                service.id,
+
+            status:
+                service.status,
+
+            readyAt:
+                service.readyAt
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   KONSOLE
+========================================================= */
+
+router.get(
+    "/service/:id/console",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const service =
+            getServiceById(
+                req.params.id,
+                req.user.id
+            );
+
+        if (!service) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Brak dostępu."
+
+                });
+
+        }
+
+
+        res.json({
+
+            success: true,
+
+            console:
+                service.console ||
+                []
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   DODAWANIE WPISU DO KONSOLI
+   UWAGA:
+   To jest przygotowanie panelu.
+   Nie uruchamia prawdziwego procesu.
+========================================================= */
+
+router.post(
+    "/service/:id/console",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
+
+        const index =
+            services.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(req.params.id)
+            );
+
+        if (
+            index === -1
+        ) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false
+
+                });
+
+        }
+
+
+        const service =
+            services[index];
+
+        const ceo =
+            String(req.user.id) ===
+            String(OWNER_ID);
+
+        if (
+            String(service.ownerId) !==
+                String(req.user.id) &&
+            !ceo
+        ) {
+
+            return res
+                .status(403)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Brak dostępu."
+
+                });
+
+        }
+
+
+        const command =
+            String(
+                req.body.command || ""
+            ).trim();
+
+
+        if (!command) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Komenda jest pusta."
+
+                });
+
+        }
+
+
+        if (
+            !service.console
+        ) {
+            service.console = [];
+        }
+
+
+        service.console.push({
+
+            text:
+                command,
+
+            createdAt:
+                new Date().toISOString()
+
+        });
+
+
+        service.updatedAt =
+            new Date().toISOString();
+
+
+        writeJSON(
+            SERVICES_FILE,
+            services
+        );
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                "Komenda zapisana w panelu.",
+
+            console:
+                service.console
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   PLIKI USŁUGI
+========================================================= */
+
+router.get(
+    "/service/:id/files",
+    requireLogin,
+    (
+        req,
+        res
+    ) => {
+
+        const service =
+            getServiceById(
+                req.params.id,
+                req.user.id
+            );
+
+        if (!service) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Brak dostępu."
+
+                });
+
+        }
+
+
+        res.json({
+
+            success: true,
+
+            files:
+                service.files ||
+                []
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   CEO — WSZYSTKIE USŁUGI
+========================================================= */
 
 router.get(
     "/admin/services",
-    ownerOnly,
-    (req, res) => {
-        const services =
-            readJSON(servicesFile);
-
-        res.json({
-            success: true,
-            services
-        });
-    }
-);
-
-/* =========================================
-   UŻYTKOWNIK — USŁUGI
-========================================= */
-
-router.get(
-    "/services",
     requireLogin,
-    (req, res) => {
-        const services =
-            readJSON(servicesFile);
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
 
-        const own =
-            services.filter(
-                service =>
-                    String(
-                        service.ownerId
-                    ) ===
-                    String(req.user.id)
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
             );
 
+        const changed =
+            updateProvisioning(
+                services
+            );
+
+        if (changed) {
+
+            writeJSON(
+                SERVICES_FILE,
+                services
+            );
+
+        }
+
+
         res.json({
+
             success: true,
-            services: own
+
+            services
+
         });
+
     }
 );
 
-/* =========================================
-   ADMIN — USUNIĘCIE USŁUGI
-========================================= */
+
+/* =========================================================
+   CEO — JEDNA USŁUGA
+========================================================= */
+
+router.get(
+    "/admin/services/:id",
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
+
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
+
+        const service =
+            services.find(
+                item =>
+                    String(item.id) ===
+                    String(req.params.id)
+            );
+
+        if (!service) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Usługa nie istnieje."
+
+                });
+
+        }
+
+
+        res.json({
+
+            success: true,
+
+            service
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   CEO — USUNIĘCIE USŁUGI
+========================================================= */
 
 router.delete(
     "/admin/services/:id",
-    ownerOnly,
-    (req, res) => {
-        const services =
-            readJSON(servicesFile);
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
 
-        const filtered =
-            services.filter(
-                service =>
-                    service.id !==
-                    req.params.id
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
             );
 
+        const index =
+            services.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(req.params.id)
+            );
+
+        if (
+            index === -1
+        ) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Usługa nie istnieje."
+
+                });
+
+        }
+
+
+        const removed =
+            services.splice(
+                index,
+                1
+            )[0];
+
+
         writeJSON(
-            servicesFile,
-            filtered
+            SERVICES_FILE,
+            services
         );
 
+
         res.json({
-            success: true
+
+            success: true,
+
+            message:
+                "Usługa została usunięta.",
+
+            service:
+                removed
+
         });
+
     }
 );
 
-/* =========================================
-   ADMIN — KODY
-========================================= */
+
+/* =========================================================
+   CEO — KODY RABATOWE
+========================================================= */
 
 router.get(
     "/admin/codes",
-    ownerOnly,
-    (req, res) => {
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
+
+        const codes =
+            readJSON(
+                CODES_FILE,
+                []
+            );
+
         res.json({
+
             success: true,
-            codes:
-                readJSON(codesFile)
+
+            codes
+
         });
+
     }
 );
 
+
+/* =========================================================
+   CEO — UTWORZENIE KODU
+========================================================= */
+
 router.post(
     "/admin/codes",
-    ownerOnly,
-    (req, res) => {
-        const rawCode =
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
+
+        const code =
             String(
                 req.body.code || ""
             )
@@ -694,156 +2615,387 @@ router.post(
                 req.body.discount
             );
 
-        const days =
+        const maxUses =
             Number(
-                req.body.days || 0
+                req.body.maxUses || 0
             );
 
-        if (!rawCode) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Podaj kod."
-            });
+        const expiresAt =
+            req.body.expiresAt ||
+            null;
+
+
+        if (!code) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Podaj kod."
+
+                });
+
         }
+
 
         if (
-            !Number.isFinite(discount) ||
-            discount < 1 ||
+            !Number.isFinite(
+                discount
+            ) ||
+            discount <= 0 ||
             discount > 100
         ) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Rabat musi wynosić od 1 do 100%."
-            });
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Rabat musi być od 1 do 100%."
+
+                });
+
         }
 
+
         const codes =
-            readJSON(codesFile);
+            readJSON(
+                CODES_FILE,
+                []
+            );
+
 
         if (
             codes.some(
                 item =>
-                    item.code ===
-                    rawCode
+                    String(
+                        item.code
+                    ).toUpperCase() ===
+                    code
             )
         ) {
-            return res.status(409).json({
-                success: false,
-                message:
-                    "Taki kod już istnieje."
-            });
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Taki kod już istnieje."
+
+                });
+
         }
 
-        let expiresAt = null;
-
-        if (days > 0) {
-            expiresAt =
-                new Date(
-                    Date.now() +
-                    days *
-                    24 *
-                    60 *
-                    60 *
-                    1000
-                ).toISOString();
-        }
 
         const newCode = {
-            id:
-                Date.now().toString(),
 
-            code:
-                rawCode,
+            id:
+                createId(
+                    "code"
+                ),
+
+            code,
 
             discount,
+
+            maxUses:
+                maxUses > 0
+                    ? maxUses
+                    : null,
+
+            used:
+                0,
 
             active:
                 true,
 
             expiresAt,
 
-            createdAt:
-                new Date().toISOString(),
-
             createdBy:
-                String(req.user.id)
+                String(
+                    req.user.id
+                ),
+
+            createdAt:
+                new Date().toISOString()
+
         };
 
-        codes.push(newCode);
+
+        codes.push(
+            newCode
+        );
+
 
         writeJSON(
-            codesFile,
+            CODES_FILE,
             codes
         );
 
+
         res.json({
+
             success: true,
-            code: newCode
+
+            code:
+                newCode
+
         });
+
     }
 );
 
-router.delete(
-    "/admin/codes/:id",
-    ownerOnly,
-    (req, res) => {
-        const codes =
-            readJSON(codesFile);
 
-        writeJSON(
-            codesFile,
-            codes.filter(
-                item =>
-                    item.id !==
-                    req.params.id
-            )
-        );
-
-        res.json({
-            success: true
-        });
-    }
-);
+/* =========================================================
+   CEO — WŁĄCZ / WYŁĄCZ KOD
+========================================================= */
 
 router.patch(
     "/admin/codes/:id",
-    ownerOnly,
-    (req, res) => {
-        const codes =
-            readJSON(codesFile);
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
 
-        const code =
-            codes.find(
-                item =>
-                    item.id ===
-                    req.params.id
+        const codes =
+            readJSON(
+                CODES_FILE,
+                []
             );
 
-        if (!code) {
-            return res.status(404).json({
-                success: false,
-                message:
-                    "Nie znaleziono kodu."
-            });
+        const index =
+            codes.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(req.params.id)
+            );
+
+        if (
+            index === -1
+        ) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Kod nie istnieje."
+
+                });
+
         }
 
-        code.active =
-            Boolean(
-                req.body.active
-            );
+
+        if (
+            typeof req.body.active ===
+            "boolean"
+        ) {
+
+            codes[index].active =
+                req.body.active;
+
+        }
+
 
         writeJSON(
-            codesFile,
+            CODES_FILE,
             codes
         );
 
+
         res.json({
+
             success: true,
-            code
+
+            code:
+                codes[index]
+
         });
+
     }
 );
+
+
+/* =========================================================
+   CEO — USUNIĘCIE KODU
+========================================================= */
+
+router.delete(
+    "/admin/codes/:id",
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
+
+        const codes =
+            readJSON(
+                CODES_FILE,
+                []
+            );
+
+        const index =
+            codes.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(req.params.id)
+            );
+
+        if (
+            index === -1
+        ) {
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false
+
+                });
+
+        }
+
+
+        codes.splice(
+            index,
+            1
+        );
+
+
+        writeJSON(
+            CODES_FILE,
+            codes
+        );
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                "Kod został usunięty."
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   CEO — STATYSTYKI
+========================================================= */
+
+router.get(
+    "/admin/stats",
+    requireLogin,
+    requireCEO,
+    (
+        req,
+        res
+    ) => {
+
+        const services =
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
+
+        const wallets =
+            readJSON(
+                WALLET_FILE,
+                []
+            );
+
+        const transactions =
+            readJSON(
+                TRANSACTIONS_FILE,
+                []
+            );
+
+
+        const stats = {
+
+            users:
+                wallets.length,
+
+            services:
+                services.length,
+
+            minecraft:
+                services.filter(
+                    item =>
+                        item.type ===
+                        "minecraft"
+                ).length,
+
+            discord:
+                services.filter(
+                    item =>
+                        item.type ===
+                        "discord"
+                ).length,
+
+            web:
+                services.filter(
+                    item =>
+                        item.type ===
+                        "web"
+                ).length,
+
+            revenue:
+                Number(
+                    transactions
+                        .filter(
+                            item =>
+                                item.type ===
+                                "hosting_purchase"
+                        )
+                        .reduce(
+                            (
+                                total,
+                                item
+                            ) =>
+                                total +
+                                Math.abs(
+                                    Number(
+                                        item.amount ||
+                                        0
+                                    )
+                                ),
+                            0
+                        )
+                        .toFixed(2)
+                )
+
+        };
+
+
+        res.json({
+
+            success: true,
+
+            stats
+
+        });
+
+    }
+);
+
+
+/* =========================================================
+   EXPORT
+========================================================= */
 
 module.exports = router;

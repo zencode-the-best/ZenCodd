@@ -1,0 +1,352 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(61,139,255,.18),
+            transparent 45%
+        ),
+        #050810;
+
+    color: #f5f7fb;
+
+    font-family:
+        Arial,
+        sans-serif;
+}
+
+header {
+    height: 70px;
+
+    padding:
+        0 5%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    border-bottom:
+        1px solid #151c29;
+
+    background:
+        #080d16;
+}
+
+header a {
+    color:
+        #8490a5;
+
+    text-decoration:
+        none;
+}
+
+header strong {
+    font-size:
+        20px;
+}
+
+header strong span {
+    color:
+        #f3c94b;
+}
+
+main {
+    width:
+        min(1100px, 92%);
+
+    margin:
+        auto;
+
+    padding:
+        45px 0 80px;
+}
+
+.service-header {
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+}
+
+.service-header small {
+    color:
+        #3d8bff;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        2px;
+}
+
+.service-header h1 {
+    margin:
+        8px 0;
+
+    font-size:
+        34px;
+}
+
+.service-header p {
+    color:
+        #8490a5;
+}
+
+.status {
+    padding:
+        10px 15px;
+
+    border-radius:
+        10px;
+
+    color:
+        #f3c94b;
+
+    background:
+        rgba(243,201,75,.08);
+}
+
+.tabs {
+    display:
+        flex;
+
+    gap:
+        5px;
+
+    margin-top:
+        35px;
+
+    border-bottom:
+        1px solid #151c29;
+}
+
+.tab {
+    padding:
+        13px 17px;
+
+    border:
+        0;
+
+    background:
+        transparent;
+
+    color:
+        #7e899d;
+
+    cursor:
+        pointer;
+}
+
+.tab.active {
+    color:
+        white;
+
+    border-bottom:
+        2px solid #3d8bff;
+}
+
+.tab-content {
+    display:
+        none;
+
+    padding-top:
+        25px;
+}
+
+.tab-content.active {
+    display:
+        block;
+}
+
+.console {
+    overflow:
+        hidden;
+
+    border:
+        1px solid #151c29;
+
+    border-radius:
+        15px;
+
+    background:
+        #03050a;
+}
+
+#consoleOutput {
+    height:
+        450px;
+
+    padding:
+        18px;
+
+    overflow:
+        auto;
+
+    color:
+        #9faabd;
+
+    font-family:
+        monospace;
+
+    line-height:
+        1.7;
+}
+
+.command {
+    display:
+        flex;
+
+    border-top:
+        1px solid #151c29;
+}
+
+.command input {
+    flex:
+        1;
+
+    padding:
+        15px;
+
+    border:
+        0;
+
+    outline:
+        none;
+
+    background:
+        #080d16;
+
+    color:
+        white;
+}
+
+.command button,
+.section-head button,
+.node-options button,
+.save {
+    padding:
+        12px 17px;
+
+    border:
+        0;
+
+    background:
+        #3d8bff;
+
+    color:
+        white;
+
+    cursor:
+        pointer;
+}
+
+.section-head {
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+}
+
+.file,
+.info-card {
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    padding:
+        15px;
+
+    margin-top:
+        9px;
+
+    border:
+        1px solid #151c29;
+
+    border-radius:
+        10px;
+
+    background:
+        #080d16;
+}
+
+.info-card span {
+    color:
+        #8490a5;
+}
+
+.node-options {
+    display:
+        flex;
+
+    gap:
+        10px;
+
+    margin-top:
+        20px;
+}
+
+label {
+    display:
+        block;
+
+    color:
+        #8490a5;
+
+    margin-top:
+        15px;
+}
+
+label input {
+    display:
+        block;
+
+    width:
+        100%;
+
+    margin-top:
+        8px;
+
+    padding:
+        13px;
+
+    border:
+        1px solid #151c29;
+
+    border-radius:
+        10px;
+
+    background:
+        #080d16;
+
+    color:
+        white;
+}
+
+.save {
+    margin-top:
+        20px;
+
+    border-radius:
+        10px;
+}
