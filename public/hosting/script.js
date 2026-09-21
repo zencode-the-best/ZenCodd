@@ -1,336 +1,591 @@
-const modal =
-    document.getElementById("serviceModal");
+const prices = {
+    minecraft: {
+        Dirt: {
+            7: 2.99,
+            30: 9.99,
+            90: 24.99
+        },
+        Obsidian: {
+            7: 6.99,
+            30: 19.99,
+            90: 49.99
+        },
+        Złoto: {
+            7: 11.99,
+            30: 34.99,
+            90: 89.99
+        },
+        Szmaragd: {
+            7: 18.99,
+            30: 54.99,
+            90: 139.99
+        },
+        Diament: {
+            7: 29.99,
+            30: 84.99,
+            90: 219.99
+        }
+    },
 
-const closeModal =
-    document.getElementById("closeModal");
+    discord: {
+        "Bot Start": {
+            7: 1,
+            30: 3,
+            90: 8
+        },
+        "Bot Plus": {
+            7: 2,
+            30: 6,
+            90: 15
+        },
+        "Bot PRO": {
+            7: 4,
+            30: 10,
+            90: 25
+        }
+    },
 
-const modalTitle =
-    document.getElementById("modalTitle");
+    web: {
+        "WWW Start": {
+            7: 2,
+            30: 5,
+            90: 12
+        },
+        "WWW Plus": {
+            7: 4,
+            30: 10,
+            90: 25
+        },
+        "WWW PRO": {
+            7: 7,
+            30: 18,
+            90: 45
+        }
+    }
+};
 
-const modalDescription =
-    document.getElementById("modalDescription");
+const serviceNames = {
+    minecraft: "Serwer Minecraft",
+    discord: "Hosting bota Discord",
+    web: "Web Hosting"
+};
 
-const serviceOptions =
-    document.getElementById("serviceOptions");
+let selectedService = null;
+let discount = 0;
+
+const selector =
+    document.getElementById("selector");
+
+const packageSelect =
+    document.getElementById("packageSelect");
+
+const durationSelect =
+    document.getElementById("durationSelect");
 
 const walletBalance =
     document.getElementById("walletBalance");
 
-const serviceButtons =
-    document.querySelectorAll(
-        ".service-button"
-    );
+const purchaseMessage =
+    document.getElementById("purchaseMessage");
 
+const discountMessage =
+    document.getElementById("discountMessage");
 
-const services = {
-
-    minecraft: {
-
-        title: "Serwery Minecraft",
-
-        description:
-            "Wybierz serwer Minecraft, aby przejść do wyboru pakietu.",
-
-        options: [
-
-            {
-                icon: "⛏️",
-                title: "Hosting Minecraft",
-                description:
-                    "Dirt, Obsidian, Złoto, Szmaragd i Diament.",
-                url:
-                    "/hosting/server.html"
-            }
-
-        ]
-
-    },
-
-
-    discord: {
-
-        title: "Boty Discord",
-
-        description:
-            "Wybierz pakiet hostingu dla swojego bota Discord.",
-
-        options: [
-
-            {
-                icon: "🤖",
-                title: "Discord Bot Hosting",
-                description:
-                    "Hosting botów Discord 24/7.",
-                url:
-                    "/hosting/order.html?service=discord"
-            }
-
-        ]
-
-    },
-
-
-    web: {
-
-        title: "Hosting WWW",
-
-        description:
-            "Wybierz pakiet dla swojej strony internetowej.",
-
-        options: [
-
-            {
-                icon: "🌐",
-                title: "Web Hosting",
-                description:
-                    "Hosting stron WWW i projektów.",
-                url:
-                    "/hosting/order.html?service=web"
-            }
-
-        ]
-
-    }
-
-};
-
-
-/* =========================================
-   PORTFEL
-========================================= */
+function money(value) {
+    return Number(value || 0)
+        .toFixed(2) + " zł";
+}
 
 async function loadWallet() {
-
-    if (!walletBalance) {
-        return;
-    }
-
     try {
-
         const response =
             await fetch(
-                "/api/wallet",
-                {
-                    credentials: "include"
-                }
+                "/api/wallet"
             );
 
         if (!response.ok) {
-
-            walletBalance.textContent =
-                "Zaloguj się";
-
             return;
-
         }
 
         const data =
             await response.json();
 
-        const balance =
-            Number(data.balance || 0);
-
         walletBalance.textContent =
-            balance
-                .toFixed(2)
-                .replace(".", ",") +
-            " zł";
-
-    } catch (error) {
-
-        console.error(
-            "Błąd portfela:",
-            error
-        );
-
+            money(data.balance);
+    } catch {
         walletBalance.textContent =
             "—";
-
     }
-
 }
 
-
-/* =========================================
-   OTWIERANIE MODALA
-========================================= */
-
-function openService(serviceId) {
-
-    const service =
-        services[serviceId];
-
-    if (!service) {
-        return;
-    }
-
-    modalTitle.textContent =
-        service.title;
-
-    modalDescription.textContent =
-        service.description;
-
-
-    serviceOptions.innerHTML =
-        service.options
-            .map(
-                option => `
-
-                    <button
-                        class="option"
-                        type="button"
-                        data-url="${option.url}">
-
-                        <span class="option-icon">
-                            ${option.icon}
-                        </span>
-
-                        <span class="option-text">
-
-                            <strong>
-                                ${escapeHTML(
-                                    option.title
-                                )}
-                            </strong>
-
-                            <small>
-                                ${escapeHTML(
-                                    option.description
-                                )}
-                            </small>
-
-                        </span>
-
-                        <span class="option-arrow">
-                            →
-                        </span>
-
-                    </button>
-
-                `
-            )
-            .join("");
-
-
-    serviceOptions
-        .querySelectorAll(".option")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const url =
-                        button.dataset.url;
-
-                    if (url) {
-                        window.location.href =
-                            url;
-                    }
-
-                }
+async function loadUser() {
+    try {
+        const response =
+            await fetch(
+                "/api/user"
             );
 
-        });
+        if (!response.ok) {
+            return;
+        }
 
+        const user =
+            await response.json();
 
-    modal.classList.add("show");
+        const id =
+            user.id ||
+            user.user?.id;
 
-    document.body.style.overflow =
-        "hidden";
-
+        if (
+            id ===
+            "1238570679465410571"
+        ) {
+            document
+                .getElementById(
+                    "ceoButton"
+                )
+                .classList.remove(
+                    "hidden"
+                );
+        }
+    } catch {}
 }
 
+function fillPackages() {
+    packageSelect.innerHTML = "";
 
-/* =========================================
-   ZAMYKANIE MODALA
-========================================= */
+    Object.keys(
+        prices[selectedService]
+    ).forEach(packageName => {
+        const option =
+            document.createElement(
+                "option"
+            );
 
-function closeServiceModal() {
+        option.value =
+            packageName;
 
-    modal.classList.remove("show");
+        option.textContent =
+            packageName;
 
-    document.body.style.overflow =
+        packageSelect.appendChild(
+            option
+        );
+    });
+}
+
+function calculatePrice() {
+    if (!selectedService) {
+        return 0;
+    }
+
+    const packageName =
+        packageSelect.value;
+
+    const days =
+        Number(
+            durationSelect.value
+        );
+
+    let price =
+        Number(
+            prices[
+                selectedService
+            ][packageName][days]
+        );
+
+    if (discount > 0) {
+        price =
+            price *
+            (1 - discount / 100);
+    }
+
+    return Number(
+        price.toFixed(2)
+    );
+}
+
+function updateSummary() {
+    const packageName =
+        packageSelect.value;
+
+    const days =
+        Number(
+            durationSelect.value
+        );
+
+    const price =
+        calculatePrice();
+
+    document.getElementById(
+        "summaryService"
+    ).textContent =
+        serviceNames[
+            selectedService
+        ];
+
+    document.getElementById(
+        "summaryPackage"
+    ).textContent =
+        packageName;
+
+    document.getElementById(
+        "summaryDays"
+    ).textContent =
+        `${days} dni`;
+
+    document.getElementById(
+        "summaryPrice"
+    ).textContent =
+        money(price);
+
+    document.getElementById(
+        "purchaseButton"
+    ).textContent =
+        `Kup za ${money(price)}`;
+}
+
+function openSelector(service) {
+    selectedService = service;
+    discount = 0;
+
+    document.getElementById(
+        "discountInput"
+    ).value = "";
+
+    discountMessage.textContent =
         "";
 
+    purchaseMessage.textContent =
+        "";
+
+    document.getElementById(
+        "selectedType"
+    ).textContent =
+        service.toUpperCase();
+
+    document.getElementById(
+        "selectedTitle"
+    ).textContent =
+        serviceNames[service];
+
+    fillPackages();
+
+    updateSummary();
+
+    selector.classList.remove(
+        "hidden"
+    );
+
+    selector.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 }
 
+document
+    .querySelectorAll(
+        ".go-button"
+    )
+    .forEach(button => {
+        button.addEventListener(
+            "click",
+            () => {
+                openSelector(
+                    button.dataset.service
+                );
+            }
+        );
+    });
 
-serviceButtons.forEach(button => {
-
-    button.addEventListener(
+document
+    .getElementById(
+        "closeSelector"
+    )
+    .addEventListener(
         "click",
         () => {
-
-            const service =
-                button.dataset.service;
-
-            openService(service);
-
+            selector.classList.add(
+                "hidden"
+            );
         }
     );
 
-});
-
-
-closeModal.addEventListener(
-    "click",
-    closeServiceModal
+packageSelect.addEventListener(
+    "change",
+    updateSummary
 );
 
+durationSelect.addEventListener(
+    "change",
+    updateSummary
+);
 
-modal.addEventListener(
-    "click",
-    event => {
+document
+    .getElementById(
+        "discountButton"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+            const code =
+                document
+                    .getElementById(
+                        "discountInput"
+                    )
+                    .value
+                    .trim();
 
-        if (
-            event.target.classList
-                .contains("modal-backdrop")
-        ) {
+            if (!code) {
+                discount = 0;
 
-            closeServiceModal();
+                discountMessage.textContent =
+                    "Wpisz kod rabatowy.";
 
+                updateSummary();
+
+                return;
+            }
+
+            try {
+                const response =
+                    await fetch(
+                        "/api/hosting/codes/check",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    code
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!data.success) {
+                    discount = 0;
+
+                    discountMessage.textContent =
+                        data.message;
+
+                    updateSummary();
+
+                    return;
+                }
+
+                discount =
+                    Number(
+                        data.discount
+                    ) || 0;
+
+                discountMessage.textContent =
+                    `✓ Rabat ${discount}% został aktywowany.`;
+
+                updateSummary();
+            } catch {
+                discountMessage.textContent =
+                    "Nie udało się sprawdzić kodu.";
+            }
+        }
+    );
+
+document
+    .getElementById(
+        "purchaseButton"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+            if (!selectedService) {
+                return;
+            }
+
+            const packageName =
+                packageSelect.value;
+
+            const days =
+                Number(
+                    durationSelect.value
+                );
+
+            const discountCode =
+                document
+                    .getElementById(
+                        "discountInput"
+                    )
+                    .value
+                    .trim();
+
+            const price =
+                calculatePrice();
+
+            purchaseMessage.textContent =
+                "Tworzenie zamówienia...";
+
+            try {
+                const response =
+                    await fetch(
+                        "/api/hosting/purchase",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    service:
+                                        selectedService,
+
+                                    packageName,
+
+                                    days,
+
+                                    discountCode
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!data.success) {
+                    purchaseMessage.textContent =
+                        data.message;
+
+                    return;
+                }
+
+                purchaseMessage.textContent =
+                    `✓ Zamówienie ${data.service.id} zostało zapisane za ${money(price)}.`;
+
+                walletBalance.textContent =
+                    money(data.balance);
+
+                await loadServices();
+            } catch {
+                purchaseMessage.textContent =
+                    "Wystąpił błąd podczas zakupu.";
+            }
+        }
+    );
+
+async function loadServices() {
+    const container =
+        document.getElementById(
+            "myServices"
+        );
+
+    try {
+        const response =
+            await fetch(
+                "/api/hosting/services"
+            );
+
+        if (!response.ok) {
+            container.innerHTML = `
+                <div class="empty-box">
+                    Zaloguj się, aby zobaczyć swoje usługi.
+                </div>
+            `;
+
+            return;
         }
 
-    }
-);
-
-
-document.addEventListener(
-    "keydown",
-    event => {
+        const data =
+            await response.json();
 
         if (
-            event.key === "Escape" &&
-            modal.classList.contains("show")
+            !data.services ||
+            data.services.length === 0
         ) {
+            container.innerHTML = `
+                <div class="empty-box">
+                    Nie masz jeszcze żadnych usług.
+                </div>
+            `;
 
-            closeServiceModal();
-
+            return;
         }
 
+        container.innerHTML =
+            data.services
+                .map(service => `
+                    <div class="my-service">
+
+                        <h3>
+                            ${escapeHTML(
+                                service.package
+                            )}
+                        </h3>
+
+                        <p>
+                            ${escapeHTML(
+                                service.type
+                            )}
+                        </p>
+
+                        <p>
+                            ${service.days} dni
+                        </p>
+
+                        <p>
+                            ${money(
+                                service.price
+                            )}
+                        </p>
+
+                        <span class="status">
+                            ${statusText(
+                                service.status
+                            )}
+                        </span>
+
+                    </div>
+                `)
+                .join("");
+    } catch {
+        container.innerHTML = `
+            <div class="empty-box">
+                Nie udało się pobrać usług.
+            </div>
+        `;
     }
-);
+}
 
+function statusText(status) {
+    if (
+        status ===
+        "awaiting_provisioning"
+    ) {
+        return "Oczekuje na uruchomienie";
+    }
 
-/* =========================================
-   OCHRONA HTML
-========================================= */
+    if (status === "active") {
+        return "Aktywna";
+    }
+
+    return status || "Nieznany";
+}
 
 function escapeHTML(value) {
-
-    return String(value)
+    return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-
 }
 
-
-/* =========================================
-   START
-========================================= */
-
 loadWallet();
+loadUser();
+loadServices();

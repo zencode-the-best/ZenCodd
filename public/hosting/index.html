@@ -2,40 +2,53 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ZenityHost | ZenityCode</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="/hosting/style.css">
+    <title>ZenityHost — ZenityCode</title>
+
+    <link
+        rel="stylesheet"
+        href="/hosting/style.css?v=3"
+    >
 </head>
 
 <body>
 
 <header class="topbar">
 
-    <a href="/hosting" class="brand">
-        <div class="brand-name">
-            Zenity<span>Host</span>
-        </div>
-
-        <div class="brand-sub">
-            by ZenityCode
-        </div>
+    <a
+        href="/hosting"
+        class="brand"
+    >
+        <span>ZENITY</span>HOST
     </a>
 
     <div class="top-actions">
 
-        <a href="/wallet" class="wallet-box">
-            <span class="wallet-icon">💰</span>
+        <div class="wallet-box">
+            <span>Portfel</span>
+            <strong id="walletBalance">
+                0.00 zł
+            </strong>
+        </div>
 
-            <div>
-                <small>Twój portfel</small>
-                <strong id="walletBalance">Ładowanie...</strong>
-            </div>
+        <a
+            href="/"
+            class="nav-button"
+        >
+            ZenityCode
         </a>
 
-        <a href="/dashboard" class="dashboard-button">
-            Panel
+        <a
+            href="/admin"
+            id="ceoButton"
+            class="ceo-button hidden"
+        >
+            CEO
         </a>
 
     </div>
@@ -43,320 +56,321 @@
 </header>
 
 
-<main class="page">
+<main>
 
-    <section class="hero">
+<section class="hero">
 
-        <div class="hero-badge">
-            ZENITYCODE HOSTING
+    <div class="hero-badge">
+        ZENITYCODE HOSTING
+    </div>
+
+    <h1>
+        Zenity<span>Host</span>
+    </h1>
+
+    <p>
+        Hosting dla Minecraft, botów Discord
+        i stron WWW.
+    </p>
+
+</section>
+
+
+<section class="services-section">
+
+    <div class="section-heading">
+        <div>
+            <small>WYBIERZ USŁUGĘ</small>
+            <h2>Co chcesz uruchomić?</h2>
         </div>
-
-        <h1>
-            Hosting bez<br>
-            zbędnego kombinowania.
-        </h1>
-
-        <p>
-            Wybierz usługę, której potrzebujesz.
-            Następnie wybierz pakiet i okres działania.
-            Wszystko opłacasz bezpośrednio z portfela ZenityCode.
-        </p>
-
-    </section>
+    </div>
 
 
-    <section class="services">
+    <div class="service-grid">
 
         <article class="service-card minecraft">
 
-            <div class="service-top">
+            <div class="service-icon">
+                ⛏
+            </div>
 
-                <div class="service-icon">
-                    ⛏️
-                </div>
-
-                <span class="service-tag">
+            <div>
+                <span class="service-type">
                     MINECRAFT
                 </span>
 
+                <h3>
+                    Serwer Minecraft
+                </h3>
+
+                <p>
+                    Wybierz pakiet i czas działania
+                    serwera.
+                </p>
             </div>
 
-            <h2>
-                Serwery Minecraft
-            </h2>
-
-            <p>
-                Własny serwer Minecraft z odpowiednią ilością
-                RAM, przestrzeni i miejscem dla graczy.
-            </p>
-
-            <div class="service-bottom">
-
-                <div>
-                    <small>Od</small>
-                    <strong>2,99 zł</strong>
-                    <span>/ 7 dni</span>
-                </div>
-
-                <button
-                    class="service-button"
-                    data-service="minecraft">
-
-                    Przejdź
-                    <span>→</span>
-
-                </button>
-
-            </div>
+            <button
+                class="go-button"
+                data-service="minecraft"
+            >
+                Przejdź
+                <span>→</span>
+            </button>
 
         </article>
 
 
         <article class="service-card discord">
 
-            <div class="service-top">
+            <div class="service-icon">
+                ◈
+            </div>
 
-                <div class="service-icon">
-                    🤖
-                </div>
-
-                <span class="service-tag">
+            <div>
+                <span class="service-type">
                     DISCORD
                 </span>
 
+                <h3>
+                    Hosting bota Discord
+                </h3>
+
+                <p>
+                    Hosting dla Twojego bota
+                    Discord.
+                </p>
             </div>
 
-            <h2>
-                Boty Discord
-            </h2>
-
-            <p>
-                Hosting dla botów Discord działających
-                24 godziny na dobę, 7 dni w tygodniu.
-            </p>
-
-            <div class="service-bottom">
-
-                <div>
-                    <small>Od</small>
-                    <strong>1 zł</strong>
-                    <span>/ okres</span>
-                </div>
-
-                <button
-                    class="service-button"
-                    data-service="discord">
-
-                    Przejdź
-                    <span>→</span>
-
-                </button>
-
-            </div>
+            <button
+                class="go-button"
+                data-service="discord"
+            >
+                Przejdź
+                <span>→</span>
+            </button>
 
         </article>
 
 
         <article class="service-card web">
 
-            <div class="service-top">
+            <div class="service-icon">
+                ◇
+            </div>
 
-                <div class="service-icon">
-                    🌐
-                </div>
-
-                <span class="service-tag">
-                    WEB
+            <div>
+                <span class="service-type">
+                    WWW
                 </span>
 
+                <h3>
+                    Web Hosting
+                </h3>
+
+                <p>
+                    Miejsce dla Twojej strony
+                    internetowej.
+                </p>
             </div>
 
-            <h2>
-                Hosting WWW
-            </h2>
-
-            <p>
-                Przestrzeń dla strony internetowej,
-                portfolio, sklepu lub projektu.
-            </p>
-
-            <div class="service-bottom">
-
-                <div>
-                    <small>Od</small>
-                    <strong>2 zł</strong>
-                    <span>/ okres</span>
-                </div>
-
-                <button
-                    class="service-button"
-                    data-service="web">
-
-                    Przejdź
-                    <span>→</span>
-
-                </button>
-
-            </div>
+            <button
+                class="go-button"
+                data-service="web"
+            >
+                Przejdź
+                <span>→</span>
+            </button>
 
         </article>
 
-    </section>
+    </div>
+
+</section>
 
 
-    <section class="steps">
+<section
+    id="selector"
+    class="selector hidden"
+>
 
-        <div class="step">
+    <div class="selector-header">
 
-            <span>01</span>
+        <div>
+            <small id="selectedType">
+                USŁUGA
+            </small>
 
-            <div>
-                <strong>Wybierz usługę</strong>
-                <p>Minecraft, Discord lub WWW.</p>
-            </div>
-
+            <h2 id="selectedTitle">
+                Konfiguracja
+            </h2>
         </div>
-
-        <div class="step">
-
-            <span>02</span>
-
-            <div>
-                <strong>Wybierz pakiet</strong>
-                <p>Dopasuj parametry do projektu.</p>
-            </div>
-
-        </div>
-
-        <div class="step">
-
-            <span>03</span>
-
-            <div>
-                <strong>Wybierz okres</strong>
-                <p>7, 30 albo 90 dni.</p>
-            </div>
-
-        </div>
-
-        <div class="step">
-
-            <span>04</span>
-
-            <div>
-                <strong>Opłać z portfela</strong>
-                <p>Bez ponownej płatności za hosting.</p>
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <section class="info-grid">
-
-        <div class="info-card">
-
-            <span class="info-icon">💳</span>
-
-            <div>
-                <strong>Portfel ZenityCode</strong>
-                <p>
-                    Środki z portfela możesz wykorzystać
-                    do opłacania usług hostingowych.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="info-card">
-
-            <span class="info-icon">🎟️</span>
-
-            <div>
-                <strong>Kody rabatowe</strong>
-                <p>
-                    Podczas zamówienia możesz wykorzystać
-                    aktywny kod rabatowy.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="info-card">
-
-            <span class="info-icon">🛠️</span>
-
-            <div>
-                <strong>Panel usług</strong>
-                <p>
-                    Swoje aktywne usługi znajdziesz
-                    po zalogowaniu do ZenityCode.
-                </p>
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-<div id="serviceModal" class="modal">
-
-    <div class="modal-backdrop"></div>
-
-    <div class="modal-box">
 
         <button
-            id="closeModal"
-            class="modal-close"
-            type="button">
-
+            id="closeSelector"
+            class="close-button"
+        >
             ×
-
         </button>
 
-        <div class="modal-label">
-            WYBIERZ USŁUGĘ
+    </div>
+
+
+    <div class="steps">
+
+        <div class="step active">
+            <span>1</span>
+            Pakiet
         </div>
 
-        <h2 id="modalTitle">
-            ZenityHost
-        </h2>
+        <div class="step-line"></div>
 
-        <p id="modalDescription">
-            Wybierz, co chcesz uruchomić.
-        </p>
+        <div class="step">
+            <span>2</span>
+            Czas
+        </div>
 
+        <div class="step-line"></div>
 
-        <div id="serviceOptions" class="service-options">
-
-            <button
-                class="option"
-                data-target="/hosting/server.html">
-
-                <span class="option-icon">⛏️</span>
-
-                <span class="option-text">
-                    <strong>Serwer Minecraft</strong>
-                    <small>Wybierz pakiet serwera</small>
-                </span>
-
-                <span class="option-arrow">→</span>
-
-            </button>
-
+        <div class="step">
+            <span>3</span>
+            Podsumowanie
         </div>
 
     </div>
 
-</div>
+
+    <div class="form-grid">
+
+        <label>
+            <span>Pakiet</span>
+
+            <select id="packageSelect">
+            </select>
+        </label>
 
 
-<script src="/hosting/script.js"></script>
+        <label>
+            <span>Czas trwania</span>
+
+            <select id="durationSelect">
+
+                <option value="7">
+                    7 dni
+                </option>
+
+                <option value="30">
+                    30 dni
+                </option>
+
+                <option value="90">
+                    90 dni
+                </option>
+
+            </select>
+        </label>
+
+    </div>
+
+
+    <div class="discount">
+
+        <input
+            id="discountInput"
+            type="text"
+            placeholder="Kod rabatowy"
+        >
+
+        <button
+            id="discountButton"
+        >
+            Sprawdź
+        </button>
+
+    </div>
+
+    <div
+        id="discountMessage"
+        class="discount-message"
+    ></div>
+
+
+    <div class="summary">
+
+        <div>
+            <span>Usługa</span>
+            <strong id="summaryService">
+                —
+            </strong>
+        </div>
+
+        <div>
+            <span>Pakiet</span>
+            <strong id="summaryPackage">
+                —
+            </strong>
+        </div>
+
+        <div>
+            <span>Czas</span>
+            <strong id="summaryDays">
+                —
+            </strong>
+        </div>
+
+        <div>
+            <span>Cena</span>
+            <strong id="summaryPrice">
+                0.00 zł
+            </strong>
+        </div>
+
+    </div>
+
+
+    <button
+        id="purchaseButton"
+        class="purchase-button"
+    >
+        Kup za 0.00 zł
+    </button>
+
+
+    <div
+        id="purchaseMessage"
+        class="purchase-message"
+    ></div>
+
+</section>
+
+
+<section class="my-services">
+
+    <div class="section-heading">
+
+        <div>
+            <small>MOJE USŁUGI</small>
+            <h2>Twoje hostingi</h2>
+        </div>
+
+    </div>
+
+    <div
+        id="myServices"
+        class="my-services-grid"
+    >
+
+        <div class="empty-box">
+            Ładowanie...
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<script src="/hosting/script.js?v=3"></script>
 
 </body>
 </html>

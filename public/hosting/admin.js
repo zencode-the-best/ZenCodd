@@ -1,394 +1,657 @@
-const servicesContainer =
-    document.getElementById("services");
+let selectedUserId = null;
 
-const codesContainer =
-    document.getElementById("codes");
+async function api(url, options = {}) {
+    const response =
+        await fetch(url, options);
 
-const refreshButton =
-    document.getElementById("refreshServices");
+    const data =
+        await response.json();
 
-const createButton =
-    document.getElementById("create");
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "Wystąpił błąd."
+        );
+    }
 
-const walletSearchInput =
-    document.getElementById("walletSearch");
+    return data;
+}
 
-const walletSearchButton =
-    document.getElementById(
-        "walletSearchButton"
+/* =========================================
+   STATYSTYKI
+========================================= */
+
+async function loadStats() {
+    try {
+        const services =
+            await api(
+                "/api/hosting/admin/services"
+            );
+
+        const codes =
+            await api(
+                "/api/hosting/admin/codes"
+            );
+
+        const users =
+            await api(
+                "/api/wallet/admin/users"
+            );
+
+        document.getElementById(
+            "statServices"
+        ).textContent =
+            services.services.length;
+
+        document.getElementById(
+            "statCodes"
+        ).textContent =
+            codes.codes.length;
+
+        document.getElementById(
+            "statUsers"
+        ).textContent =
+            users.users.length;
+    } catch {
+        document.getElementById(
+            "statServices"
+        ).textContent = "—";
+
+        document.getElementById(
+            "statCodes"
+        ).textContent = "—";
+
+        document.getElementById(
+            "statUsers"
+        ).textContent = "—";
+    }
+}
+
+/* =========================================
+   UŻYTKOWNICY
+========================================= */
+
+async function searchUsers() {
+    const query =
+        document
+            .getElementById(
+                "userSearch"
+            )
+            .value
+            .trim();
+
+    const list =
+        document.getElementById(
+            "usersList"
+        );
+
+    if (!query) {
+        list.innerHTML = `
+            <div class="empty">
+                Wpisz Discord ID, nick lub e-mail.
+            </div>
+        `;
+
+        return;
+    }
+
+    list.innerHTML = `
+        <div class="empty">
+            Szukanie...
+        </div>
+    `;
+
+    try {
+        const data =
+            await api(
+                `/api/wallet/admin/users?query=${encodeURIComponent(query)}`
+            );
+
+        if (
+            !data.users ||
+            data.users.length === 0
+        ) {
+            list.innerHTML = `
+                <div class="empty">
+                    Nie znaleziono użytkownika.
+                </div>
+            `;
+
+            return;
+        }
+
+        list.innerHTML =
+            data.users
+                .map(user => `
+                    <div class="user-row">
+
+                        <div>
+                            <strong>
+                                ${escapeHTML(
+                                    user.globalName ||
+                                    user.username
+                                )}
+                            </strong>
+
+                            <small>
+                                ID:
+                                ${escapeHTML(
+                                    user.userId
+                                )}
+                                ${
+                                    user.email
+                                        ? ` • ${escapeHTML(user.email)}`
+                                        : ""
+                                }
+                            </small>
+                        </div>
+
+                        <button
+                            onclick="selectUser('${escapeAttr(user.userId)}')"
+                        >
+                            Wybierz
+                        </button>
+
+                    </div>
+                `)
+                .join("");
+    } catch (error) {
+        list.innerHTML = `
+            <div class="empty">
+                ${escapeHTML(
+                    error.message
+                )}
+            </div>
+        `;
+    }
+}
+
+async function selectUser(userId) {
+    selectedUserId = userId;
+
+    const section =
+        document.getElementById(
+            "selectedUser"
+        );
+
+    section.classList.remove(
+        "hidden"
     );
 
-const walletResults =
     document.getElementById(
-        "walletResults"
+        "selectedUserName"
+    ).textContent =
+        "Ładowanie...";
+
+    try {
+        const users =
+            await api(
+                `/api/wallet/admin/users?query=${encodeURIComponent(userId)}`
+            );
+
+        const user =
+            users.users.find(
+                item =>
+                    String(item.userId) ===
+                    String(userId)
+            );
+
+        const wallet =
+            await api(
+                `/api/wallet/admin/wallet/${encodeURIComponent(userId)}`
+            );
+
+        document.getElementById(
+            "selectedUserName"
+        ).textContent =
+            user
+                ? (
+                    user.globalName ||
+                    user.username
+                )
+                : userId;
+
+        document.getElementById(
+            "selectedUserDetails"
+        ).textContent =
+            user
+                ? `${user.userId}${user.email ? ` • ${user.email}` : ""}`
+                : userId;
+
+        document.getElementById(
+            "selectedBalance"
+        ).textContent =
+            money(
+                wallet.wallet.balance
+            );
+
+        await loadTransactions(
+            userId
+        );
+    } catch (error) {
+        document.getElementById(
+            "walletMessage"
+        ).textContent =
+            error.message;
+    }
+}
+
+/* =========================================
+   TRANSAKCJE
+========================================= */
+
+async function loadTransactions(userId) {
+    const container =
+        document.getElementById(
+            "userTransactions"
+        );
+
+    try {
+        const data =
+            await api(
+                `/api/wallet/admin/transactions?userId=${encodeURIComponent(userId)}`
+            );
+
+        if (
+            !data.transactions ||
+            data.transactions.length === 0
+        ) {
+            container.innerHTML = `
+                <div class="empty">
+                    Brak transakcji.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            data.transactions
+                .slice(0, 20)
+                .map(transaction => `
+                    <div class="transaction-row">
+
+                        <strong>
+                            ${transaction.type === "admin_credit"
+                                ? "Dodanie środków przez CEO"
+                                : transaction.type === "hosting_purchase"
+                                    ? "Zakup hostingu"
+                                    : "Doładowanie"}
+                        </strong>
+
+                        <small>
+                            ${transaction.amount > 0 ? "+" : ""}
+                            ${money(transaction.amount)}
+                            •
+                            ${formatDate(
+                                transaction.createdAt
+                            )}
+                        </small>
+
+                    </div>
+                `)
+                .join("");
+    } catch {
+        container.innerHTML = `
+            <div class="empty">
+                Nie udało się pobrać transakcji.
+            </div>
+        `;
+    }
+}
+
+/* =========================================
+   DODAWANIE ŚRODKÓW
+========================================= */
+
+document
+    .getElementById(
+        "addMoney"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+            if (!selectedUserId) {
+                return;
+            }
+
+            const amount =
+                Number(
+                    document.getElementById(
+                        "addAmount"
+                    ).value
+                );
+
+            const reason =
+                document.getElementById(
+                    "addReason"
+                ).value.trim();
+
+            const message =
+                document.getElementById(
+                    "walletMessage"
+                );
+
+            if (
+                !Number.isFinite(amount) ||
+                amount <= 0
+            ) {
+                message.textContent =
+                    "Podaj prawidłową kwotę.";
+
+                return;
+            }
+
+            message.textContent =
+                "Dodawanie środków...";
+
+            try {
+                const data =
+                    await api(
+                        "/api/wallet/admin/add",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    userId:
+                                        selectedUserId,
+
+                                    amount,
+
+                                    reason:
+                                        reason ||
+                                        "Doładowanie przez CEO"
+                                })
+                        }
+                    );
+
+                message.textContent =
+                    data.message;
+
+                document.getElementById(
+                    "addAmount"
+                ).value = "";
+
+                document.getElementById(
+                    "addReason"
+                ).value = "";
+
+                document.getElementById(
+                    "selectedBalance"
+                ).textContent =
+                    money(
+                        data.wallet.balance
+                    );
+
+                await loadTransactions(
+                    selectedUserId
+                );
+
+                await loadStats();
+            } catch (error) {
+                message.textContent =
+                    error.message;
+            }
+        }
     );
-
-const walletEditor =
-    document.getElementById(
-        "walletEditor"
-    );
-
-const walletSearchMessage =
-    document.getElementById(
-        "walletSearchMessage"
-    );
-
-
-let selectedWalletUser = null;
-
 
 /* =========================================
    USŁUGI
 ========================================= */
 
 async function loadServices() {
-
-    servicesContainer.innerHTML =
-        '<div class="card">Ładowanie usług...</div>';
+    const container =
+        document.getElementById(
+            "servicesList"
+        );
 
     try {
-
-        const response =
-            await fetch(
-                "/api/hosting/admin/services",
-                {
-                    credentials: "include"
-                }
+        const data =
+            await api(
+                "/api/hosting/admin/services"
             );
 
-        const data =
-            await response.json();
-
         if (
-            !response.ok ||
-            !data.success
+            !data.services ||
+            data.services.length === 0
         ) {
-
-            servicesContainer.innerHTML = `
-                <div class="card">
-
-                    <h3>
-                        Brak dostępu
-                    </h3>
-
-                    <p>
-                        Nie masz uprawnień do zarządzania
-                        usługami ZenityHost.
-                    </p>
-
+            container.innerHTML = `
+                <div class="empty">
+                    Brak usług.
                 </div>
             `;
 
             return;
-
         }
 
-
-        if (!data.services.length) {
-
-            servicesContainer.innerHTML = `
-                <div class="card">
-
-                    <h3>
-                        Brak usług
-                    </h3>
-
-                    <p>
-                        Aktualnie nie ma żadnych
-                        utworzonych usług.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        servicesContainer.innerHTML =
+        container.innerHTML =
             data.services
                 .map(service => `
+                    <div class="service-row">
 
-                    <div class="card">
+                        <div>
 
-                        <h3>
-                            🖥️
-                            ${escapeHTML(
-                                service.name ||
-                                "Serwer"
-                            )}
-                        </h3>
+                            <strong>
+                                ${escapeHTML(
+                                    service.package
+                                )}
+                            </strong>
 
-                        <p>
-                            👤 Właściciel:
-                            ${escapeHTML(
-                                service.ownerUsername ||
-                                service.ownerId ||
-                                "Nieznany"
-                            )}
-                        </p>
+                            <small>
+                                ${escapeHTML(
+                                    service.type
+                                )}
+                                •
+                                ${service.days} dni
+                                •
+                                ${money(
+                                    service.price
+                                )}
+                            </small>
 
-                        <p>
-                            📦 Pakiet:
-                            ${escapeHTML(
-                                service.plan ||
-                                "Nieznany"
-                            )}
-                        </p>
+                            <br>
 
-                        <p>
-                            ⏱️ Termin:
-                            ${escapeHTML(
-                                service.expiresAt ||
-                                "Brak"
-                            )}
-                        </p>
+                            <small>
+                                Użytkownik:
+                                ${escapeHTML(
+                                    service.ownerUsername
+                                )}
+                                •
+                                ID:
+                                ${escapeHTML(
+                                    service.ownerId
+                                )}
+                            </small>
 
-                        <span class="status">
-                            ${escapeHTML(
-                                service.status ||
-                                "offline"
-                            )}
-                        </span>
+                        </div>
+
+                        <div class="service-actions">
+
+                            <button
+                                class="danger"
+                                onclick="deleteService('${escapeAttr(service.id)}')"
+                            >
+                                Usuń
+                            </button>
+
+                        </div>
 
                     </div>
-
                 `)
                 .join("");
-
-
     } catch (error) {
-
-        console.error(error);
-
-        servicesContainer.innerHTML = `
-            <div class="card">
-
-                <h3>
-                    Błąd
-                </h3>
-
-                <p>
-                    Nie udało się pobrać usług.
-                </p>
-
+        container.innerHTML = `
+            <div class="empty">
+                ${escapeHTML(
+                    error.message
+                )}
             </div>
         `;
-
     }
-
 }
 
+async function deleteService(id) {
+    const confirmed =
+        confirm(
+            "Czy na pewno chcesz usunąć tę usługę?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        await api(
+            `/api/hosting/admin/services/${encodeURIComponent(id)}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        await loadServices();
+        await loadStats();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+document
+    .getElementById(
+        "refreshServices"
+    )
+    .addEventListener(
+        "click",
+        loadServices
+    );
 
 /* =========================================
    KODY
 ========================================= */
 
 async function loadCodes() {
-
-    codesContainer.innerHTML =
-        '<div class="code">Ładowanie kodów...</div>';
+    const container =
+        document.getElementById(
+            "codesList"
+        );
 
     try {
-
-        const response =
-            await fetch(
-                "/api/hosting/admin/codes",
-                {
-                    credentials: "include"
-                }
+        const data =
+            await api(
+                "/api/hosting/admin/codes"
             );
 
-        const data =
-            await response.json();
-
         if (
-            !response.ok ||
-            !data.success
+            !data.codes ||
+            data.codes.length === 0
         ) {
-
-            codesContainer.innerHTML = `
-                <div class="code">
-                    Brak dostępu.
+            container.innerHTML = `
+                <div class="empty">
+                    Brak kodów rabatowych.
                 </div>
             `;
 
             return;
-
         }
 
-
-        if (!data.codes.length) {
-
-            codesContainer.innerHTML = `
-                <div class="code">
-                    Nie utworzono jeszcze żadnego kodu.
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        codesContainer.innerHTML =
+        container.innerHTML =
             data.codes
                 .map(code => `
+                    <div class="code-row">
 
-                    <div class="code">
+                        <div>
 
-                        <strong>
-                            ${escapeHTML(
-                                code.code
-                            )}
-                        </strong>
+                            <strong>
+                                ${escapeHTML(
+                                    code.code
+                                )}
+                            </strong>
 
-                        <p>
-                            Rabat:
-                            ${Number(
-                                code.discount
-                            )}%
-                        </p>
+                            <small>
+                                Rabat:
+                                ${code.discount}%
+                                ${
+                                    code.expiresAt
+                                        ? ` • wygasa ${formatDate(code.expiresAt)}`
+                                        : " • bezterminowy"
+                                }
+                            </small>
 
-                        <p>
-                            Status:
+                        </div>
+
+                        <div>
+
                             <span class="${
                                 code.active
-                                    ? "active"
-                                    : "inactive"
+                                    ? "code-active"
+                                    : "code-inactive"
                             }">
                                 ${
                                     code.active
                                         ? "AKTYWNY"
-                                        : "NIEAKTYWNY"
+                                        : "WYŁĄCZONY"
                                 }
                             </span>
-                        </p>
 
-                        <p>
-                            ${
-                                code.expiresAt
-                                    ? "Wygasa: " +
-                                      new Date(
-                                          code.expiresAt
-                                      ).toLocaleString(
-                                          "pl-PL"
-                                      )
-                                    : "Bez terminu wygaśnięcia"
-                            }
-                        </p>
+                            <button
+                                class="danger"
+                                onclick="deleteCode('${escapeAttr(code.id)}')"
+                            >
+                                Usuń
+                            </button>
 
-                        <button
-                            type="button"
-                            onclick="deleteCode('${escapeHTML(
-                                code.id
-                            )}')">
-
-                            Usuń kod
-
-                        </button>
+                        </div>
 
                     </div>
-
                 `)
                 .join("");
-
-
     } catch (error) {
-
-        console.error(error);
-
-        codesContainer.innerHTML = `
-            <div class="code">
-                Błąd podczas pobierania kodów.
+        container.innerHTML = `
+            <div class="empty">
+                ${escapeHTML(
+                    error.message
+                )}
             </div>
         `;
-
     }
-
 }
 
+document
+    .getElementById(
+        "createCode"
+    )
+    .addEventListener(
+        "click",
+        async () => {
+            const code =
+                document.getElementById(
+                    "code"
+                ).value.trim();
 
-/* =========================================
-   UTWÓRZ KOD
-========================================= */
+            const discount =
+                Number(
+                    document.getElementById(
+                        "discount"
+                    ).value
+                );
 
-createButton.addEventListener(
-    "click",
-    async () => {
+            const days =
+                Number(
+                    document.getElementById(
+                        "codeDays"
+                    ).value || 0
+                );
 
-        const code =
-            document
-                .getElementById("code")
-                .value
-                .trim()
-                .toUpperCase();
-
-        const discount =
-            Number(
-                document
-                    .getElementById("discount")
-                    .value
-            );
-
-        const days =
-            Number(
-                document
-                    .getElementById("days")
-                    .value || 0
-            );
-
-
-        if (!code) {
-
-            alert("Podaj kod.");
-
-            return;
-
-        }
-
-
-        if (
-            !Number.isFinite(discount) ||
-            discount < 1 ||
-            discount > 100
-        ) {
-
-            alert(
-                "Rabat musi wynosić od 1 do 100%."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !Number.isFinite(days) ||
-            days < 0
-        ) {
-
-            alert(
-                "Ważność kodu jest nieprawidłowa."
-            );
-
-            return;
-
-        }
-
-
-        createButton.disabled = true;
-
-        try {
-
-            const response =
-                await fetch(
+            try {
+                await api(
                     "/api/hosting/admin/codes",
                     {
                         method: "POST",
-
-                        credentials: "include",
 
                         headers: {
                             "Content-Type":
@@ -404,949 +667,120 @@ createButton.addEventListener(
                     }
                 );
 
-            const data =
-                await response.json();
+                document.getElementById(
+                    "code"
+                ).value = "";
 
+                document.getElementById(
+                    "discount"
+                ).value = "";
 
-            if (
-                !response.ok ||
-                !data.success
-            ) {
+                document.getElementById(
+                    "codeDays"
+                ).value = "";
 
-                alert(
-                    data.message ||
-                    "Nie udało się utworzyć kodu."
-                );
-
-                return;
-
+                await loadCodes();
+                await loadStats();
+            } catch (error) {
+                alert(error.message);
             }
-
-
-            alert(
-                "Kod został utworzony."
-            );
-
-
-            document
-                .getElementById("code")
-                .value = "";
-
-            document
-                .getElementById("discount")
-                .value = "";
-
-            document
-                .getElementById("days")
-                .value = "";
-
-
-            await loadCodes();
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "Wystąpił błąd podczas tworzenia kodu."
-            );
-
-        } finally {
-
-            createButton.disabled = false;
-
         }
-
-    }
-);
-
-
-/* =========================================
-   USUŃ KOD
-========================================= */
+    );
 
 async function deleteCode(id) {
-
-    if (
-        !confirm(
-            "Czy na pewno chcesz usunąć ten kod?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/hosting/admin/codes/${encodeURIComponent(id)}`,
-                {
-                    method: "DELETE",
-
-                    credentials:
-                        "include"
-                }
-            );
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            alert(
-                data.message ||
-                "Nie udało się usunąć kodu."
-            );
-
-            return;
-
-        }
-
-
-        await loadCodes();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "Wystąpił błąd podczas usuwania kodu."
-        );
-
-    }
-
-}
-
-
-/* =========================================
-   WYSZUKIWANIE PORTFELA
-========================================= */
-
-async function searchWalletUser() {
-
-    const query =
-        walletSearchInput
-            .value
-            .trim();
-
-
-    if (!query) {
-
-        walletSearchMessage.textContent =
-            "Wpisz Discord ID, nick lub e-mail.";
-
-        walletSearchMessage.className =
-            "wallet-message wallet-error";
-
-        walletResults.innerHTML = "";
-
-        return;
-
-    }
-
-
-    walletSearchButton.disabled =
-        true;
-
-    walletSearchMessage.textContent =
-        "Szukanie...";
-
-    walletSearchMessage.className =
-        "wallet-message";
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/wallet/admin/search?q=${encodeURIComponent(
-                    query
-                )}`,
-                {
-                    credentials: "include"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            walletSearchMessage.textContent =
-                data.message ||
-                "Nie udało się wyszukać użytkownika.";
-
-            walletSearchMessage.className =
-                "wallet-message wallet-error";
-
-            walletResults.innerHTML = "";
-
-            return;
-
-        }
-
-
-        if (!data.users.length) {
-
-            walletSearchMessage.textContent =
-                "Nie znaleziono użytkownika w zapisanych portfelach.";
-
-            walletSearchMessage.className =
-                "wallet-message wallet-error";
-
-            walletResults.innerHTML = "";
-
-            return;
-
-        }
-
-
-        walletSearchMessage.textContent =
-            `Znaleziono: ${data.users.length}`;
-
-        walletSearchMessage.className =
-            "wallet-message wallet-success";
-
-
-        walletResults.innerHTML =
-            data.users
-                .map(
-                    user => `
-
-                        <button
-                            type="button"
-                            class="wallet-user"
-                            data-user-id="${escapeHTML(
-                                user.userId
-                            )}">
-
-                            <span class="wallet-user-icon">
-                                👤
-                            </span>
-
-                            <span class="wallet-user-info">
-
-                                <strong>
-                                    ${escapeHTML(
-                                        user.username ||
-                                        "Nieznany"
-                                    )}
-                                </strong>
-
-                                <small>
-                                    ${escapeHTML(
-                                        user.email ||
-                                        user.userId
-                                    )}
-                                </small>
-
-                            </span>
-
-                            <span class="wallet-user-balance">
-                                ${formatMoney(
-                                    user.balance
-                                )}
-                            </span>
-
-                        </button>
-
-                    `
-                )
-                .join("");
-
-
-        walletResults
-            .querySelectorAll(".wallet-user")
-            .forEach(button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        const user =
-                            data.users.find(
-                                item =>
-                                    String(
-                                        item.userId
-                                    ) ===
-                                    String(
-                                        button.dataset.userId
-                                    )
-                            );
-
-                        if (user) {
-
-                            selectWalletUser(
-                                user
-                            );
-
-                        }
-
-                    }
-                );
-
-            });
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        walletSearchMessage.textContent =
-            "Błąd podczas wyszukiwania.";
-
-        walletSearchMessage.className =
-            "wallet-message wallet-error";
-
-
-    } finally {
-
-        walletSearchButton.disabled =
-            false;
-
-    }
-
-}
-
-
-/* =========================================
-   WYBÓR UŻYTKOWNIKA
-========================================= */
-
-function selectWalletUser(user) {
-
-    selectedWalletUser =
-        user;
-
-
-    document
-        .querySelectorAll(
-            ".wallet-user"
-        )
-        .forEach(
-            item =>
-                item.classList.toggle(
-                    "selected",
-                    String(
-                        item.dataset.userId
-                    ) ===
-                    String(
-                        user.userId
-                    )
-                )
-        );
-
-
-    walletEditor.innerHTML = `
-
-        <div class="selected-user">
-
-            <div class="selected-user-label">
-                WYBRANY UŻYTKOWNIK
-            </div>
-
-            <h3>
-                ${escapeHTML(
-                    user.username ||
-                    "Nieznany"
-                )}
-            </h3>
-
-            <p>
-                Discord ID:
-                ${escapeHTML(
-                    user.userId
-                )}
-            </p>
-
-            <p>
-                ${
-                    user.email
-                        ? escapeHTML(
-                            user.email
-                        )
-                        : "Brak adresu e-mail"
-                }
-            </p>
-
-        </div>
-
-
-        <div class="current-balance">
-
-            <span>
-                AKTUALNE SALDO
-            </span>
-
-            <strong id="selectedBalance">
-                ${formatMoney(
-                    user.balance
-                )}
-            </strong>
-
-        </div>
-
-
-        <div class="add-money">
-
-            <label>
-                Kwota administracyjna
-            </label>
-
-            <div class="add-money-row">
-
-                <input
-                    id="walletAmount"
-                    type="number"
-                    min="0.01"
-                    max="10000"
-                    step="0.01"
-                    placeholder="np. 20">
-
-                <button
-                    id="addWalletMoney"
-                    type="button">
-
-                    + Dodaj środki
-
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <div
-            id="walletActionMessage"
-            class="wallet-message">
-
-        </div>
-
-
-        <div
-            id="walletTransactions"
-            class="transaction-list">
-
-            <div class="transaction-title">
-                OSTATNIE TRANSAKCJE
-            </div>
-
-            Ładowanie...
-
-        </div>
-
-    `;
-
-
-    const addButton =
-        document.getElementById(
-            "addWalletMoney"
-        );
-
-
-    addButton.addEventListener(
-        "click",
-        addWalletMoney
-    );
-
-
-    loadWalletTransactions(
-        user.userId
-    );
-
-}
-
-
-/* =========================================
-   DODANIE ŚRODKÓW
-========================================= */
-
-async function addWalletMoney() {
-
-    if (!selectedWalletUser) {
-
-        return;
-
-    }
-
-
-    const amountInput =
-        document.getElementById(
-            "walletAmount"
-        );
-
-    const message =
-        document.getElementById(
-            "walletActionMessage"
-        );
-
-
-    const amount =
-        Number(
-            amountInput.value
-        );
-
-
-    if (
-        !Number.isFinite(amount) ||
-        amount <= 0
-    ) {
-
-        message.textContent =
-            "Podaj prawidłową kwotę.";
-
-        message.className =
-            "wallet-message wallet-error";
-
-        return;
-
-    }
-
-
-    if (amount > 10000) {
-
-        message.textContent =
-            "Maksymalna kwota to 10000 zł.";
-
-        message.className =
-            "wallet-message wallet-error";
-
-        return;
-
-    }
-
-
     const confirmed =
         confirm(
-            `Dodać ${formatMoney(
-                amount
-            )} do portfela użytkownika ${selectedWalletUser.username || "użytkownika"}?`
+            "Czy na pewno usunąć ten kod?"
         );
-
 
     if (!confirmed) {
-
         return;
-
     }
-
-
-    const addButton =
-        document.getElementById(
-            "addWalletMoney"
-        );
-
-
-    addButton.disabled =
-        true;
-
 
     try {
-
-        const response =
-            await fetch(
-                "/api/wallet/admin/add",
-                {
-                    method: "POST",
-
-                    credentials:
-                        "include",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            userId:
-                                selectedWalletUser.userId,
-
-                            username:
-                                selectedWalletUser.username,
-
-                            email:
-                                selectedWalletUser.email,
-
-                            amount
-
-                        })
-
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            message.textContent =
-                data.message ||
-                "Nie udało się dodać środków.";
-
-            message.className =
-                "wallet-message wallet-error";
-
-            return;
-
-        }
-
-
-        selectedWalletUser.balance =
-            Number(
-                data.wallet.balance
-            );
-
-
-        const balanceElement =
-            document.getElementById(
-                "selectedBalance"
-            );
-
-
-        if (balanceElement) {
-
-            balanceElement.textContent =
-                formatMoney(
-                    data.wallet.balance
-                );
-
-        }
-
-
-        amountInput.value =
-            "";
-
-
-        message.textContent =
-            `Dodano ${formatMoney(
-                amount
-            )}. Nowe saldo: ${formatMoney(
-                data.wallet.balance
-            )}.`;
-
-        message.className =
-            "wallet-message wallet-success";
-
-
-        await loadWalletTransactions(
-            selectedWalletUser.userId
-        );
-
-
-        await searchWalletUser();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-            "Wystąpił błąd podczas dodawania środków.";
-
-        message.className =
-            "wallet-message wallet-error";
-
-    } finally {
-
-        addButton.disabled =
-            false;
-
-    }
-
-}
-
-
-/* =========================================
-   TRANSAKCJE
-========================================= */
-
-async function loadWalletTransactions(
-    userId
-) {
-
-    const container =
-        document.getElementById(
-            "walletTransactions"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/wallet/admin/transactions/${encodeURIComponent(
-                    userId
-                )}`,
-                {
-                    credentials:
-                        "include"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            container.innerHTML = `
-                <div class="transaction-title">
-                    Nie udało się pobrać transakcji.
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        const transactions =
-            data.transactions
-                .slice(0, 6);
-
-
-        if (!transactions.length) {
-
-            container.innerHTML = `
-                <div class="transaction-title">
-                    OSTATNIE TRANSAKCJE
-                </div>
-
-                <div class="transaction">
-                    <span>
-                        Brak transakcji
-                    </span>
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        container.innerHTML = `
-
-            <div class="transaction-title">
-                OSTATNIE TRANSAKCJE
-            </div>
-
-            ${
-                transactions
-                    .map(
-                        transaction => `
-
-                            <div class="transaction">
-
-                                <span>
-                                    ${formatTransactionType(
-                                        transaction
-                                    )}
-                                    ·
-                                    ${formatDate(
-                                        transaction.createdAt
-                                    )}
-                                </span>
-
-                                <strong>
-                                    ${
-                                        Number(
-                                            transaction.amount
-                                        ) >= 0
-                                            ? "+"
-                                            : ""
-                                    }${formatMoney(
-                                        transaction.amount
-                                    )}
-                                </strong>
-
-                            </div>
-
-                        `
-                    )
-                    .join("")
+        await api(
+            `/api/hosting/admin/codes/${encodeURIComponent(id)}`,
+            {
+                method: "DELETE"
             }
+        );
 
-        `;
-
-
+        await loadCodes();
+        await loadStats();
     } catch (error) {
-
-        console.error(error);
-
-        container.innerHTML = `
-            <div class="transaction-title">
-                Błąd podczas pobierania transakcji.
-            </div>
-        `;
-
+        alert(error.message);
     }
-
 }
-
 
 /* =========================================
-   FORMATOWANIE
+   POMOCNICZE
 ========================================= */
 
-function formatMoney(amount) {
+function money(value) {
+    const number =
+        Number(value || 0);
 
-    return Number(
-        amount || 0
-    )
-        .toFixed(2)
-        .replace(".", ",") +
-        " zł";
-
-}
-
-
-function formatDate(date) {
-
-    if (!date) {
-
-        return "—";
-
-    }
-
-
-    return new Date(
-        date
-    ).toLocaleString(
-        "pl-PL",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
+    return (
+        number.toFixed(2) +
+        " zł"
     );
-
 }
 
-
-function formatTransactionType(
-    transaction
-) {
-
-    if (
-        transaction.type ===
-        "admin_credit"
-    ) {
-
-        return "CEO";
-
+function formatDate(value) {
+    if (!value) {
+        return "—";
     }
 
-    if (
-        transaction.type ===
-        "topup"
-    ) {
-
-        return "Doładowanie";
-
-    }
-
-    return transaction.type ||
-        "Transakcja";
-
+    return new Date(value)
+        .toLocaleString(
+            "pl-PL"
+        );
 }
-
-
-/* =========================================
-   HTML
-========================================= */
 
 function escapeHTML(value) {
-
-    return String(value)
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
-
-/* =========================================
-   ENTER W WYSZUKIWANIU
-========================================= */
-
-walletSearchInput.addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            searchWalletUser();
-
-        }
-
-    }
-);
-
-
-walletSearchButton.addEventListener(
-    "click",
-    searchWalletUser
-);
-
+function escapeAttr(value) {
+    return String(value ?? "")
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'");
+}
 
 /* =========================================
    START
 ========================================= */
 
-refreshButton.addEventListener(
-    "click",
-    loadServices
-);
+document
+    .getElementById(
+        "searchUsers"
+    )
+    .addEventListener(
+        "click",
+        searchUsers
+    );
 
+document
+    .getElementById(
+        "userSearch"
+    )
+    .addEventListener(
+        "keydown",
+        event => {
+            if (
+                event.key ===
+                "Enter"
+            ) {
+                searchUsers();
+            }
+        }
+    );
+
+loadStats();
 loadServices();
 loadCodes();
