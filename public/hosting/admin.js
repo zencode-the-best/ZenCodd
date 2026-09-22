@@ -1,786 +1,504 @@
-let selectedUserId = null;
+const API = "/api/hosting";
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  setupTabs();
+  setupButtons();
+
+  await loadStats();
+  await loadServices();
+  await loadCodes();
+});
 
 async function api(url, options = {}) {
-    const response =
-        await fetch(url, options);
 
-    const data =
-        await response.json();
-
-    if (!response.ok) {
-        throw new Error(
-            data.message ||
-            "Wystąpił błąd."
-        );
+  const response = await fetch(url, {
+    credentials: "include",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
     }
+  });
 
-    return data;
+  let data = {};
+
+  try {
+    data = await response.json();
+  } catch {}
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ||
+      data.message ||
+      `HTTP ${response.status}`
+    );
+  }
+
+  return data;
 }
 
-/* =========================================
-   STATYSTYKI
-========================================= */
+function setupTabs() {
+
+  const buttons =
+    document.querySelectorAll("[data-tab]");
+
+  buttons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      const tab = button.dataset.tab;
+
+      buttons.forEach(item =>
+        item.classList.remove("active")
+      );
+
+      button.classList.add("active");
+
+      document.querySelectorAll(".tab")
+        .forEach(section =>
+          section.classList.remove("active")
+        );
+
+      const selected =
+        document.getElementById(`tab-${tab}`);
+
+      if (selected) {
+        selected.classList.add("active");
+      }
+
+      const titles = {
+        dashboard: "Dashboard CEO",
+        users: "Użytkownicy",
+        wallets: "Portfele",
+        services: "Wszystkie usługi",
+        codes: "Kody rabatowe",
+        settings: "Zarządzanie"
+      };
+
+      document.getElementById("pageTitle")
+        .textContent = titles[tab] || "CEO";
+    });
+  });
+
+  const hash =
+    location.hash.replace("#", "");
+
+  if (hash) {
+
+    const button =
+      document.querySelector(`[data-tab="${hash}"]`);
+
+    if (button) {
+      button.click();
+    }
+  }
+}
+
+function setupButtons() {
+
+  document
+    .getElementById("searchUserButton")
+    ?.addEventListener("click", searchUser);
+
+  document
+    .getElementById("loadWalletButton")
+    ?.addEventListener("click", loadWallet);
+
+  document
+    .getElementById("refreshServicesButton")
+    ?.addEventListener("click", loadServices);
+
+  document
+    .getElementById("createCodeButton")
+    ?.addEventListener("click", createCode);
+
+  document
+    .getElementById("reloadAllButton")
+    ?.addEventListener("click", async () => {
+      await loadStats();
+      await loadServices();
+      await loadCodes();
+    });
+}
 
 async function loadStats() {
-    try {
-        const services =
-            await api(
-                "/api/hosting/admin/services"
-            );
 
-        const codes =
-            await api(
-                "/api/hosting/admin/codes"
-            );
+  try {
 
-        const users =
-            await api(
-                "/api/wallet/admin/users"
-            );
+    const data =
+      await api(`${API}/admin/stats`);
 
-        document.getElementById(
-            "statServices"
-        ).textContent =
-            services.services.length;
+    const stats =
+      data.stats || data;
 
-        document.getElementById(
-            "statCodes"
-        ).textContent =
-            codes.codes.length;
-
-        document.getElementById(
-            "statUsers"
-        ).textContent =
-            users.users.length;
-    } catch {
-        document.getElementById(
-            "statServices"
-        ).textContent = "—";
-
-        document.getElementById(
-            "statCodes"
-        ).textContent = "—";
-
-        document.getElementById(
-            "statUsers"
-        ).textContent = "—";
-    }
-}
-
-/* =========================================
-   UŻYTKOWNICY
-========================================= */
-
-async function searchUsers() {
-    const query =
-        document
-            .getElementById(
-                "userSearch"
-            )
-            .value
-            .trim();
-
-    const list =
-        document.getElementById(
-            "usersList"
-        );
-
-    if (!query) {
-        list.innerHTML = `
-            <div class="empty">
-                Wpisz Discord ID, nick lub e-mail.
-            </div>
-        `;
-
-        return;
-    }
-
-    list.innerHTML = `
-        <div class="empty">
-            Szukanie...
-        </div>
-    `;
-
-    try {
-        const data =
-            await api(
-                `/api/wallet/admin/users?query=${encodeURIComponent(query)}`
-            );
-
-        if (
-            !data.users ||
-            data.users.length === 0
-        ) {
-            list.innerHTML = `
-                <div class="empty">
-                    Nie znaleziono użytkownika.
-                </div>
-            `;
-
-            return;
-        }
-
-        list.innerHTML =
-            data.users
-                .map(user => `
-                    <div class="user-row">
-
-                        <div>
-                            <strong>
-                                ${escapeHTML(
-                                    user.globalName ||
-                                    user.username
-                                )}
-                            </strong>
-
-                            <small>
-                                ID:
-                                ${escapeHTML(
-                                    user.userId
-                                )}
-                                ${
-                                    user.email
-                                        ? ` • ${escapeHTML(user.email)}`
-                                        : ""
-                                }
-                            </small>
-                        </div>
-
-                        <button
-                            onclick="selectUser('${escapeAttr(user.userId)}')"
-                        >
-                            Wybierz
-                        </button>
-
-                    </div>
-                `)
-                .join("");
-    } catch (error) {
-        list.innerHTML = `
-            <div class="empty">
-                ${escapeHTML(
-                    error.message
-                )}
-            </div>
-        `;
-    }
-}
-
-async function selectUser(userId) {
-    selectedUserId = userId;
-
-    const section =
-        document.getElementById(
-            "selectedUser"
-        );
-
-    section.classList.remove(
-        "hidden"
+    setText(
+      "statServices",
+      stats.services ??
+      stats.totalServices ??
+      0
     );
 
-    document.getElementById(
-        "selectedUserName"
-    ).textContent =
-        "Ładowanie...";
-
-    try {
-        const users =
-            await api(
-                `/api/wallet/admin/users?query=${encodeURIComponent(userId)}`
-            );
-
-        const user =
-            users.users.find(
-                item =>
-                    String(item.userId) ===
-                    String(userId)
-            );
-
-        const wallet =
-            await api(
-                `/api/wallet/admin/wallet/${encodeURIComponent(userId)}`
-            );
-
-        document.getElementById(
-            "selectedUserName"
-        ).textContent =
-            user
-                ? (
-                    user.globalName ||
-                    user.username
-                )
-                : userId;
-
-        document.getElementById(
-            "selectedUserDetails"
-        ).textContent =
-            user
-                ? `${user.userId}${user.email ? ` • ${user.email}` : ""}`
-                : userId;
-
-        document.getElementById(
-            "selectedBalance"
-        ).textContent =
-            money(
-                wallet.wallet.balance
-            );
-
-        await loadTransactions(
-            userId
-        );
-    } catch (error) {
-        document.getElementById(
-            "walletMessage"
-        ).textContent =
-            error.message;
-    }
-}
-
-/* =========================================
-   TRANSAKCJE
-========================================= */
-
-async function loadTransactions(userId) {
-    const container =
-        document.getElementById(
-            "userTransactions"
-        );
-
-    try {
-        const data =
-            await api(
-                `/api/wallet/admin/transactions?userId=${encodeURIComponent(userId)}`
-            );
-
-        if (
-            !data.transactions ||
-            data.transactions.length === 0
-        ) {
-            container.innerHTML = `
-                <div class="empty">
-                    Brak transakcji.
-                </div>
-            `;
-
-            return;
-        }
-
-        container.innerHTML =
-            data.transactions
-                .slice(0, 20)
-                .map(transaction => `
-                    <div class="transaction-row">
-
-                        <strong>
-                            ${transaction.type === "admin_credit"
-                                ? "Dodanie środków przez CEO"
-                                : transaction.type === "hosting_purchase"
-                                    ? "Zakup hostingu"
-                                    : "Doładowanie"}
-                        </strong>
-
-                        <small>
-                            ${transaction.amount > 0 ? "+" : ""}
-                            ${money(transaction.amount)}
-                            •
-                            ${formatDate(
-                                transaction.createdAt
-                            )}
-                        </small>
-
-                    </div>
-                `)
-                .join("");
-    } catch {
-        container.innerHTML = `
-            <div class="empty">
-                Nie udało się pobrać transakcji.
-            </div>
-        `;
-    }
-}
-
-/* =========================================
-   DODAWANIE ŚRODKÓW
-========================================= */
-
-document
-    .getElementById(
-        "addMoney"
-    )
-    .addEventListener(
-        "click",
-        async () => {
-            if (!selectedUserId) {
-                return;
-            }
-
-            const amount =
-                Number(
-                    document.getElementById(
-                        "addAmount"
-                    ).value
-                );
-
-            const reason =
-                document.getElementById(
-                    "addReason"
-                ).value.trim();
-
-            const message =
-                document.getElementById(
-                    "walletMessage"
-                );
-
-            if (
-                !Number.isFinite(amount) ||
-                amount <= 0
-            ) {
-                message.textContent =
-                    "Podaj prawidłową kwotę.";
-
-                return;
-            }
-
-            message.textContent =
-                "Dodawanie środków...";
-
-            try {
-                const data =
-                    await api(
-                        "/api/wallet/admin/add",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    userId:
-                                        selectedUserId,
-
-                                    amount,
-
-                                    reason:
-                                        reason ||
-                                        "Doładowanie przez CEO"
-                                })
-                        }
-                    );
-
-                message.textContent =
-                    data.message;
-
-                document.getElementById(
-                    "addAmount"
-                ).value = "";
-
-                document.getElementById(
-                    "addReason"
-                ).value = "";
-
-                document.getElementById(
-                    "selectedBalance"
-                ).textContent =
-                    money(
-                        data.wallet.balance
-                    );
-
-                await loadTransactions(
-                    selectedUserId
-                );
-
-                await loadStats();
-            } catch (error) {
-                message.textContent =
-                    error.message;
-            }
-        }
+    setText(
+      "statUsers",
+      stats.users ??
+      stats.totalUsers ??
+      0
     );
 
-/* =========================================
-   USŁUGI
-========================================= */
+    setText(
+      "statActive",
+      stats.active ??
+      stats.activeServices ??
+      0
+    );
+
+    setText(
+      "statRevenue",
+      `${Number(
+        stats.revenue ??
+        stats.totalRevenue ??
+        0
+      ).toFixed(2)} zł`
+    );
+
+  } catch (error) {
+
+    console.error("Stats:", error);
+  }
+}
 
 async function loadServices() {
-    const container =
-        document.getElementById(
-            "servicesList"
-        );
 
-    try {
-        const data =
-            await api(
-                "/api/hosting/admin/services"
-            );
+  const table =
+    document.getElementById("servicesTable");
 
-        if (
-            !data.services ||
-            data.services.length === 0
-        ) {
-            container.innerHTML = `
-                <div class="empty">
-                    Brak usług.
-                </div>
-            `;
+  if (!table) return;
 
-            return;
-        }
+  table.innerHTML =
+    `<tr><td colspan="6">Ładowanie...</td></tr>`;
 
-        container.innerHTML =
-            data.services
-                .map(service => `
-                    <div class="service-row">
+  try {
 
-                        <div>
+    const data =
+      await api(`${API}/admin/services`);
 
-                            <strong>
-                                ${escapeHTML(
-                                    service.package
-                                )}
-                            </strong>
+    const services =
+      Array.isArray(data)
+        ? data
+        : data.services || [];
 
-                            <small>
-                                ${escapeHTML(
-                                    service.type
-                                )}
-                                •
-                                ${service.days} dni
-                                •
-                                ${money(
-                                    service.price
-                                )}
-                            </small>
+    if (!services.length) {
 
-                            <br>
+      table.innerHTML =
+        `<tr><td colspan="6">Brak usług.</td></tr>`;
 
-                            <small>
-                                Użytkownik:
-                                ${escapeHTML(
-                                    service.ownerUsername
-                                )}
-                                •
-                                ID:
-                                ${escapeHTML(
-                                    service.ownerId
-                                )}
-                            </small>
-
-                        </div>
-
-                        <div class="service-actions">
-
-                            <button
-                                class="danger"
-                                onclick="deleteService('${escapeAttr(service.id)}')"
-                            >
-                                Usuń
-                            </button>
-
-                        </div>
-
-                    </div>
-                `)
-                .join("");
-    } catch (error) {
-        container.innerHTML = `
-            <div class="empty">
-                ${escapeHTML(
-                    error.message
-                )}
-            </div>
-        `;
+      return;
     }
+
+    table.innerHTML =
+      services.map(service => `
+
+        <tr>
+
+          <td>${escapeHtml(service.id)}</td>
+
+          <td>
+            ${escapeHtml(
+              service.userId ||
+              service.user?.id ||
+              "-"
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(service.type || "-")}
+          </td>
+
+          <td>
+            ${escapeHtml(service.package || "-")}
+          </td>
+
+          <td>
+            ${escapeHtml(service.status || "-")}
+          </td>
+
+          <td>
+
+            <button
+              class="button danger"
+              onclick="deleteService('${escapeAttribute(service.id)}')">
+              Usuń
+            </button>
+
+          </td>
+
+        </tr>
+
+      `).join("");
+
+  } catch (error) {
+
+    table.innerHTML =
+      `<tr><td colspan="6">
+        Błąd: ${escapeHtml(error.message)}
+      </td></tr>`;
+  }
 }
 
 async function deleteService(id) {
-    const confirmed =
-        confirm(
-            "Czy na pewno chcesz usunąć tę usługę?"
-        );
 
-    if (!confirmed) {
-        return;
-    }
+  if (!id) return;
 
-    try {
-        await api(
-            `/api/hosting/admin/services/${encodeURIComponent(id)}`,
-            {
-                method: "DELETE"
-            }
-        );
+  const confirmed =
+    confirm("Czy na pewno usunąć tę usługę?");
 
-        await loadServices();
-        await loadStats();
-    } catch (error) {
-        alert(error.message);
-    }
-}
+  if (!confirmed) return;
 
-document
-    .getElementById(
-        "refreshServices"
-    )
-    .addEventListener(
-        "click",
-        loadServices
+  try {
+
+    await api(
+      `${API}/admin/services/${encodeURIComponent(id)}`,
+      {
+        method: "DELETE"
+      }
     );
 
-/* =========================================
-   KODY
-========================================= */
+    await loadServices();
+    await loadStats();
+
+  } catch (error) {
+
+    alert(error.message);
+  }
+}
+
+async function searchUser() {
+
+  const id =
+    document.getElementById("userSearch").value.trim();
+
+  const result =
+    document.getElementById("userResult");
+
+  if (!id) {
+    result.textContent =
+      "Podaj ID użytkownika.";
+    return;
+  }
+
+  try {
+
+    const data =
+      await api(
+        `${API}/admin/wallet/${encodeURIComponent(id)}`
+      );
+
+    const wallet =
+      data.wallet || data;
+
+    result.innerHTML = `
+      <div class="panel">
+        <strong>Użytkownik</strong>
+        <p>ID: ${escapeHtml(id)}</p>
+        <p>
+          Saldo:
+          <strong style="color:#f5c542;">
+            ${Number(wallet.balance || 0).toFixed(2)} zł
+          </strong>
+        </p>
+      </div>
+    `;
+
+  } catch (error) {
+
+    result.textContent =
+      error.message;
+  }
+}
+
+async function loadWallet() {
+
+  const id =
+    document.getElementById("walletUserId")
+      .value.trim();
+
+  const result =
+    document.getElementById("walletResult");
+
+  if (!id) {
+    result.textContent =
+      "Podaj ID użytkownika.";
+    return;
+  }
+
+  try {
+
+    const data =
+      await api(
+        `${API}/admin/wallet/${encodeURIComponent(id)}`
+      );
+
+    const wallet =
+      data.wallet || data;
+
+    result.innerHTML = `
+      <p>
+        Użytkownik:
+        <strong>${escapeHtml(id)}</strong>
+      </p>
+
+      <p>
+        Saldo:
+        <strong style="color:#f5c542;">
+          ${Number(wallet.balance || 0).toFixed(2)} zł
+        </strong>
+      </p>
+    `;
+
+  } catch (error) {
+
+    result.textContent =
+      error.message;
+  }
+}
+
+async function createCode() {
+
+  const code =
+    document.getElementById("newCode")
+      .value.trim();
+
+  const percent =
+    Number(
+      document.getElementById("newPercent").value
+    );
+
+  const message =
+    document.getElementById("codeMessage");
+
+  if (!code || !percent) {
+
+    message.textContent =
+      "Podaj kod i procent rabatu.";
+
+    return;
+  }
+
+  try {
+
+    await api(`${API}/admin/codes`, {
+      method: "POST",
+
+      body: JSON.stringify({
+        code,
+        percent
+      })
+    });
+
+    message.textContent =
+      "Kod został utworzony.";
+
+    document.getElementById("newCode").value = "";
+    document.getElementById("newPercent").value = "";
+
+    await loadCodes();
+
+  } catch (error) {
+
+    message.textContent =
+      error.message;
+  }
+}
 
 async function loadCodes() {
-    const container =
-        document.getElementById(
-            "codesList"
-        );
 
-    try {
-        const data =
-            await api(
-                "/api/hosting/admin/codes"
-            );
+  const container =
+    document.getElementById("codesList");
 
-        if (
-            !data.codes ||
-            data.codes.length === 0
-        ) {
-            container.innerHTML = `
-                <div class="empty">
-                    Brak kodów rabatowych.
-                </div>
-            `;
+  if (!container) return;
 
-            return;
-        }
+  try {
 
-        container.innerHTML =
-            data.codes
-                .map(code => `
-                    <div class="code-row">
+    const data =
+      await api(`${API}/admin/codes`);
 
-                        <div>
+    const codes =
+      Array.isArray(data)
+        ? data
+        : data.codes || [];
 
-                            <strong>
-                                ${escapeHTML(
-                                    code.code
-                                )}
-                            </strong>
+    if (!codes.length) {
 
-                            <small>
-                                Rabat:
-                                ${code.discount}%
-                                ${
-                                    code.expiresAt
-                                        ? ` • wygasa ${formatDate(code.expiresAt)}`
-                                        : " • bezterminowy"
-                                }
-                            </small>
+      container.innerHTML =
+        "<p>Brak kodów.</p>";
 
-                        </div>
-
-                        <div>
-
-                            <span class="${
-                                code.active
-                                    ? "code-active"
-                                    : "code-inactive"
-                            }">
-                                ${
-                                    code.active
-                                        ? "AKTYWNY"
-                                        : "WYŁĄCZONY"
-                                }
-                            </span>
-
-                            <button
-                                class="danger"
-                                onclick="deleteCode('${escapeAttr(code.id)}')"
-                            >
-                                Usuń
-                            </button>
-
-                        </div>
-
-                    </div>
-                `)
-                .join("");
-    } catch (error) {
-        container.innerHTML = `
-            <div class="empty">
-                ${escapeHTML(
-                    error.message
-                )}
-            </div>
-        `;
-    }
-}
-
-document
-    .getElementById(
-        "createCode"
-    )
-    .addEventListener(
-        "click",
-        async () => {
-            const code =
-                document.getElementById(
-                    "code"
-                ).value.trim();
-
-            const discount =
-                Number(
-                    document.getElementById(
-                        "discount"
-                    ).value
-                );
-
-            const days =
-                Number(
-                    document.getElementById(
-                        "codeDays"
-                    ).value || 0
-                );
-
-            try {
-                await api(
-                    "/api/hosting/admin/codes",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify({
-                                code,
-                                discount,
-                                days
-                            })
-                    }
-                );
-
-                document.getElementById(
-                    "code"
-                ).value = "";
-
-                document.getElementById(
-                    "discount"
-                ).value = "";
-
-                document.getElementById(
-                    "codeDays"
-                ).value = "";
-
-                await loadCodes();
-                await loadStats();
-            } catch (error) {
-                alert(error.message);
-            }
-        }
-    );
-
-async function deleteCode(id) {
-    const confirmed =
-        confirm(
-            "Czy na pewno usunąć ten kod?"
-        );
-
-    if (!confirmed) {
-        return;
+      return;
     }
 
-    try {
-        await api(
-            `/api/hosting/admin/codes/${encodeURIComponent(id)}`,
-            {
-                method: "DELETE"
-            }
-        );
+    container.innerHTML =
+      codes.map(code => `
 
-        await loadCodes();
-        await loadStats();
-    } catch (error) {
-        alert(error.message);
-    }
+        <div class="panel">
+
+          <strong>
+            ${escapeHtml(
+              code.code ||
+              code.name ||
+              "-"
+            )}
+          </strong>
+
+          <p>
+            Rabat:
+            ${Number(
+              code.percent ??
+              code.discount ??
+              0
+            )}%
+          </p>
+
+          <p>
+            Status:
+            ${code.active === false
+              ? "Wyłączony"
+              : "Aktywny"}
+          </p>
+
+        </div>
+
+      `).join("");
+
+  } catch (error) {
+
+    container.innerHTML =
+      `<p>${escapeHtml(error.message)}</p>`;
+  }
 }
 
-/* =========================================
-   POMOCNICZE
-========================================= */
+function setText(id, value) {
 
-function money(value) {
-    const number =
-        Number(value || 0);
+  const element =
+    document.getElementById(id);
 
-    return (
-        number.toFixed(2) +
-        " zł"
-    );
+  if (element) {
+    element.textContent = value;
+  }
 }
 
-function formatDate(value) {
-    if (!value) {
-        return "—";
-    }
+function escapeHtml(value) {
 
-    return new Date(value)
-        .toLocaleString(
-            "pl-PL"
-        );
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+function escapeAttribute(value) {
+
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'");
 }
-
-function escapeAttr(value) {
-    return String(value ?? "")
-        .replaceAll("\\", "\\\\")
-        .replaceAll("'", "\\'");
-}
-
-/* =========================================
-   START
-========================================= */
-
-document
-    .getElementById(
-        "searchUsers"
-    )
-    .addEventListener(
-        "click",
-        searchUsers
-    );
-
-document
-    .getElementById(
-        "userSearch"
-    )
-    .addEventListener(
-        "keydown",
-        event => {
-            if (
-                event.key ===
-                "Enter"
-            ) {
-                searchUsers();
-            }
-        }
-    );
-
-loadStats();
-loadServices();
-loadCodes();

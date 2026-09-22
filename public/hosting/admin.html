@@ -1,335 +1,467 @@
 <!DOCTYPE html>
 <html lang="pl">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
+  <title>ZenityHost — CEO</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    <title>CEO — ZenityHost</title>
+    body {
+      margin: 0;
+      background: #060d18;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
 
-    <link
-        rel="stylesheet"
-        href="/hosting/admin.css?v=3"
-    >
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
+    .sidebar {
+      width: 250px;
+      flex-shrink: 0;
+      background: #091525;
+      border-right: 1px solid rgba(255,255,255,.08);
+      padding: 20px 14px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+    }
+
+    .logo {
+      padding: 10px 12px 25px;
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .logo span {
+      color: #f5c542;
+    }
+
+    .ceo-label {
+      color: #f5c542;
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 0 12px 10px;
+      letter-spacing: 1px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .nav button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: #aebdd0;
+      padding: 13px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      background: #10243d;
+      color: #fff;
+    }
+
+    .nav button.active {
+      border-left: 3px solid #f5c542;
+    }
+
+    .back {
+      position: absolute;
+      bottom: 20px;
+      left: 14px;
+      right: 14px;
+      padding: 12px;
+      color: #8ca0b8;
+      text-decoration: none;
+    }
+
+    main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 30px;
+    }
+
+    .page-header {
+      margin-bottom: 25px;
+    }
+
+    .page-header h1 {
+      margin: 0 0 7px;
+    }
+
+    .page-header p {
+      color: #8091a7;
+      margin: 0;
+    }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: #0c1929;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .card small {
+      color: #8293a9;
+    }
+
+    .card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 27px;
+      color: #f5c542;
+    }
+
+    .panel {
+      background: #0b1727;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 9px;
+      border: 1px solid #263950;
+      background: #081321;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .button {
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 9px;
+      background: #f5c542;
+      color: #07111f;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .danger {
+      background: #c94b4b;
+      color: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      text-align: left;
+    }
+
+    th {
+      color: #f5c542;
+      font-size: 13px;
+    }
+
+    td {
+      color: #c1ccda;
+    }
+
+    .message {
+      margin-top: 10px;
+      color: #72e4af;
+    }
+
+    @media(max-width: 850px) {
+
+      .sidebar {
+        position: static;
+        width: 100%;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      main {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header class="ceo-topbar">
+<div class="layout">
 
-    <div>
-        <span class="ceo-label">
-            ZENITYCODE
-        </span>
+  <aside class="sidebar">
 
-        <h1>
-            ZenityHost
-            <strong>CEO</strong>
-        </h1>
+    <div class="logo">
+      ZENITY<span>HOST</span>
     </div>
 
-    <div class="ceo-actions">
-
-        <a
-            href="/hosting"
-            class="back-button"
-        >
-            ← Hosting
-        </a>
-
-        <a
-            href="/"
-            class="back-button"
-        >
-            ZenityCode
-        </a>
-
+    <div class="ceo-label">
+      Panel CEO
     </div>
 
-</header>
+    <nav class="nav">
 
+      <button class="active" data-tab="dashboard">
+        📊 Dashboard
+      </button>
 
-<main>
+      <button data-tab="users">
+        👥 Użytkownicy
+      </button>
 
+      <button data-tab="wallets">
+        💰 Portfele
+      </button>
 
-<section class="dashboard-intro">
+      <button data-tab="services">
+        🖥️ Wszystkie usługi
+      </button>
 
-    <div>
+      <button data-tab="codes">
+        🎟️ Kody rabatowe
+      </button>
 
-        <span>
-            PANEL WŁAŚCICIELA
-        </span>
+      <button data-tab="settings">
+        ⚙️ Zarządzanie
+      </button>
 
-        <h2>
-            Centrum zarządzania ZenityHost
-        </h2>
+    </nav>
 
-        <p>
-            Pełny dostęp do usług, portfeli,
-            użytkowników i kodów rabatowych.
+    <a class="back" href="/hosting">
+      ← Wróć do ZenityHost
+    </a>
+
+  </aside>
+
+  <main>
+
+    <header class="page-header">
+      <h1 id="pageTitle">Dashboard CEO</h1>
+      <p>Pełne zarządzanie ZenityHost.</p>
+    </header>
+
+    <!-- DASHBOARD -->
+
+    <section id="tab-dashboard" class="tab active">
+
+      <div class="cards">
+
+        <div class="card">
+          <small>Usługi</small>
+          <strong id="statServices">0</strong>
+        </div>
+
+        <div class="card">
+          <small>Użytkownicy</small>
+          <strong id="statUsers">0</strong>
+        </div>
+
+        <div class="card">
+          <small>Aktywne</small>
+          <strong id="statActive">0</strong>
+        </div>
+
+        <div class="card">
+          <small>Przychód</small>
+          <strong id="statRevenue">0 zł</strong>
+        </div>
+
+      </div>
+
+      <div class="panel">
+        <h2>ZenityHost</h2>
+        <p style="color:#8da0b7;">
+          Tutaj zarządzasz całym hostingiem.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- USERS -->
+
+    <section id="tab-users" class="tab">
+
+      <div class="panel">
+
+        <h2>Użytkownicy</h2>
+
+        <input
+          id="userSearch"
+          placeholder="ID użytkownika">
+
+        <button class="button" id="searchUserButton">
+          Szukaj
+        </button>
+
+        <div id="userResult" style="margin-top:20px;"></div>
+
+      </div>
+
+    </section>
+
+    <!-- WALLETS -->
+
+    <section id="tab-wallets" class="tab">
+
+      <div class="panel">
+
+        <h2>Portfel użytkownika</h2>
+
+        <input
+          id="walletUserId"
+          placeholder="ID Discord użytkownika">
+
+        <button class="button" id="loadWalletButton">
+          Sprawdź portfel
+        </button>
+
+        <div id="walletResult" style="margin-top:20px;"></div>
+
+      </div>
+
+    </section>
+
+    <!-- SERVICES -->
+
+    <section id="tab-services" class="tab">
+
+      <div class="panel">
+
+        <h2>Wszystkie usługi</h2>
+
+        <button class="button" id="refreshServicesButton">
+          Odśwież
+        </button>
+
+        <div style="overflow:auto;margin-top:20px;">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Użytkownik</th>
+                <th>Typ</th>
+                <th>Pakiet</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody id="servicesTable"></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- CODES -->
+
+    <section id="tab-codes" class="tab">
+
+      <div class="panel">
+
+        <h2>Nowy kod rabatowy</h2>
+
+        <input id="newCode" placeholder="Kod">
+
+        <input
+          id="newPercent"
+          type="number"
+          min="1"
+          max="100"
+          placeholder="Rabat %">
+
+        <button class="button" id="createCodeButton">
+          Utwórz kod
+        </button>
+
+        <div id="codeMessage" class="message"></div>
+
+      </div>
+
+      <div class="panel">
+
+        <h2>Kody</h2>
+
+        <div id="codesList"></div>
+
+      </div>
+
+    </section>
+
+    <!-- SETTINGS -->
+
+    <section id="tab-settings" class="tab">
+
+      <div class="panel">
+
+        <h2>Zarządzanie ZenityHost</h2>
+
+        <p style="color:#8da0b7;">
+          Tutaj znajdują się ustawienia administracyjne.
         </p>
 
-    </div>
-
-</section>
-
-
-<section class="stats">
-
-    <div class="stat-card">
-        <small>USŁUGI</small>
-        <strong id="statServices">
-            0
-        </strong>
-    </div>
-
-    <div class="stat-card">
-        <small>UŻYTKOWNICY</small>
-        <strong id="statUsers">
-            0
-        </strong>
-    </div>
-
-    <div class="stat-card">
-        <small>KODY</small>
-        <strong id="statCodes">
-            0
-        </strong>
-    </div>
-
-</section>
-
-
-<section class="admin-grid">
-
-
-<div class="panel wallet-panel">
-
-    <div class="panel-header">
-
-        <div>
-            <small>PORTFELE</small>
-            <h2>
-                Zarządzanie portfelem
-            </h2>
-        </div>
-
-    </div>
-
-
-    <div class="search-row">
-
-        <input
-            id="userSearch"
-            type="text"
-            placeholder="Discord ID, nick lub e-mail..."
-        >
-
-        <button
-            id="searchUsers"
-        >
-            Szukaj
+        <button class="button" id="reloadAllButton">
+          Odśwież dane
         </button>
 
-    </div>
+      </div>
 
+    </section>
 
-    <div
-        id="usersList"
-        class="users-list"
-    >
-
-        <div class="empty">
-            Wpisz dane użytkownika,
-            aby rozpocząć wyszukiwanie.
-        </div>
-
-    </div>
-
-
-    <div
-        id="selectedUser"
-        class="selected-user hidden"
-    >
-
-        <div class="selected-user-info">
-
-            <span>WYBRANY UŻYTKOWNIK</span>
-
-            <strong
-                id="selectedUserName"
-            >
-                —
-            </strong>
-
-            <small
-                id="selectedUserDetails"
-            >
-                —
-            </small>
-
-        </div>
-
-
-        <div class="balance-box">
-
-            <span>SALDO</span>
-
-            <strong
-                id="selectedBalance"
-            >
-                0.00 zł
-            </strong>
-
-        </div>
-
-
-        <div class="add-money">
-
-            <input
-                id="addAmount"
-                type="number"
-                min="0.01"
-                step="0.01"
-                placeholder="Kwota"
-            >
-
-            <input
-                id="addReason"
-                type="text"
-                placeholder="Powód, np. rekompensata"
-            >
-
-            <button
-                id="addMoney"
-            >
-                + Dodaj środki
-            </button>
-
-        </div>
-
-
-        <div
-            id="walletMessage"
-            class="message"
-        ></div>
-
-
-        <h3>
-            Historia transakcji
-        </h3>
-
-        <div
-            id="userTransactions"
-            class="transactions"
-        ></div>
-
-    </div>
+  </main>
 
 </div>
 
-
-<div class="panel services-panel">
-
-    <div class="panel-header">
-
-        <div>
-            <small>HOSTING</small>
-
-            <h2>
-                Wszystkie usługi
-            </h2>
-        </div>
-
-        <button
-            id="refreshServices"
-            class="small-button"
-        >
-            Odśwież
-        </button>
-
-    </div>
-
-
-    <div
-        id="servicesList"
-        class="services-list"
-    >
-
-        <div class="empty">
-            Ładowanie...
-        </div>
-
-    </div>
-
-</div>
-
-
-<div class="panel codes-panel">
-
-    <div class="panel-header">
-
-        <div>
-            <small>MARKETING</small>
-
-            <h2>
-                Kody rabatowe
-            </h2>
-        </div>
-
-    </div>
-
-
-    <div class="code-form">
-
-        <input
-            id="code"
-            type="text"
-            placeholder="Kod, np. ZENITY20"
-        >
-
-        <input
-            id="discount"
-            type="number"
-            min="1"
-            max="100"
-            placeholder="Rabat %"
-        >
-
-        <input
-            id="codeDays"
-            type="number"
-            min="0"
-            placeholder="Ważność w dniach"
-        >
-
-        <button id="createCode">
-            Utwórz kod
-        </button>
-
-    </div>
-
-
-    <div
-        id="codesList"
-        class="codes-list"
-    ></div>
-
-</div>
-
-
-</section>
-
-</main>
-
-
-<script src="/hosting/admin.js?v=3"></script>
+<script src="/hosting/admin.js?v=7"></script>
 
 </body>
 </html>
