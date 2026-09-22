@@ -12,11 +12,564 @@
 
     <link
         rel="stylesheet"
-        href="/hosting/style.css?v=3"
+        href="/hosting/style.css?v=4"
     >
+
+    <style>
+        /* =========================
+           ZENITYHOST SIDEBAR
+        ========================= */
+
+        body {
+            padding-left: 250px;
+        }
+
+        .host-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            z-index: 1000;
+
+            padding: 24px 16px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(5, 15, 35, 0.99),
+                    rgba(3, 10, 25, 0.99)
+                );
+
+            border-right: 1px solid rgba(255, 193, 7, 0.14);
+
+            display: flex;
+            flex-direction: column;
+
+            box-sizing: border-box;
+        }
+
+        .sidebar-brand {
+            display: block;
+            text-decoration: none;
+            padding: 8px 10px 24px;
+        }
+
+        .sidebar-brand strong {
+            display: block;
+            font-size: 23px;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .sidebar-brand strong span {
+            color: #f5bd35;
+        }
+
+        .sidebar-brand small {
+            display: block;
+            margin-top: 5px;
+            color: #71809b;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar-label {
+            margin: 8px 10px 8px;
+            color: #53617b;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+
+            min-height: 45px;
+            padding: 0 13px;
+
+            border-radius: 11px;
+
+            color: #aab6ca;
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255,255,255,.045);
+            color: #ffffff;
+            transform: translateX(2px);
+        }
+
+        .sidebar-link.active {
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(31, 104, 190, .28),
+                    rgba(245, 189, 53, .08)
+                );
+
+            box-shadow:
+                inset 2px 0 0 #f5bd35;
+        }
+
+        .sidebar-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-separator {
+            height: 1px;
+            margin: 18px 8px 15px;
+            background: rgba(255,255,255,.07);
+        }
+
+        .sidebar-ceo-title {
+            color: #f5bd35;
+        }
+
+        .sidebar-link.ceo {
+            color: #e7c86e;
+        }
+
+        .sidebar-link.ceo:hover {
+            color: #fff1bb;
+            background: rgba(245,189,53,.08);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .sidebar-wallet {
+            padding: 13px;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(22, 48, 88, .75),
+                    rgba(8, 20, 42, .8)
+                );
+
+            border: 1px solid rgba(255,255,255,.06);
+        }
+
+        .sidebar-wallet span {
+            display: block;
+            color: #72809a;
+            font-size: 11px;
+        }
+
+        .sidebar-wallet strong {
+            display: block;
+            margin-top: 4px;
+            color: #f5bd35;
+            font-size: 18px;
+        }
+
+        .mobile-sidebar-button {
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =========================
+           SELECTOR
+        ========================= */
+
+        .selector {
+            margin-top: 35px;
+        }
+
+        .selector.hidden {
+            display: none !important;
+        }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-button {
+            width: 42px;
+            height: 42px;
+
+            border: 0;
+            border-radius: 10px;
+
+            background: rgba(255,255,255,.06);
+            color: #fff;
+
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            color: #71809b;
+            font-size: 13px;
+        }
+
+        .step span {
+            width: 27px;
+            height: 27px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,.06);
+            color: #9ca9bd;
+        }
+
+        .step.active {
+            color: #fff;
+        }
+
+        .step.active span {
+            background: #f5bd35;
+            color: #08101f;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,.08);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-grid label {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-grid label > span {
+            color: #8795aa;
+            font-size: 12px;
+        }
+
+        .form-grid select,
+        .discount input {
+            width: 100%;
+            box-sizing: border-box;
+
+            padding: 13px 14px;
+
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 10px;
+
+            background: #09162b;
+            color: #fff;
+
+            outline: none;
+        }
+
+        .discount {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .discount input {
+            flex: 1;
+        }
+
+        .discount button {
+            border: 0;
+            border-radius: 10px;
+            padding: 0 18px;
+
+            background: rgba(255,255,255,.07);
+            color: #fff;
+
+            cursor: pointer;
+        }
+
+        .discount-message,
+        .purchase-message {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #8492a8;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+
+            margin-top: 22px;
+        }
+
+        .summary > div {
+            padding: 15px;
+
+            border-radius: 11px;
+
+            background: rgba(255,255,255,.035);
+            border: 1px solid rgba(255,255,255,.055);
+        }
+
+        .summary span {
+            display: block;
+            color: #6f7e96;
+            font-size: 11px;
+        }
+
+        .summary strong {
+            display: block;
+            margin-top: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        #summaryPrice {
+            color: #f5bd35;
+        }
+
+        .purchase-button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 15px;
+
+            border: 0;
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #e5aa25,
+                    #f5bd35
+                );
+
+            color: #07101e;
+            font-weight: 800;
+
+            cursor: pointer;
+        }
+
+        .purchase-button:disabled {
+            opacity: .55;
+            cursor: wait;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            body {
+                padding-left: 0;
+            }
+
+            .host-sidebar {
+                display: none;
+            }
+
+            .mobile-sidebar-button {
+                display: flex;
+            }
+
+            .form-grid,
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .discount {
+                flex-direction: column;
+            }
+
+            .discount button {
+                min-height: 44px;
+            }
+        }
+    </style>
 </head>
 
 <body>
+
+<aside class="host-sidebar">
+
+    <a
+        href="/hosting"
+        class="sidebar-brand"
+    >
+        <strong>
+            ZENITY<span>HOST</span>
+        </strong>
+
+        <small>
+            ZENITYCODE.PL
+        </small>
+    </a>
+
+
+    <div class="sidebar-label">
+        NAWIGACJA
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <a
+            href="/hosting"
+            class="sidebar-link active"
+        >
+            <span class="sidebar-icon">⌂</span>
+            <span>Start</span>
+        </a>
+
+        <a
+            href="/hosting"
+            class="sidebar-link"
+        >
+            <span class="sidebar-icon">◈</span>
+            <span>Hosting</span>
+        </a>
+
+        <a
+            href="#myServices"
+            class="sidebar-link"
+            data-scroll="myServices"
+        >
+            <span class="sidebar-icon">▣</span>
+            <span>Moje usługi</span>
+        </a>
+
+        <a
+            href="/"
+            class="sidebar-link"
+        >
+            <span class="sidebar-icon">Z</span>
+            <span>ZenityCode</span>
+        </a>
+
+    </nav>
+
+
+    <div
+        id="ceoNavigation"
+        class="hidden"
+    >
+
+        <div class="sidebar-separator"></div>
+
+        <div class="sidebar-label sidebar-ceo-title">
+            CENTRUM CEO
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a
+                href="/admin"
+                class="sidebar-link ceo"
+            >
+                <span class="sidebar-icon">📊</span>
+                <span>Dashboard CEO</span>
+            </a>
+
+            <a
+                href="/admin"
+                class="sidebar-link ceo"
+            >
+                <span class="sidebar-icon">👥</span>
+                <span>Użytkownicy</span>
+            </a>
+
+            <a
+                href="/admin"
+                class="sidebar-link ceo"
+            >
+                <span class="sidebar-icon">💰</span>
+                <span>Portfele</span>
+            </a>
+
+            <a
+                href="/admin"
+                class="sidebar-link ceo"
+            >
+                <span class="sidebar-icon">🖥️</span>
+                <span>Wszystkie usługi</span>
+            </a>
+
+            <a
+                href="/admin"
+                class="sidebar-link ceo"
+            >
+                <span class="sidebar-icon">🎟️</span>
+                <span>Kody rabatowe</span>
+            </a>
+
+            <a
+                href="/admin"
+                class="sidebar-link ceo"
+            >
+                <span class="sidebar-icon">⚙️</span>
+                <span>Zarządzanie</span>
+            </a>
+
+        </nav>
+
+    </div>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="sidebar-wallet">
+
+            <span>
+                Portfel
+            </span>
+
+            <strong id="sidebarWalletBalance">
+                0.00 zł
+            </strong>
+
+        </div>
+
+    </div>
+
+</aside>
+
 
 <header class="topbar">
 
@@ -30,10 +583,15 @@
     <div class="top-actions">
 
         <div class="wallet-box">
-            <span>Portfel</span>
+
+            <span>
+                Portfel
+            </span>
+
             <strong id="walletBalance">
                 0.00 zł
             </strong>
+
         </div>
 
         <a
@@ -79,22 +637,33 @@
 <section class="services-section">
 
     <div class="section-heading">
+
         <div>
-            <small>WYBIERZ USŁUGĘ</small>
-            <h2>Co chcesz uruchomić?</h2>
+            <small>
+                WYBIERZ USŁUGĘ
+            </small>
+
+            <h2>
+                Co chcesz uruchomić?
+            </h2>
         </div>
+
     </div>
 
 
     <div class="service-grid">
 
-        <article class="service-card minecraft">
+        <article
+            class="service-card minecraft"
+            data-service="minecraft"
+        >
 
             <div class="service-icon">
                 ⛏
             </div>
 
             <div>
+
                 <span class="service-type">
                     MINECRAFT
                 </span>
@@ -107,9 +676,11 @@
                     Wybierz pakiet i czas działania
                     serwera.
                 </p>
+
             </div>
 
             <button
+                type="button"
                 class="go-button"
                 data-service="minecraft"
             >
@@ -120,13 +691,17 @@
         </article>
 
 
-        <article class="service-card discord">
+        <article
+            class="service-card discord"
+            data-service="discord"
+        >
 
             <div class="service-icon">
                 ◈
             </div>
 
             <div>
+
                 <span class="service-type">
                     DISCORD
                 </span>
@@ -139,9 +714,11 @@
                     Hosting dla Twojego bota
                     Discord.
                 </p>
+
             </div>
 
             <button
+                type="button"
                 class="go-button"
                 data-service="discord"
             >
@@ -152,13 +729,17 @@
         </article>
 
 
-        <article class="service-card web">
+        <article
+            class="service-card web"
+            data-service="web"
+        >
 
             <div class="service-icon">
                 ◇
             </div>
 
             <div>
+
                 <span class="service-type">
                     WWW
                 </span>
@@ -171,9 +752,11 @@
                     Miejsce dla Twojej strony
                     internetowej.
                 </p>
+
             </div>
 
             <button
+                type="button"
                 class="go-button"
                 data-service="web"
             >
@@ -196,6 +779,7 @@
     <div class="selector-header">
 
         <div>
+
             <small id="selectedType">
                 USŁUGA
             </small>
@@ -203,9 +787,11 @@
             <h2 id="selectedTitle">
                 Konfiguracja
             </h2>
+
         </div>
 
         <button
+            type="button"
             id="closeSelector"
             class="close-button"
         >
@@ -242,15 +828,22 @@
     <div class="form-grid">
 
         <label>
-            <span>Pakiet</span>
+
+            <span>
+                Pakiet
+            </span>
 
             <select id="packageSelect">
             </select>
+
         </label>
 
 
         <label>
-            <span>Czas trwania</span>
+
+            <span>
+                Czas trwania
+            </span>
 
             <select id="durationSelect">
 
@@ -258,7 +851,7 @@
                     7 dni
                 </option>
 
-                <option value="30">
+                <option value="30" selected>
                     30 dni
                 </option>
 
@@ -267,8 +860,17 @@
                 </option>
 
             </select>
+
         </label>
 
+    </div>
+
+
+    <div
+        id="extraOptions"
+        class="form-grid"
+        style="margin-top:15px;"
+    >
     </div>
 
 
@@ -278,15 +880,18 @@
             id="discountInput"
             type="text"
             placeholder="Kod rabatowy"
+            autocomplete="off"
         >
 
         <button
+            type="button"
             id="discountButton"
         >
             Sprawdź
         </button>
 
     </div>
+
 
     <div
         id="discountMessage"
@@ -297,37 +902,61 @@
     <div class="summary">
 
         <div>
-            <span>Usługa</span>
+
+            <span>
+                Usługa
+            </span>
+
             <strong id="summaryService">
                 —
             </strong>
+
         </div>
 
+
         <div>
-            <span>Pakiet</span>
+
+            <span>
+                Pakiet
+            </span>
+
             <strong id="summaryPackage">
                 —
             </strong>
+
         </div>
 
+
         <div>
-            <span>Czas</span>
+
+            <span>
+                Czas
+            </span>
+
             <strong id="summaryDays">
                 —
             </strong>
+
         </div>
 
+
         <div>
-            <span>Cena</span>
+
+            <span>
+                Cena
+            </span>
+
             <strong id="summaryPrice">
                 0.00 zł
             </strong>
+
         </div>
 
     </div>
 
 
     <button
+        type="button"
         id="purchaseButton"
         class="purchase-button"
     >
@@ -343,19 +972,30 @@
 </section>
 
 
-<section class="my-services">
+<section
+    id="myServices"
+    class="my-services"
+>
 
     <div class="section-heading">
 
         <div>
-            <small>MOJE USŁUGI</small>
-            <h2>Twoje hostingi</h2>
+
+            <small>
+                MOJE USŁUGI
+            </small>
+
+            <h2>
+                Twoje hostingi
+            </h2>
+
         </div>
 
     </div>
 
+
     <div
-        id="myServices"
+        id="myServicesList"
         class="my-services-grid"
     >
 
@@ -370,7 +1010,7 @@
 </main>
 
 
-<script src="/hosting/script.js?v=3"></script>
+<script src="/hosting/script.js?v=4"></script>
 
 </body>
 </html>
