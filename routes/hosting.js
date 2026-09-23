@@ -215,6 +215,7 @@ function requireLogin(
 }
 
 
+
 /* =========================================================
    CEO
 ========================================================= */
@@ -2892,6 +2893,75 @@ router.delete(
     }
 );
 
+/* =========================================================
+   CEO — PORTFEL UŻYTKOWNIKA
+========================================================= */
+
+router.get(
+    "/admin/wallet/:userId",
+    requireLogin,
+    requireCEO,
+    (req, res) => {
+
+        const userId =
+            String(req.params.userId || "").trim();
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "Nie podano ID użytkownika."
+            });
+        }
+
+        const wallets =
+            readJSON(
+                WALLET_FILE,
+                []
+            );
+
+        const transactions =
+            readJSON(
+                TRANSACTIONS_FILE,
+                []
+            );
+
+        const wallet =
+            wallets.find(
+                item =>
+                    String(
+                        item.userId ??
+                        item.id ??
+                        ""
+                    ) === userId
+            );
+
+        if (!wallet) {
+            return res.status(404).json({
+                success: false,
+                message: "Nie znaleziono portfela użytkownika."
+            });
+        }
+
+        const userTransactions =
+            transactions.filter(
+                item =>
+                    String(
+                        item.userId ??
+                        item.user_id ??
+                        ""
+                    ) === userId
+            );
+
+        res.json({
+            success: true,
+
+            wallet,
+
+            transactions:
+                userTransactions
+        });
+    }
+);
 
 /* =========================================================
    CEO — STATYSTYKI
