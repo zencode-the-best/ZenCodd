@@ -653,6 +653,150 @@ function render() {
 
 
 /*
+    ŁADOWANIE WERSJI MINECRAFT
+*/
+
+async function loadMinecraftOptions() {
+
+    const response = await fetch(
+        "/api/hosting/minecraft/options",
+        {
+            credentials: "include"
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.error ||
+            data.message ||
+            "Nie udało się pobrać opcji Minecraft."
+        );
+    }
+
+    let versions = [];
+
+    if (Array.isArray(data)) {
+
+        versions = data;
+
+    } else if (Array.isArray(data.versions)) {
+
+        versions = data.versions;
+
+    } else if (
+        data.versions &&
+        typeof data.versions === "object"
+    ) {
+
+        const software =
+            document.getElementById("software")?.value ||
+            "paper";
+
+        versions =
+            Array.isArray(data.versions[software])
+                ? data.versions[software]
+                : Object.values(data.versions).flat();
+
+    } else if (data.options) {
+
+        if (Array.isArray(data.options.versions)) {
+
+            versions =
+                data.options.versions;
+
+        } else if (
+            data.options.versions &&
+            typeof data.options.versions === "object"
+        ) {
+
+            const software =
+                document.getElementById("software")?.value ||
+                "paper";
+
+            versions =
+                Array.isArray(
+                    data.options.versions[software]
+                )
+                    ? data.options.versions[software]
+                    : Object.values(
+                        data.options.versions
+                    ).flat();
+
+        }
+
+    }
+
+    versions = [
+        ...new Set(
+            versions
+                .map(version => {
+
+                    if (
+                        typeof version === "string"
+                    ) {
+                        return version;
+                    }
+
+                    if (
+                        version &&
+                        typeof version === "object"
+                    ) {
+
+                        return (
+                            version.version ||
+                            version.name ||
+                            version.id ||
+                            ""
+                        );
+
+                    }
+
+                    return "";
+
+                })
+                .filter(Boolean)
+        )
+    ];
+
+    const select =
+        document.getElementById("version");
+
+    if (!select) {
+        return;
+    }
+
+    select.innerHTML = "";
+
+    if (!versions.length) {
+
+        select.innerHTML =
+            '<option value="">Brak dostępnych wersji</option>';
+
+        return;
+
+    }
+
+    versions.forEach(version => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            version;
+
+        option.textContent =
+            `Minecraft ${version}`;
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+/*
     CONFIG
 */
 
@@ -668,20 +812,6 @@ function renderConfig() {
                 "paper",
                 "purpur",
                 "vanilla"
-            ];
-
-        const versions =
-            options.versions ||
-            options.minecraftVersions ||
-            [
-                "1.21.4",
-                "1.21.3",
-                "1.21.1",
-                "1.21",
-                "1.20.6",
-                "1.20.4",
-                "1.20.2",
-                "1.20.1"
             ];
 
         config.innerHTML = `
@@ -703,13 +833,9 @@ function renderConfig() {
 
             <select id="version">
 
-                ${versions.map(
-                    item => `
-                        <option value="${escapeHtml(item)}">
-                            Minecraft ${escapeHtml(item)}
-                        </option>
-                    `
-                ).join("")}
+                <option value="">
+                    Ładowanie wersji...
+                </option>
 
             </select>
 
@@ -722,6 +848,26 @@ function renderConfig() {
             >
 
         `;
+
+        loadMinecraftOptions()
+            .catch(error => {
+
+                const versionSelect =
+                    document.getElementById(
+                        "version"
+                    );
+
+                if (!versionSelect) {
+                    return;
+                }
+
+                versionSelect.innerHTML =
+                    `<option value="">${escapeHtml(
+                        error.message ||
+                        "Nie udało się załadować wersji"
+                    )}</option>`;
+
+            });
 
         return;
     }
