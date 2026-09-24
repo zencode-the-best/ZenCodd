@@ -1334,6 +1334,10 @@ async function loadPrices() {
 
 }
 
+/* ==============================
+   PORTFEL
+============================== */
+
 async function loadWallet() {
 
     try {
@@ -1392,41 +1396,13 @@ async function loadWallet() {
 
 }
 
-function extractVersions(data) {
-
-    if (
-        Array.isArray(data)
-    ) {
-        return data;
-    }
-
-    if (
-        Array.isArray(data?.versions)
-    ) {
-        return data.versions;
-    }
-
-    if (
-        Array.isArray(data?.data)
-    ) {
-        return data.data;
-    }
-
-    if (
-        Array.isArray(data?.data?.versions)
-    ) {
-        return data.data.versions;
-    }
-
-    return [];
-
-}
+/* ==============================
+   MINECRAFT WERSJE
+============================== */
 
 async function loadMinecraftVersions() {
 
-    if (
-        type !== "minecraft"
-    ) {
+    if (type !== "minecraft") {
         return;
     }
 
@@ -1444,104 +1420,186 @@ async function loadMinecraftVersions() {
         return;
     }
 
-    select.innerHTML =
-        `<option value="">
-            Ładowanie...
-        </option>`;
+    /*
+     * Lokalna lista wersji.
+     * Dzięki temu formularz nie będzie pokazywał
+     * "Brak dostępnych wersji", gdy API chwilowo
+     * zwróci pustą odpowiedź.
+     */
 
-    try {
+    const versions = {
 
-        const response =
-            await fetch(
-                `${API}/minecraft/options?software=${encodeURIComponent(software)}`,
-                {
-                    credentials:
-                        "include"
-                }
-            );
+        vanilla: [
+            "1.8.8",
+            "1.9.4",
+            "1.10.2",
+            "1.11.2",
+            "1.12.2",
+            "1.13.2",
+            "1.14.4",
+            "1.15.2",
+            "1.16.5",
+            "1.17.1",
+            "1.18.2",
+            "1.19.4",
+            "1.20.1",
+            "1.20.2",
+            "1.20.4",
+            "1.20.6",
+            "1.21",
+            "1.21.1",
+            "1.21.3",
+            "1.21.4",
+            "1.21.5",
+            "1.21.6",
+            "1.21.7",
+            "1.21.8"
+        ],
 
-        const data =
-            await response.json();
+        paper: [
+            "1.8.8",
+            "1.9.4",
+            "1.10.2",
+            "1.11.2",
+            "1.12.2",
+            "1.13.2",
+            "1.14.4",
+            "1.15.2",
+            "1.16.5",
+            "1.17.1",
+            "1.18.2",
+            "1.19.4",
+            "1.20.1",
+            "1.20.2",
+            "1.20.4",
+            "1.20.6",
+            "1.21",
+            "1.21.1",
+            "1.21.3",
+            "1.21.4",
+            "1.21.5",
+            "1.21.6",
+            "1.21.7",
+            "1.21.8"
+        ],
 
-        if (!response.ok) {
+        purpur: [
+            "1.14.4",
+            "1.15.2",
+            "1.16.5",
+            "1.17.1",
+            "1.18.2",
+            "1.19.4",
+            "1.20.1",
+            "1.20.2",
+            "1.20.4",
+            "1.20.6",
+            "1.21",
+            "1.21.1",
+            "1.21.3",
+            "1.21.4",
+            "1.21.5",
+            "1.21.6",
+            "1.21.7",
+            "1.21.8"
+        ],
 
-            throw new Error(
-                data.error ||
-                data.message ||
-                "Nie udało się pobrać wersji Minecraft."
-            );
+        fabric: [
+            "1.14.4",
+            "1.15.2",
+            "1.16.5",
+            "1.17.1",
+            "1.18.2",
+            "1.19.4",
+            "1.20.1",
+            "1.20.2",
+            "1.20.4",
+            "1.20.6",
+            "1.21",
+            "1.21.1",
+            "1.21.3",
+            "1.21.4",
+            "1.21.5",
+            "1.21.6",
+            "1.21.7",
+            "1.21.8"
+        ],
 
-        }
+        forge: [
+            "1.12.2",
+            "1.14.4",
+            "1.15.2",
+            "1.16.5",
+            "1.17.1",
+            "1.18.2",
+            "1.19.4",
+            "1.20.1",
+            "1.20.2",
+            "1.20.4",
+            "1.20.6",
+            "1.21",
+            "1.21.1"
+        ],
 
-        const versions =
-            extractVersions(data);
+        velocity: [
+            "3.2.0",
+            "3.3.0",
+            "3.3.1",
+            "3.4.0"
+        ]
 
-        select.innerHTML =
-            "";
+    };
 
-        if (!versions.length) {
+    const list =
+        versions[software] ||
+        versions.paper;
 
-            select.innerHTML =
-                `<option value="">
-                    Brak dostępnych wersji
-                </option>`;
+    select.innerHTML = "";
 
-            return;
-
-        }
-
-        versions.forEach(
-            version => {
-
-                const value =
-                    String(
-                        typeof version === "object"
-                            ? (
-                                version.version ||
-                                version.id ||
-                                version.name ||
-                                ""
-                            )
-                            : version
-                    );
-
-                if (!value) {
-                    return;
-                }
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-                option.value =
-                    value;
-
-                option.textContent =
-                    value;
-
-                select.appendChild(
-                    option
-                );
-
-            }
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Minecraft versions:",
-            error
-        );
+    if (!list.length) {
 
         select.innerHTML =
             `<option value="">
-                Nie udało się pobrać wersji
+                Brak dostępnych wersji
             </option>`;
 
+        return;
     }
 
+    list.forEach(
+        version => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                version;
+
+            option.textContent =
+                version;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+    /*
+     * Domyślnie ustawiamy najnowszą wersję
+     * znajdującą się na liście.
+     */
+
+    select.value =
+        list[list.length - 1];
+
 }
+
+/* ==============================
+   MINECRAFT OPTIONS
+============================== */
 
 async function loadMinecraftOptions() {
 
@@ -1649,6 +1707,10 @@ async function loadMinecraftOptions() {
     await loadMinecraftVersions();
 
 }
+
+/* ==============================
+   KOD RABATOWY
+============================== */
 
 async function checkDiscount() {
 
@@ -1771,6 +1833,10 @@ async function checkDiscount() {
     }
 
 }
+
+/* ==============================
+   ZAKUP
+============================== */
 
 async function purchaseService() {
 
@@ -1984,6 +2050,10 @@ async function purchaseService() {
 
 }
 
+/* ==============================
+   DNI
+============================== */
+
 function setupDays() {
 
     document
@@ -2035,6 +2105,10 @@ function setupDays() {
         );
 
 }
+
+/* ==============================
+   TYP USŁUGI
+============================== */
 
 function setupType() {
 
@@ -2111,6 +2185,10 @@ function setupType() {
 
 }
 
+/* ==============================
+   EVENTY
+============================== */
+
 document
     .getElementById(
         "checkCode"
@@ -2133,6 +2211,10 @@ document
         "change",
         loadMinecraftVersions
     );
+
+/* ==============================
+   START
+============================== */
 
 (async function init() {
 
