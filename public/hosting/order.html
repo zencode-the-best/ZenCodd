@@ -1,148 +1,239 @@
 <!DOCTYPE html>
 <html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ZenityHost | Zamówienie</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Zamówienie — ZenityHost</title>
 
     <style>
+
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
+            margin: 0;
             min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
+            color: #fff;
             background:
-                radial-gradient(circle at top, #102b4f, #050b14 70%);
-            color: white;
+                radial-gradient(
+                    circle at top right,
+                    rgba(30,92,170,.18),
+                    transparent 35%
+                ),
+                #07111f;
         }
 
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .top {
-            padding: 18px 6%;
+        .topbar {
+            height: 70px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background: rgba(4,9,19,.88);
-            border-bottom: 1px solid rgba(255,255,255,.08);
+            justify-content: space-between;
+            padding: 0 30px;
+            background: #091727;
+            border-bottom:
+                1px solid rgba(255,255,255,.08);
         }
 
-        .brand {
-            font-size: 21px;
-            font-weight: 800;
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
         }
 
-        .brand span {
-            color: #4da3ff;
-        }
-
-        .wallet {
-            padding: 10px 15px;
-            border-radius: 10px;
-            background: linear-gradient(135deg,#d4a72c,#f4d05c);
-            color: #111827;
-            font-weight: 800;
-        }
-
-        .container {
-            width: min(950px, 92%);
-            margin: auto;
-            padding: 45px 0 70px;
+        .logo span {
+            color: #f2c94c;
         }
 
         .back {
-            display: inline-block;
-            margin-bottom: 25px;
-            color: #70b5ff;
-            font-size: 14px;
+            color: #aebdd0;
+            text-decoration: none;
         }
 
-        .box {
-            padding: 30px;
-            border-radius: 18px;
-            background: #0b1728;
-            border: 1px solid rgba(255,255,255,.08);
+        .back:hover {
+            color: #fff;
+        }
+
+        .container {
+            width: min(
+                1100px,
+                calc(100% - 30px)
+            );
+            margin: 35px auto;
         }
 
         h1 {
-            margin-bottom: 10px;
+            margin: 0 0 8px;
+            font-size: 34px;
         }
 
-        .description {
-            margin-bottom: 25px;
-            color: #91a1b4;
-            line-height: 1.6;
+        .subtitle {
+            color: #9cabc0;
+            margin-bottom: 30px;
         }
 
-        .section {
-            margin-top: 25px;
+        .layout {
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                350px;
+            gap: 24px;
         }
 
-        .section-title {
-            margin-bottom: 10px;
-            font-size: 14px;
-            font-weight: 800;
-            color: #dce9f7;
+        .card {
+            background: #0b192b;
+            border:
+                1px solid rgba(255,255,255,.08);
+            border-radius: 18px;
+            padding: 25px;
         }
 
-        select,
-        input {
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .field {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #dce5ef;
+            font-weight: 700;
+        }
+
+        input,
+        select {
             width: 100%;
             padding: 13px 14px;
             border-radius: 10px;
-            border: 1px solid rgba(255,255,255,.1);
-            background: #071525;
-            color: white;
+            border:
+                1px solid #263b55;
+            background: #071321;
+            color: #fff;
             outline: none;
         }
 
-        select:focus,
-        input:focus {
-            border-color: #3289df;
+        input:focus,
+        select:focus {
+            border-color: #f2c94c;
         }
 
-        .durations {
+        .packages {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .duration {
-            padding: 15px;
-            border-radius: 11px;
-            background: #10243c;
-            border: 1px solid rgba(255,255,255,.08);
-            color: white;
-            cursor: pointer;
-            font-weight: 800;
-        }
-
-        .duration:hover {
-            border-color: #3289df;
-        }
-
-        .duration.active {
-            background: #1764a8;
-            border-color: #4da3ff;
-        }
-
-        .config {
-            display: grid;
+            grid-template-columns:
+                repeat(3, 1fr);
             gap: 12px;
         }
 
-        .discount-row {
+        .package {
+            padding: 18px;
+            border:
+                1px solid #263b55;
+            border-radius: 13px;
+            background: #071321;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        .package:hover {
+            border-color: #667b95;
+        }
+
+        .package.active {
+            border-color: #f2c94c;
+            background:
+                rgba(242,201,76,.08);
+        }
+
+        .package-name {
+            font-weight: 900;
+        }
+
+        .package-price {
+            margin-top: 7px;
+            color: #f2c94c;
+            font-weight: 900;
+        }
+
+        .days {
             display: grid;
-            grid-template-columns: 1fr 130px;
+            grid-template-columns:
+                repeat(3, 1fr);
             gap: 10px;
+        }
+
+        .day {
+            padding: 13px;
+            text-align: center;
+            border:
+                1px solid #263b55;
+            border-radius: 10px;
+            background: #071321;
+            cursor: pointer;
+        }
+
+        .day.active {
+            border-color: #f2c94c;
+            background:
+                rgba(242,201,76,.08);
+        }
+
+        .wallet {
+            padding: 16px;
+            margin-bottom: 20px;
+            border:
+                1px solid #263b55;
+            border-radius: 12px;
+            background: #071321;
+        }
+
+        .wallet small {
+            color: #8fa0b5;
+        }
+
+        .wallet strong {
+            display: block;
+            margin-top: 5px;
+            color: #f2c94c;
+            font-size: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 0;
+            color: #9faec1;
+        }
+
+        .summary-row strong {
+            color: #fff;
+            text-align: right;
+        }
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 14px;
+            padding-top: 18px;
+            border-top:
+                1px solid rgba(255,255,255,.08);
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+        .total strong {
+            color: #f2c94c;
         }
 
         button {
@@ -150,263 +241,410 @@
             cursor: pointer;
         }
 
-        .discount-button {
-            border-radius: 10px;
-            background: #10243c;
-            color: white;
-            font-weight: 800;
-            border: 1px solid rgba(255,255,255,.1);
-        }
-
-        .summary {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 14px;
-            background: rgba(77,163,255,.07);
-            border: 1px solid rgba(77,163,255,.18);
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 7px 0;
-            color: #aebed0;
-        }
-
-        .summary-row strong {
-            color: white;
-        }
-
-        .total {
-            margin-top: 12px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,.1);
-            font-size: 21px;
-            color: #f4d05c;
-        }
-
-        .buy {
+        .purchase {
             width: 100%;
-            margin-top: 20px;
             padding: 15px;
+            margin-top: 18px;
             border-radius: 11px;
-            background: linear-gradient(135deg,#1665ad,#3289df);
-            color: white;
+            background: #f2c94c;
+            color: #111;
             font-weight: 900;
-            font-size: 15px;
+            font-size: 16px;
         }
 
-        .buy:hover {
-            filter: brightness(1.1);
+        .purchase:disabled {
+            opacity: .45;
+            cursor: not-allowed;
         }
 
-        .message {
+        .secondary {
+            background: #14273e;
+            color: #fff;
+        }
+
+        .error {
+            display: none;
             margin-top: 15px;
             padding: 13px;
             border-radius: 10px;
-            display: none;
-            background: rgba(255,255,255,.05);
-            color: #bcd0e5;
+            color: #ff9b9b;
+            background:
+                rgba(210,50,50,.12);
+            border:
+                1px solid rgba(210,50,50,.3);
         }
 
-        .message.error {
-            display: block;
-            background: rgba(255,70,70,.08);
-            color: #ff9c9c;
-        }
-
-        .message.success {
-            display: block;
-            background: rgba(70,200,120,.08);
-            color: #8ff0b5;
+        .discount-info {
+            margin-top: 10px;
+            color: #8fa0b5;
+            font-size: 14px;
         }
 
         .loading {
-            padding: 30px 0;
-            text-align: center;
-            color: #91a1b4;
+            color: #8fa0b5;
+            padding: 15px 0;
         }
 
-        @media(max-width:700px) {
-            .durations {
+        @media (max-width: 800px) {
+
+            .layout {
                 grid-template-columns: 1fr;
             }
 
-            .discount-row {
+            .packages {
                 grid-template-columns: 1fr;
             }
 
-            .top {
-                padding: 15px 4%;
-            }
-
-            .wallet {
-                font-size: 12px;
-            }
-
-            .box {
-                padding: 20px;
+            .topbar {
+                padding: 0 15px;
             }
         }
+
     </style>
+
 </head>
 
 <body>
 
-<header class="top">
+<header class="topbar">
 
-    <a href="/hosting" class="brand">
-        Zenity<span>Host</span>
-    </a>
+    <div class="logo">
+        ZENITY<span>HOST</span>
+    </div>
 
-    <a href="/wallet" class="wallet">
-        💰 Portfel:
-        <span id="walletBalance">...</span>
+    <a
+        class="back"
+        href="/hosting"
+    >
+        ← Wróć do ZenityHost
     </a>
 
 </header>
 
 <main class="container">
 
-    <a href="/hosting" class="back">
-        ← Wróć do ZenityHost
-    </a>
+    <h1 id="title">
+        Zamówienie
+    </h1>
 
-    <div class="box">
+    <div
+        class="subtitle"
+        id="subtitle"
+    >
+        Ładowanie...
+    </div>
 
-        <h1 id="title">
-            Zamówienie
-        </h1>
+    <div class="layout">
 
-        <p id="description" class="description">
-            Wybierz pakiet i skonfiguruj usługę.
-        </p>
+        <section class="card">
 
-        <div id="loading" class="loading">
-            Ładowanie...
-        </div>
+            <h2>
+                Konfiguracja
+            </h2>
 
-        <div id="content" style="display:none;">
+            <div class="field">
 
-            <div class="section">
-
-                <div class="section-title">
+                <label>
                     Pakiet
-                </div>
-
-                <select id="packageSelect"></select>
-
-            </div>
-
-            <div class="section">
-
-                <div class="section-title">
-                    Okres
-                </div>
-
-                <div class="durations">
-
-                    <button class="duration" data-days="7">
-                        7 dni
-                    </button>
-
-                    <button class="duration" data-days="30">
-                        30 dni
-                    </button>
-
-                    <button class="duration" data-days="90">
-                        90 dni
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div class="section">
-
-                <div class="section-title">
-                    Konfiguracja
-                </div>
-
-                <div id="config" class="config"></div>
-
-            </div>
-
-            <div class="section">
-
-                <div class="section-title">
-                    Kod rabatowy
-                </div>
-
-                <div class="discount-row">
-
-                    <input
-                        id="discountCode"
-                        type="text"
-                        placeholder="np. ZENITY10"
-                    >
-
-                    <button
-                        id="discountButton"
-                        class="discount-button"
-                    >
-                        Sprawdź
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div class="summary">
-
-                <div class="summary-row">
-                    <span>Usługa</span>
-                    <strong id="summaryType">—</strong>
-                </div>
-
-                <div class="summary-row">
-                    <span>Pakiet</span>
-                    <strong id="summaryPackage">—</strong>
-                </div>
-
-                <div class="summary-row">
-                    <span>Okres</span>
-                    <strong id="summaryDays">—</strong>
-                </div>
-
-                <div class="summary-row">
-                    <span>Cena</span>
-                    <strong id="summaryPrice">0.00 zł</strong>
-                </div>
+                </label>
 
                 <div
-                    id="discountRow"
-                    class="summary-row"
-                    style="display:none;"
+                    id="packages"
+                    class="packages"
                 >
-                    <span>Rabat</span>
-                    <strong id="summaryDiscount">
-                        0%
-                    </strong>
+                    <div class="loading">
+                        Ładowanie pakietów...
+                    </div>
                 </div>
-
-                <div class="summary-row total">
-                    <span>Do zapłaty</span>
-                    <strong id="summaryTotal">
-                        0.00 zł
-                    </strong>
-                </div>
-
-                <button id="buyButton" class="buy">
-                    Kup usługę
-                </button>
-
-                <div id="message" class="message"></div>
 
             </div>
 
-        </div>
+            <div class="field">
+
+                <label>
+                    Okres
+                </label>
+
+                <div class="days">
+
+                    <div
+                        class="day active"
+                        data-days="7"
+                    >
+                        7 dni
+                    </div>
+
+                    <div
+                        class="day"
+                        data-days="30"
+                    >
+                        30 dni
+                    </div>
+
+                    <div
+                        class="day"
+                        data-days="90"
+                    >
+                        90 dni
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+                id="minecraftConfig"
+                style="display:none"
+            >
+
+                <div class="field">
+
+                    <label for="minecraftSoftware">
+                        Oprogramowanie
+                    </label>
+
+                    <select
+                        id="minecraftSoftware"
+                    >
+                        <option value="paper">
+                            Paper
+                        </option>
+
+                        <option value="purpur">
+                            Purpur
+                        </option>
+
+                        <option value="vanilla">
+                            Vanilla
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="minecraftVersion">
+                        Wersja Minecraft
+                    </label>
+
+                    <select
+                        id="minecraftVersion"
+                    >
+                        <option value="">
+                            Ładowanie...
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="minecraftName">
+                        Nazwa serwera
+                    </label>
+
+                    <input
+                        id="minecraftName"
+                        placeholder="Mój serwer Minecraft"
+                    >
+
+                </div>
+
+            </div>
+
+            <div
+                id="discordConfig"
+                style="display:none"
+            >
+
+                <div class="field">
+
+                    <label for="discordNode">
+                        Wersja Node.js
+                    </label>
+
+                    <select
+                        id="discordNode"
+                    >
+                        <option value="22">
+                            Node.js 22
+                        </option>
+
+                        <option value="20">
+                            Node.js 20
+                        </option>
+
+                        <option value="18">
+                            Node.js 18
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="discordName">
+                        Nazwa bota
+                    </label>
+
+                    <input
+                        id="discordName"
+                        placeholder="Mój bot Discord"
+                    >
+
+                </div>
+
+            </div>
+
+            <div
+                id="webConfig"
+                style="display:none"
+            >
+
+                <div class="field">
+
+                    <label for="webType">
+                        Typ strony
+                    </label>
+
+                    <select id="webType">
+
+                        <option value="static">
+                            Strona statyczna
+                        </option>
+
+                        <option value="php">
+                            PHP
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="webName">
+                        Nazwa strony
+                    </label>
+
+                    <input
+                        id="webName"
+                        placeholder="Moja strona"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <aside class="card">
+
+            <h2>
+                Podsumowanie
+            </h2>
+
+            <div class="wallet">
+
+                <small>
+                    Twój portfel
+                </small>
+
+                <strong id="wallet">
+                    0.00 zł
+                </strong>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span>
+                    Usługa
+                </span>
+
+                <strong id="summaryType">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span>
+                    Pakiet
+                </span>
+
+                <strong id="summaryPackage">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span>
+                    Okres
+                </span>
+
+                <strong id="summaryDays">
+                    7 dni
+                </strong>
+
+            </div>
+
+            <div class="field">
+
+                <label for="discountCode">
+                    Kod rabatowy
+                </label>
+
+                <input
+                    id="discountCode"
+                    placeholder="NP. START10"
+                >
+
+                <button
+                    id="checkCode"
+                    class="purchase secondary"
+                    type="button"
+                >
+                    Sprawdź kod
+                </button>
+
+                <div
+                    id="discountInfo"
+                    class="discount-info"
+                ></div>
+
+            </div>
+
+            <div class="total">
+
+                <span>
+                    Do zapłaty
+                </span>
+
+                <strong id="total">
+                    0.00 zł
+                </strong>
+
+            </div>
+
+            <button
+                id="purchaseButton"
+                class="purchase"
+                type="button"
+                disabled
+            >
+                Kup usługę
+            </button>
+
+            <div
+                id="error"
+                class="error"
+            ></div>
+
+        </aside>
 
     </div>
 
@@ -414,638 +652,271 @@
 
 <script>
 
-const API = "/api/hosting";
-
 const params =
     new URLSearchParams(
         window.location.search
     );
 
 const type =
-    params.get("type");
+    String(
+        params.get("type") ||
+        ""
+    ).toLowerCase();
 
-const names = {
-    minecraft: "Minecraft",
-    discord: "Discord Bot",
-    web: "Web Hosting"
+const API =
+    "/api/hosting";
+
+const typeNames = {
+    minecraft: "Serwery Minecraft",
+    discord: "Boty Discord",
+    web: "Strony WWW"
 };
 
-const title =
-    document.getElementById("title");
-
-const description =
-    document.getElementById("description");
-
-const loading =
-    document.getElementById("loading");
-
-const content =
-    document.getElementById("content");
-
-const packageSelect =
-    document.getElementById("packageSelect");
-
-const config =
-    document.getElementById("config");
-
-const message =
-    document.getElementById("message");
-
-const buyButton =
-    document.getElementById("buyButton");
-
-let prices = {};
-let options = {};
-let selectedDays = 30;
-let discountPercent = 0;
-
-
 /*
-    API
-*/
+ * Ceny są rozdzielone.
+ * Minecraft nie korzysta z pakietów Discord
+ * ani WWW.
+ */
 
-async function api(url, options = {}) {
+const localPrices = {
 
-    const response =
-        await fetch(
-            url,
-            {
-                credentials: "include",
-                ...options,
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(options.headers || {})
-                }
-            }
-        );
+    minecraft: {
 
-    let data = {};
+        Dirt: {
+            7: 2.99,
+            30: 9.99,
+            90: 24.99
+        },
 
-    try {
-        data =
-            await response.json();
-    } catch {
-        data = {};
-    }
+        Obsidian: {
+            7: 6.99,
+            30: 19.99,
+            90: 49.99
+        },
 
-    if (!response.ok) {
+        Złoto: {
+            7: 11.99,
+            30: 34.99,
+            90: 89.99
+        },
 
-        throw new Error(
-            data.error ||
-            data.message ||
-            `HTTP ${response.status}`
-        );
+        Szmaragd: {
+            7: 18.99,
+            30: 54.99,
+            90: 139.99
+        },
 
-    }
+        Diament: {
+            7: 29.99,
+            30: 84.99,
+            90: 219.99
+        }
 
-    return data;
-}
+    },
 
+    discord: {
 
-/*
-    WALLET
-*/
+        "Bot Start": {
+            7: 1,
+            30: 3,
+            90: 8
+        },
 
-async function loadWallet() {
+        "Bot Plus": {
+            7: 2,
+            30: 6,
+            90: 15
+        },
 
-    try {
+        "Bot PRO": {
+            7: 4,
+            30: 10,
+            90: 25
+        }
 
-        const data =
-            await fetch(
-                "/api/wallet",
-                {
-                    credentials: "include"
-                }
-            ).then(r => r.json());
+    },
 
-        const balance =
-            Number(
-                data.balance ??
-                data.wallet?.balance ??
-                0
-            );
+    web: {
 
-        document.getElementById(
-            "walletBalance"
-        ).textContent =
-            balance.toFixed(2) + " zł";
+        "WWW Start": {
+            7: 2,
+            30: 5,
+            90: 12
+        },
 
-    } catch {
+        "WWW Plus": {
+            7: 4,
+            30: 10,
+            90: 25
+        },
 
-        document.getElementById(
-            "walletBalance"
-        ).textContent = "—";
-
-    }
-
-}
-
-
-/*
-    START
-*/
-
-async function start() {
-
-    if (
-        !type ||
-        !["minecraft", "discord", "web"].includes(type)
-    ) {
-
-        loading.style.display = "none";
-
-        title.textContent =
-            "Nie wybrano usługi";
-
-        description.textContent =
-            "Wróć do ZenityHost i wybierz usługę.";
-
-        return;
-
-    }
-
-    title.textContent =
-        `Hosting ${names[type]}`;
-
-    description.textContent =
-        `Skonfiguruj i zamów swój hosting ${names[type]}.`;
-
-    try {
-
-        const [
-            priceData,
-            optionData
-        ] = await Promise.all([
-
-            api(`${API}/prices`),
-
-            api(
-                `${API}/${type}/options`
-            )
-
-        ]);
-
-        prices =
-            priceData.prices ||
-            priceData ||
-            {};
-
-        options =
-            optionData ||
-            {};
-
-        render();
-
-        loading.style.display =
-            "none";
-
-        content.style.display =
-            "block";
-
-    } catch (error) {
-
-        loading.textContent =
-            `Nie udało się załadować oferty: ${error.message}`;
-
-    }
-
-}
-
-
-/*
-    RENDER
-*/
-
-function render() {
-
-    const servicePrices =
-        prices[type] || {};
-
-    let packages =
-        Object.keys(servicePrices);
-
-    if (!packages.length) {
-
-        if (type === "minecraft") {
-
-            packages = [
-                "Dirt",
-                "Obsidian",
-                "Złoto",
-                "Szmaragd",
-                "Diament"
-            ];
-
+        "WWW PRO": {
+            7: 7,
+            30: 18,
+            90: 45
         }
 
     }
 
-    packageSelect.innerHTML =
-        packages.map(
-            name =>
-                `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`
-        ).join("");
+};
 
-    renderConfig();
-    updateSummary();
-
-}
-
-
-/*
-    ŁADOWANIE WERSJI MINECRAFT
-*/
-
-async function loadMinecraftOptions() {
-
-    const response = await fetch(
-        "/api/hosting/minecraft/options",
-        {
-            credentials: "include"
-        }
+let prices =
+    structuredClone(
+        localPrices
     );
 
-    const data = await response.json();
+let selectedPackage =
+    null;
 
-    if (!response.ok) {
-        throw new Error(
-            data.error ||
-            data.message ||
-            "Nie udało się pobrać opcji Minecraft."
+let selectedDays =
+    7;
+
+let walletBalance =
+    0;
+
+let discountPercent =
+    0;
+
+let appliedDiscountCode =
+    null;
+
+const packagesElement =
+    document.getElementById(
+        "packages"
+    );
+
+const purchaseButton =
+    document.getElementById(
+        "purchaseButton"
+    );
+
+function showError(message) {
+
+    const element =
+        document.getElementById(
+            "error"
         );
-    }
 
-    let versions = [];
+    element.textContent =
+        message;
 
-    if (Array.isArray(data)) {
+    element.style.display =
+        "block";
+}
 
-        versions = data;
+function hideError() {
 
-    } else if (Array.isArray(data.versions)) {
+    const element =
+        document.getElementById(
+            "error"
+        );
 
-        versions = data.versions;
+    element.textContent =
+        "";
 
-    } else if (
-        data.versions &&
-        typeof data.versions === "object"
-    ) {
+    element.style.display =
+        "none";
+}
 
-        const software =
-            document.getElementById("software")?.value ||
-            "paper";
+function money(value) {
 
-        versions =
-            Array.isArray(data.versions[software])
-                ? data.versions[software]
-                : Object.values(data.versions).flat();
+    return `${Number(
+        value || 0
+    ).toFixed(2)} zł`;
+}
 
-    } else if (data.options) {
+function escapeHtml(value) {
 
-        if (Array.isArray(data.options.versions)) {
-
-            versions =
-                data.options.versions;
-
-        } else if (
-            data.options.versions &&
-            typeof data.options.versions === "object"
-        ) {
-
-            const software =
-                document.getElementById("software")?.value ||
-                "paper";
-
-            versions =
-                Array.isArray(
-                    data.options.versions[software]
-                )
-                    ? data.options.versions[software]
-                    : Object.values(
-                        data.options.versions
-                    ).flat();
-
-        }
-
-    }
-
-    versions = [
-        ...new Set(
-            versions
-                .map(version => {
-
-                    if (
-                        typeof version === "string"
-                    ) {
-                        return version;
-                    }
-
-                    if (
-                        version &&
-                        typeof version === "object"
-                    ) {
-
-                        return (
-                            version.version ||
-                            version.name ||
-                            version.id ||
-                            ""
-                        );
-
-                    }
-
-                    return "";
-
-                })
-                .filter(Boolean)
+    return String(
+        value ?? ""
+    )
+        .replaceAll(
+            "&",
+            "&amp;"
         )
-    ];
-
-    const select =
-        document.getElementById("version");
-
-    if (!select) {
-        return;
-    }
-
-    select.innerHTML = "";
-
-    if (!versions.length) {
-
-        select.innerHTML =
-            '<option value="">Brak dostępnych wersji</option>';
-
-        return;
-
-    }
-
-    versions.forEach(version => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            version;
-
-        option.textContent =
-            `Minecraft ${version}`;
-
-        select.appendChild(option);
-
-    });
-
-}
-
-
-/*
-    CONFIG
-*/
-
-function renderConfig() {
-
-    config.innerHTML = "";
-
-    if (type === "minecraft") {
-
-        const software =
-            options.software ||
-            [
-                "paper",
-                "purpur",
-                "vanilla"
-            ];
-
-        config.innerHTML = `
-
-            <select id="software">
-
-                ${software.map(
-                    item => `
-                        <option value="${escapeHtml(item)}">
-                            ${escapeHtml(
-                                item.charAt(0).toUpperCase() +
-                                item.slice(1)
-                            )}
-                        </option>
-                    `
-                ).join("")}
-
-            </select>
-
-            <select id="version">
-
-                <option value="">
-                    Ładowanie wersji...
-                </option>
-
-            </select>
-
-            <input
-                id="serverName"
-                type="text"
-                maxlength="32"
-                placeholder="Nazwa serwera"
-                value="Mój serwer"
-            >
-
-        `;
-
-        loadMinecraftOptions()
-            .catch(error => {
-
-                const versionSelect =
-                    document.getElementById(
-                        "version"
-                    );
-
-                if (!versionSelect) {
-                    return;
-                }
-
-                versionSelect.innerHTML =
-                    `<option value="">${escapeHtml(
-                        error.message ||
-                        "Nie udało się załadować wersji"
-                    )}</option>`;
-
-            });
-
-        return;
-    }
-
-
-    if (type === "discord") {
-
-        const nodes =
-            options.nodeVersions ||
-            options.nodes ||
-            ["22", "20", "18"];
-
-        config.innerHTML = `
-
-            <select id="nodeVersion">
-
-                ${nodes.map(
-                    item => `
-                        <option value="${escapeHtml(item)}">
-                            Node.js ${escapeHtml(item)}
-                        </option>
-                    `
-                ).join("")}
-
-            </select>
-
-            <input
-                id="botName"
-                type="text"
-                maxlength="32"
-                placeholder="Nazwa bota"
-                value="Mój bot"
-            >
-
-        `;
-
-        return;
-    }
-
-
-    if (type === "web") {
-
-        const webTypes =
-            options.types ||
-            options.webTypes ||
-            ["static", "php"];
-
-        config.innerHTML = `
-
-            <select id="webType">
-
-                ${webTypes.map(
-                    item => `
-                        <option value="${escapeHtml(item)}">
-                            ${escapeHtml(
-                                item === "static"
-                                    ? "HTML / CSS / JS"
-                                    : "PHP"
-                            )}
-                        </option>
-                    `
-                ).join("")}
-
-            </select>
-
-            <input
-                id="webName"
-                type="text"
-                maxlength="32"
-                placeholder="Nazwa strony"
-                value="Moja strona"
-            >
-
-        `;
-
-    }
-
-}
-
-
-/*
-    OKRES
-*/
-
-document.querySelectorAll(".duration")
-    .forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                document
-                    .querySelectorAll(".duration")
-                    .forEach(
-                        x =>
-                            x.classList.remove("active")
-                    );
-
-                button.classList.add("active");
-
-                selectedDays =
-                    Number(
-                        button.dataset.days
-                    );
-
-                updateSummary();
-
-            }
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
         );
-
-    });
-
-document
-    .querySelector('[data-days="30"]')
-    ?.classList.add("active");
-
-
-/*
-    PODSUMOWANIE
-*/
-
-function getSelectedPackage() {
-
-    return packageSelect.value;
-
 }
 
-function getPrice() {
+function getPackagePrice() {
 
-    const servicePrices =
-        prices[type] || {};
+    if (!selectedPackage) {
+        return 0;
+    }
 
-    const selected =
-        servicePrices[
-            getSelectedPackage()
-        ];
+    const service =
+        prices[type];
 
     if (
-        selected &&
-        typeof selected === "object"
+        !service ||
+        typeof service !== "object"
     ) {
+        return 0;
+    }
 
-        return Number(
-            selected[selectedDays] || 0
-        );
+    const selected =
+        service[selectedPackage];
 
+    if (
+        !selected ||
+        typeof selected !== "object"
+    ) {
+        return 0;
     }
 
     return Number(
-        selected || 0
+        selected[selectedDays] ||
+        0
     );
+}
 
+function getFinalPrice() {
+
+    const base =
+        getPackagePrice();
+
+    if (!discountPercent) {
+        return base;
+    }
+
+    return Math.max(
+        0,
+        base -
+        (
+            base *
+            discountPercent /
+            100
+        )
+    );
 }
 
 function updateSummary() {
 
-    const packageName =
-        getSelectedPackage();
-
-    const price =
-        getPrice();
-
-    const total =
-        Math.max(
-            0,
-            price -
-            (price * discountPercent / 100)
-        );
-
     document.getElementById(
         "summaryType"
     ).textContent =
-        names[type] || "—";
+        typeNames[type] ||
+        "—";
 
     document.getElementById(
         "summaryPackage"
     ).textContent =
-        packageName || "—";
+        selectedPackage ||
+        "—";
 
     document.getElementById(
         "summaryDays"
@@ -1053,377 +924,939 @@ function updateSummary() {
         `${selectedDays} dni`;
 
     document.getElementById(
-        "summaryPrice"
+        "total"
     ).textContent =
-        `${price.toFixed(2)} zł`;
-
-    document.getElementById(
-        "summaryTotal"
-    ).textContent =
-        `${total.toFixed(2)} zł`;
-
-    const discountRow =
-        document.getElementById(
-            "discountRow"
+        money(
+            getFinalPrice()
         );
 
-    if (discountPercent > 0) {
-
-        discountRow.style.display =
-            "flex";
-
-        document.getElementById(
-            "summaryDiscount"
-        ).textContent =
-            `${discountPercent}%`;
-
-    } else {
-
-        discountRow.style.display =
-            "none";
-
-    }
-
+    purchaseButton.disabled =
+        !selectedPackage ||
+        getPackagePrice() <= 0;
 }
 
+function renderPackages() {
 
-/*
-    ZMIANA PAKIETU
-*/
+    const service =
+        prices[type];
 
-packageSelect.addEventListener(
-    "change",
-    updateSummary
-);
+    if (
+        !service ||
+        typeof service !== "object"
+    ) {
 
+        packagesElement.innerHTML =
+            "";
 
-/*
-    KOD RABATOWY
-*/
+        showError(
+            "Nieprawidłowy typ usługi."
+        );
 
-document
-    .getElementById("discountButton")
-    .addEventListener(
-        "click",
-        async () => {
+        return;
+    }
 
-            const input =
-                document.getElementById(
-                    "discountCode"
+    packagesElement.innerHTML =
+        "";
+
+    const packageNames =
+        Object.keys(service);
+
+    if (!packageNames.length) {
+
+        packagesElement.innerHTML =
+            `<div class="loading">
+                Brak dostępnych pakietów.
+            </div>`;
+
+        purchaseButton.disabled =
+            true;
+
+        return;
+    }
+
+    if (
+        !selectedPackage ||
+        !service[selectedPackage]
+    ) {
+        selectedPackage =
+            packageNames[0];
+    }
+
+    packageNames.forEach(
+        name => {
+
+            const price =
+                Number(
+                    service[name]?.[
+                        selectedDays
+                    ] || 0
                 );
 
-            const code =
-                input.value.trim();
-
-            if (!code) {
-
-                discountPercent = 0;
-
-                updateSummary();
-
-                showMessage(
-                    "Wpisz kod rabatowy.",
-                    true
+            const element =
+                document.createElement(
+                    "div"
                 );
 
-                return;
+            element.className =
+                "package";
 
+            if (
+                name ===
+                selectedPackage
+            ) {
+                element.classList.add(
+                    "active"
+                );
             }
 
-            try {
+            element.innerHTML = `
+                <div class="package-name">
+                    ${escapeHtml(name)}
+                </div>
 
-                const data =
-                    await api(
-                        `${API}/codes/check`,
-                        {
-                            method: "POST",
-                            body: JSON.stringify({
-                                code
-                            })
-                        }
+                <div class="package-price">
+                    ${money(price)}
+                </div>
+            `;
+
+            element.addEventListener(
+                "click",
+                () => {
+
+                    selectedPackage =
+                        name;
+
+                    document
+                        .querySelectorAll(
+                            ".package"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+                    element.classList.add(
+                        "active"
                     );
 
-                discountPercent =
-                    Number(
-                        data.percent ??
-                        data.discount ??
-                        data.discountPercent ??
-                        0
-                    );
+                    updateSummary();
+                }
+            );
 
-                updateSummary();
-
-                showMessage(
-                    discountPercent > 0
-                        ? `Kod aktywny: ${discountPercent}% rabatu.`
-                        : "Kod nie daje rabatu.",
-                    false
-                );
-
-            } catch (error) {
-
-                discountPercent = 0;
-
-                updateSummary();
-
-                showMessage(
-                    error.message,
-                    true
-                );
-
-            }
-
+            packagesElement.appendChild(
+                element
+            );
         }
     );
 
+    updateSummary();
+}
 
-/*
-    KUPNO
-*/
+async function loadPrices() {
 
-buyButton.addEventListener(
-    "click",
-    async () => {
+    try {
 
-        buyButton.disabled = true;
-
-        buyButton.textContent =
-            "Kupowanie...";
-
-        try {
-
-            const configData =
-                getConfig();
-
-            const body = {
-
-                type,
-
-                package:
-                    getSelectedPackage(),
-
-                days:
-                    selectedDays,
-
-                config:
-                    configData
-
-            };
-
-            const code =
-                document
-                    .getElementById(
-                        "discountCode"
-                    )
-                    .value
-                    .trim();
-
-            if (code) {
-
-                body.code =
-                    code;
-
-            }
-
-            const data =
-                await api(
-                    `${API}/purchase`,
-                    {
-                        method: "POST",
-                        body:
-                            JSON.stringify(body)
-                    }
-                );
-
-            showMessage(
-                "Usługa została zakupiona. Przechodzę do panelu...",
-                false
+        const response =
+            await fetch(
+                `${API}/prices`,
+                {
+                    credentials:
+                        "include"
+                }
             );
 
-            const service =
-                data.service ||
-                data;
+        if (!response.ok) {
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
 
-            const id =
-                service.id;
+        const data =
+            await response.json();
 
-            if (!id) {
+        const serverPrices =
+            data.prices ||
+            data;
 
-                window.location.href =
-                    "/hosting";
+        if (
+            serverPrices &&
+            typeof serverPrices ===
+                "object" &&
+            serverPrices[type] &&
+            typeof serverPrices[type] ===
+                "object"
+        ) {
 
-                return;
+            prices[type] =
+                serverPrices[type];
+        }
 
-            }
+    } catch (error) {
 
-            setTimeout(
-                () => {
+        console.warn(
+            "Ceny API niedostępne, używam cen lokalnych:",
+            error
+        );
+    }
 
-                    if (type === "minecraft") {
+    renderPackages();
+}
 
-                        window.location.href =
-                            `/hosting/services/minecraft/?id=${encodeURIComponent(id)}`;
+async function loadWallet() {
 
-                        return;
+    try {
 
-                    }
-
-                    if (type === "discord") {
-
-                        window.location.href =
-                            `/hosting/services/discord/?id=${encodeURIComponent(id)}`;
-
-                        return;
-
-                    }
-
-                    if (type === "web") {
-
-                        window.location.href =
-                            `/hosting/services/web/?id=${encodeURIComponent(id)}`;
-
-                        return;
-
-                    }
-
-                    window.location.href =
-                        `/hosting`;
-
-                },
-                700
+        const response =
+            await fetch(
+                "/api/wallet",
+                {
+                    credentials:
+                        "include"
+                }
             );
 
-        } catch (error) {
+        if (!response.ok) {
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
 
-            showMessage(
-                error.message,
-                true
+        const data =
+            await response.json();
+
+        walletBalance =
+            Number(
+                data.balance ??
+                data.wallet?.balance ??
+                0
             );
 
-            buyButton.disabled =
-                false;
+        document.getElementById(
+            "wallet"
+        ).textContent =
+            money(walletBalance);
 
-            buyButton.textContent =
-                "Kup usługę";
+    } catch (error) {
 
+        console.error(
+            "Wallet:",
+            error
+        );
+
+        document.getElementById(
+            "wallet"
+        ).textContent =
+            "—";
+    }
+}
+
+function extractVersions(data) {
+
+    let versions = [];
+
+    if (
+        Array.isArray(data)
+    ) {
+        versions =
+            data;
+    }
+
+    else if (
+        Array.isArray(
+            data?.versions
+        )
+    ) {
+        versions =
+            data.versions;
+    }
+
+    else if (
+        data?.versions &&
+        typeof data.versions ===
+            "object"
+    ) {
+
+        const software =
+            document.getElementById(
+                "minecraftSoftware"
+            )?.value ||
+            "paper";
+
+        if (
+            Array.isArray(
+                data.versions[
+                    software
+                ]
+            )
+        ) {
+            versions =
+                data.versions[
+                    software
+                ];
+        } else {
+            versions =
+                Object.values(
+                    data.versions
+                ).flat();
         }
 
     }
-);
 
+    else if (
+        Array.isArray(
+            data?.options?.versions
+        )
+    ) {
+        versions =
+            data.options.versions;
+    }
 
-/*
-    CONFIG DATA
-*/
+    else if (
+        data?.options?.versions &&
+        typeof data.options.versions ===
+            "object"
+    ) {
+        versions =
+            Object.values(
+                data.options.versions
+            ).flat();
+    }
+
+    return [
+        ...new Set(
+            versions
+                .map(item => {
+
+                    if (
+                        typeof item ===
+                        "string"
+                    ) {
+                        return item;
+                    }
+
+                    if (
+                        item &&
+                        typeof item ===
+                            "object"
+                    ) {
+                        return (
+                            item.version ||
+                            item.name ||
+                            item.id ||
+                            ""
+                        );
+                    }
+
+                    return "";
+                })
+                .filter(Boolean)
+        )
+    ];
+}
+
+async function loadMinecraftVersions() {
+
+    const select =
+        document.getElementById(
+            "minecraftVersion"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    select.innerHTML =
+        `<option value="">
+            Ładowanie...
+        </option>`;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/minecraft/options`,
+                {
+                    credentials:
+                        "include"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                data.message ||
+                `HTTP ${response.status}`
+            );
+        }
+
+        const versions =
+            extractVersions(
+                data
+            );
+
+        select.innerHTML =
+            "";
+
+        if (!versions.length) {
+
+            select.innerHTML =
+                `<option value="">
+                    Brak dostępnych wersji
+                </option>`;
+
+            return;
+        }
+
+        versions.forEach(
+            version => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    version;
+
+                option.textContent =
+                    version;
+
+                select.appendChild(
+                    option
+                );
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Minecraft versions:",
+            error
+        );
+
+        select.innerHTML =
+            `<option value="">
+                Nie udało się pobrać wersji
+            </option>`;
+
+        showError(
+            `Nie udało się załadować wersji Minecraft: ${error.message}`
+        );
+    }
+}
+
+async function loadMinecraftOptions() {
+
+    if (
+        type !== "minecraft"
+    ) {
+        return;
+    }
+
+    await loadMinecraftVersions();
+}
 
 function getConfig() {
 
-    if (type === "minecraft") {
+    if (
+        type === "minecraft"
+    ) {
 
         return {
 
             software:
                 document.getElementById(
-                    "software"
-                )?.value || "paper",
+                    "minecraftSoftware"
+                ).value,
 
             version:
                 document.getElementById(
-                    "version"
-                )?.value || "1.21.4",
+                    "minecraftVersion"
+                ).value,
 
             serverName:
                 document.getElementById(
-                    "serverName"
-                )?.value.trim() ||
-                "Mój serwer"
+                    "minecraftName"
+                ).value.trim()
 
         };
-
     }
 
-
-    if (type === "discord") {
+    if (
+        type === "discord"
+    ) {
 
         return {
 
             nodeVersion:
                 document.getElementById(
-                    "nodeVersion"
-                )?.value || "22",
+                    "discordNode"
+                ).value,
 
             botName:
                 document.getElementById(
-                    "botName"
-                )?.value.trim() ||
-                "Mój bot"
+                    "discordName"
+                ).value.trim()
 
         };
-
     }
 
-
-    if (type === "web") {
+    if (
+        type === "web"
+    ) {
 
         return {
 
             webType:
                 document.getElementById(
                     "webType"
-                )?.value || "static",
+                ).value,
 
             webName:
                 document.getElementById(
                     "webName"
-                )?.value.trim() ||
-                "Moja strona"
+                ).value.trim()
 
         };
-
     }
 
     return {};
-
 }
 
+async function checkDiscount() {
 
-/*
-    WIADOMOŚĆ
-*/
+    hideError();
 
-function showMessage(
-    text,
-    error = false
-) {
+    const input =
+        document.getElementById(
+            "discountCode"
+        );
 
-    message.textContent =
-        text;
+    const code =
+        input.value.trim();
 
-    message.className =
-        `message ${error ? "error" : "success"}`;
+    if (!code) {
 
+        discountPercent =
+            0;
+
+        appliedDiscountCode =
+            null;
+
+        document.getElementById(
+            "discountInfo"
+        ).textContent =
+            "";
+
+        updateSummary();
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/codes/check`,
+                {
+                    method: "POST",
+                    credentials:
+                        "include",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body:
+                        JSON.stringify({
+                            code
+                        })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                data.message ||
+                "Kod rabatowy jest nieprawidłowy."
+            );
+        }
+
+        const percent =
+            Number(
+                data.percent ??
+                data.discount ??
+                data.code?.percent ??
+                0
+            );
+
+        if (
+            !Number.isFinite(percent) ||
+            percent <= 0
+        ) {
+            throw new Error(
+                "Kod rabatowy nie ma prawidłowego rabatu."
+            );
+        }
+
+        discountPercent =
+            percent;
+
+        appliedDiscountCode =
+            code;
+
+        document.getElementById(
+            "discountInfo"
+        ).textContent =
+            `Kod aktywny: -${percent}%`;
+
+        updateSummary();
+
+    } catch (error) {
+
+        discountPercent =
+            0;
+
+        appliedDiscountCode =
+            null;
+
+        document.getElementById(
+            "discountInfo"
+        ).textContent =
+            "";
+
+        showError(
+            error.message
+        );
+
+        updateSummary();
+    }
 }
 
+async function purchaseService() {
 
-/*
-    ESCAPE
-*/
+    hideError();
 
-function escapeHtml(value) {
+    if (
+        ![
+            "minecraft",
+            "discord",
+            "web"
+        ].includes(type)
+    ) {
 
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        showError(
+            "Nieprawidłowy typ usługi."
+        );
 
+        return;
+    }
+
+    if (!selectedPackage) {
+
+        showError(
+            "Wybierz pakiet."
+        );
+
+        return;
+    }
+
+    const price =
+        getFinalPrice();
+
+    if (
+        !Number.isFinite(price) ||
+        price <= 0
+    ) {
+
+        showError(
+            "Nieprawidłowa cena usługi."
+        );
+
+        return;
+    }
+
+    if (
+        walletBalance <
+        price
+    ) {
+
+        showError(
+            `Niewystarczające środki. Masz ${money(walletBalance)}, a potrzebujesz ${money(price)}.`
+        );
+
+        return;
+    }
+
+    purchaseButton.disabled =
+        true;
+
+    purchaseButton.textContent =
+        "Kupowanie...";
+
+    try {
+
+        const body = {
+
+            type:
+                type,
+
+            package:
+                selectedPackage,
+
+            days:
+                Number(
+                    selectedDays
+                ),
+
+            config:
+                getConfig()
+
+        };
+
+        if (
+            appliedDiscountCode
+        ) {
+            body.code =
+                appliedDiscountCode;
+        }
+
+        const response =
+            await fetch(
+                `${API}/purchase`,
+                {
+                    method: "POST",
+                    credentials:
+                        "include",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body:
+                        JSON.stringify(body)
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                data.message ||
+                `HTTP ${response.status}`
+            );
+        }
+
+        const service =
+            data.service ||
+            data.data ||
+            data;
+
+        const serviceId =
+            service.id ||
+            service.serviceId;
+
+        if (!serviceId) {
+            throw new Error(
+                "Zakup został wykonany, ale serwer nie zwrócił ID usługi."
+            );
+        }
+
+        const paths = {
+
+            minecraft:
+                "/hosting/services/minecraft/",
+
+            discord:
+                "/hosting/services/discord/",
+
+            web:
+                "/hosting/services/web/"
+
+        };
+
+        window.location.href =
+            `${paths[type]}?id=${encodeURIComponent(serviceId)}&type=${encodeURIComponent(type)}`;
+
+    } catch (error) {
+
+        console.error(
+            "Purchase:",
+            error
+        );
+
+        showError(
+            error.message
+        );
+
+        purchaseButton.disabled =
+            false;
+
+        purchaseButton.textContent =
+            "Kup usługę";
+    }
 }
 
+function setupDays() {
 
-loadWallet();
-start();
+    document
+        .querySelectorAll(
+            ".day"
+        )
+        .forEach(day => {
 
+            day.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".day"
+                        )
+                        .forEach(item =>
+                            item.classList.remove(
+                                "active"
+                            )
+                        );
+
+                    day.classList.add(
+                        "active"
+                    );
+
+                    selectedDays =
+                        Number(
+                            day.dataset.days
+                        );
+
+                    selectedPackage =
+                        null;
+
+                    renderPackages();
+                }
+            );
+        });
+}
+
+function setupType() {
+
+    const validTypes = [
+        "minecraft",
+        "discord",
+        "web"
+    ];
+
+    if (
+        !validTypes.includes(
+            type
+        )
+    ) {
+
+        document.getElementById(
+            "title"
+        ).textContent =
+            "Nieprawidłowy typ usługi";
+
+        document.getElementById(
+            "subtitle"
+        ).textContent =
+            "Wróć do ZenityHost i wybierz usługę.";
+
+        packagesElement.innerHTML =
+            "";
+
+        purchaseButton.disabled =
+            true;
+
+        showError(
+            "Nieprawidłowy typ usługi."
+        );
+
+        return false;
+    }
+
+    document.getElementById(
+        "title"
+    ).textContent =
+        typeNames[type];
+
+    document.getElementById(
+        "subtitle"
+    ).textContent =
+        type === "minecraft"
+            ? "Skonfiguruj i zamów swój hosting Minecraft."
+            : type === "discord"
+                ? "Skonfiguruj i zamów hosting bota Discord."
+                : "Skonfiguruj i zamów hosting WWW.";
+
+    document.getElementById(
+        "minecraftConfig"
+    ).style.display =
+        type === "minecraft"
+            ? "block"
+            : "none";
+
+    document.getElementById(
+        "discordConfig"
+    ).style.display =
+        type === "discord"
+            ? "block"
+            : "none";
+
+    document.getElementById(
+        "webConfig"
+    ).style.display =
+        type === "web"
+            ? "block"
+            : "none";
+
+    return true;
+}
+
+document.getElementById(
+    "checkCode"
+).addEventListener(
+    "click",
+    checkDiscount
+);
+
+purchaseButton.addEventListener(
+    "click",
+    purchaseService
+);
+
+document
+    .getElementById(
+        "minecraftSoftware"
+    )
+    ?.addEventListener(
+        "change",
+        loadMinecraftVersions
+    );
+
+(async function init() {
+
+    if (!setupType()) {
+        return;
+    }
+
+    setupDays();
+
+    await Promise.all([
+        loadWallet(),
+        loadPrices()
+    ]);
+
+    await loadMinecraftOptions();
+
+})();
 </script>
 
 </body>

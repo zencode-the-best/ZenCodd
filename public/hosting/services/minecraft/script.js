@@ -1,1048 +1,511 @@
 const API = "/api/hosting";
 
-const params = new URLSearchParams(window.location.search);
-const serviceId = params.get("id");
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
 
-let service = null;
-let options = null;
-let statusTimer = null;
-
-const $ = (id) => document.getElementById(id);
-
-
-document.addEventListener("DOMContentLoaded", async () => {
-
-    if (!serviceId) {
-        showToast("Brak ID usługi.", "error");
-        setServerName("Brak usługi");
-        return;
-    }
-
-    setupTabs();
-    setupConsole();
-    setupSettings();
-    setupRuntime();
-    setupButtons();
-
-    await loadWallet();
-    await loadOptions();
-    await loadService();
-
-    statusTimer = setInterval(loadServiceStatus, 2000);
-
-});
-
+const serviceId =
+    params.get("id");
 
 async function api(url, options = {}) {
-
     const response = await fetch(url, {
         credentials: "include",
+        ...options,
         headers: {
             "Content-Type": "application/json",
             ...(options.headers || {})
-        },
-        ...options
+        }
     });
 
-    let data = null;
+    let data = {};
 
     try {
         data = await response.json();
-    } catch {
-        data = {};
-    }
+    } catch {}
 
     if (!response.ok) {
         throw new Error(
             data.error ||
             data.message ||
-            `Błąd HTTP ${response.status}`
+            `HTTP ${response.status}`
         );
     }
 
     return data;
 }
 
+function getElement(...ids) {
+    for (const id of ids) {
+        const element =
+            document.getElementById(id);
 
-async function loadWallet() {
-
-    try {
-
-        const data = await api("/api/wallet");
-
-        if (data && typeof data.balance !== "undefined") {
-            $("walletBalance").textContent =
-                `${Number(data.balance).toFixed(2)} zł`;
+        if (element) {
+            return element;
         }
-
-    } catch (error) {
-
-        $("walletBalance").textContent = "—";
-
     }
 
+    return null;
 }
 
+function getStatus(status) {
+    const statuses = {
+        provisioning: "Uruchamianie",
+        ready: "Gotowy",
+        running: "Działa",
+        stopped: "Wyłączony",
+        suspended: "Zawieszony",
+        error: "Błąd"
+    };
 
-async function loadOptions() {
-
-    try {
-
-        options = await api(`${API}/minecraft/options`);
-
-        renderVersions();
-
-    } catch (error) {
-
-        console.error(error);
-
-        $("minecraftVersion").innerHTML =
-            `<option value="">Nie udało się pobrać wersji</option>`;
-
-    }
-
+    return (
+        statuses[status] ||
+        status ||
+        "Nieznany"
+    );
 }
 
+function showError(message) {
+    const element =
+        getElement("error");
 
-function renderVersions() {
-
-    const select = $("minecraftVersion");
-
-    if (!options) {
+    if (!element) {
+        console.error(message);
         return;
     }
 
-    let versions = [];
+    element.textContent =
+        message;
 
-    const software =
-        service?.config?.software ||
-        "paper";
-
-    if (Array.isArray(options.versions)) {
-
-        versions = options.versions;
-
-    } else if (options.versions?.[software]) {
-
-        versions = options.versions[software];
-
-    }
-
-    if (!versions.length) {
-
-        select.innerHTML =
-            `<option value="">Brak dostępnych wersji</option>`;
-
-        return;
-
-    }
-
-    select.innerHTML = versions
-        .map(version =>
-            `<option value="${escapeHtml(version)}">
-                ${escapeHtml(version)}
-            </option>`
-        )
-        .join("");
-
-    const selected =
-        service?.config?.version ||
-        versions[0];
-
-    if (versions.includes(selected)) {
-        select.value = selected;
-    }
-
-    updateSelectedVersion();
-
+    element.style.display =
+        "block";
 }
 
+function hideError() {
+    const element =
+        getElement("error");
+
+    if (element) {
+        element.style.display =
+            "none";
+    }
+}
+
+function normalizeService(data) {
+    return (
+        data.service ||
+        data.data ||
+        data
+    );
+}
 
 async function loadService() {
+    hideError();
 
-    try {
-
-        service = await api(
-            `${API}/service/${encodeURIComponent(serviceId)}`
+    if (!serviceId) {
+        showError(
+            "Nie podano ID usługi."
         );
-
-        renderService();
-
-        await loadFiles();
-
-    } catch (error) {
-
-        console.error(error);
-
-        showToast(
-            error.message || "Nie udało się pobrać usługi.",
-            "error"
-        );
-
-        setServerName("Nie udało się załadować");
-
-    }
-
-}
-
-
-function renderService() {
-
-    if (!service) {
         return;
     }
 
-    setServerName(
-        service.name ||
-        service.package ||
-        "Serwer Minecraft"
-    );
+    try {
+        const data =
+            await api(
+                `${API}/service/${encodeURIComponent(serviceId)}`
+            );
 
-    $("serverId").textContent =
-        `ID: ${service.id || serviceId}`;
+        const service =
+            normalizeService(data);
 
-    renderStatus(service.status);
+        /*
+         * Usługa otwierana z tego panelu musi być
+         * usługą Minecraft.
+         */
+        const serviceType =
+            String(
+                service.type ||
+                service.serviceType ||
+                ""
+            ).toLowerCase();
 
-    $("infoPackage").textContent =
-        service.package || "—";
+        if (
+            serviceType &&
+            serviceType !== "minecraft"
+        ) {
+            showError(
+                "Ta usługa nie jest usługą Minecraft."
+            );
+            return;
+        }
 
-    $("infoDays").textContent =
-        service.days ? `${service.days} dni` : "—";
+        renderService(
+            service
+        );
 
-    $("infoPrice").textContent =
-        typeof service.price === "number"
-            ? `${service.price.toFixed(2)} zł`
-            : "—";
+    } catch (error) {
+        console.error(
+            "Minecraft service:",
+            error
+        );
 
-    $("infoExpires").textContent =
-        formatDate(service.expiresAt);
-
-    $("detailId").textContent =
-        service.id || serviceId;
-
-    $("detailCreated").textContent =
-        formatDate(service.createdAt);
-
-    $("detailStatus").textContent =
-        translateStatus(service.status);
-
-    $("settingName").value =
-        service.name || "";
-
-    if (service.address) {
-        $("settingAddress").value = service.address;
+        showError(
+            error.message
+        );
     }
-
-    const config = service.config || {};
-
-    $("gameMode").value =
-        config.gameMode || "survival";
-
-    $("maxPlayers").value =
-        config.maxPlayers || 20;
-
-    $("pvp").checked =
-        config.pvp !== false;
-
-    setSoftware(
-        config.software || "paper",
-        false
-    );
-
-    renderVersions();
-
 }
 
+function renderService(service) {
+    const config =
+        service.config &&
+        typeof service.config === "object"
+            ? service.config
+            : {};
 
-async function loadServiceStatus() {
+    const name =
+        getElement(
+            "serverName",
+            "serviceName"
+        );
 
+    const status =
+        getElement(
+            "serverStatus",
+            "serviceStatus"
+        );
+
+    const version =
+        getElement(
+            "serverVersion",
+            "serviceVersion"
+        );
+
+    const software =
+        getElement(
+            "serverSoftware",
+            "serviceSoftware"
+        );
+
+    const packageElement =
+        getElement(
+            "serverPackage",
+            "servicePackage"
+        );
+
+    const daysElement =
+        getElement(
+            "serverDays",
+            "serviceDays"
+        );
+
+    if (name) {
+        name.textContent =
+            service.name ||
+            service.serverName ||
+            config.serverName ||
+            "Serwer Minecraft";
+    }
+
+    if (status) {
+        status.textContent =
+            getStatus(
+                service.status
+            );
+    }
+
+    if (version) {
+        version.textContent =
+            config.version ||
+            service.version ||
+            "—";
+    }
+
+    if (software) {
+        software.textContent =
+            config.software ||
+            service.software ||
+            "—";
+    }
+
+    if (packageElement) {
+        packageElement.textContent =
+            service.package ||
+            "—";
+    }
+
+    if (daysElement) {
+        daysElement.textContent =
+            service.days != null
+                ? `${service.days} dni`
+                : "—";
+    }
+
+    document.title =
+        `${
+            service.name ||
+            config.serverName ||
+            "Minecraft"
+        } — ZenityHost`;
+}
+
+async function loadStatus() {
     if (!serviceId) {
         return;
     }
 
     try {
+        const data =
+            await api(
+                `${API}/service/${encodeURIComponent(serviceId)}/status`
+            );
 
-        const data = await api(
-            `${API}/service/${encodeURIComponent(serviceId)}/status`
-        );
-
-        const newStatus =
+        const status =
             data.status ||
             data.service?.status;
 
-        if (newStatus) {
+        const element =
+            getElement(
+                "serverStatus",
+                "serviceStatus"
+            );
 
-            if (service) {
-                service.status = newStatus;
-            }
-
-            renderStatus(newStatus);
-
-            if (service) {
-                service.status = newStatus;
-            }
-
-        }
-
-        if (data.service) {
-
-            service = {
-                ...service,
-                ...data.service
-            };
-
-            renderService();
-
+        if (element) {
+            element.textContent =
+                getStatus(status);
         }
 
     } catch (error) {
-
-        console.warn(
-            "Nie udało się odświeżyć statusu:",
-            error.message
+        console.error(
+            "Minecraft status:",
+            error
         );
-
     }
-
 }
 
+function normalizeConsole(data) {
+    const value =
+        data.lines ??
+        data.console ??
+        data.output ??
+        [];
 
-function renderStatus(status) {
-
-    const element = $("serverStatus");
-    const provisioning = $("provisioningBox");
-
-    element.className = "status";
-
-    const normalized =
-        String(status || "")
-            .toLowerCase();
-
-    if (
-        normalized === "ready" ||
-        normalized === "running"
-    ) {
-
-        element.classList.add("ready");
-        element.textContent = "Gotowy";
-
-        provisioning.classList.add("hidden");
-
-        $("startButton").disabled = false;
-        $("stopButton").disabled = false;
-        $("restartButton").disabled = false;
-
-        return;
-
+    if (Array.isArray(value)) {
+        return value.join("\n");
     }
 
-    if (
-        normalized === "stopped" ||
-        normalized === "offline"
-    ) {
-
-        element.classList.add("stopped");
-        element.textContent = "Zatrzymany";
-
-        provisioning.classList.add("hidden");
-
-        $("startButton").disabled = false;
-        $("stopButton").disabled = true;
-        $("restartButton").disabled = false;
-
-        return;
-
-    }
-
-    if (
-        normalized === "error" ||
-        normalized === "failed"
-    ) {
-
-        element.classList.add("error");
-        element.textContent = "Błąd";
-
-        provisioning.classList.add("hidden");
-
-        $("startButton").disabled = true;
-        $("stopButton").disabled = true;
-        $("restartButton").disabled = true;
-
-        return;
-
-    }
-
-    element.classList.add("provisioning");
-    element.textContent = "Przygotowywanie...";
-
-    provisioning.classList.remove("hidden");
-
-    $("startButton").disabled = true;
-    $("stopButton").disabled = true;
-    $("restartButton").disabled = true;
-
-    updateProvisioningCountdown();
-
-}
-
-
-function updateProvisioningCountdown() {
-
-    if (!service || !service.readyAt) {
-        $("provisioningTime").textContent = "chwila";
-        return;
-    }
-
-    const update = () => {
-
-        const remaining =
-            new Date(service.readyAt).getTime() -
-            Date.now();
-
-        if (remaining <= 0) {
-
-            $("provisioningTime").textContent =
-                "gotowe";
-
-            return;
-
-        }
-
-        const seconds =
-            Math.ceil(remaining / 1000);
-
-        $("provisioningTime").textContent =
-            `${seconds}s`;
-
-    };
-
-    update();
-
-}
-
-
-function setupTabs() {
-
-    document.querySelectorAll(".tab").forEach(button => {
-
-        button.addEventListener("click", () => {
-
-            const tab = button.dataset.tab;
-
-            document.querySelectorAll(".tab")
-                .forEach(item =>
-                    item.classList.remove("active")
-                );
-
-            document.querySelectorAll(".tab-content")
-                .forEach(item =>
-                    item.classList.remove("active")
-                );
-
-            button.classList.add("active");
-
-            const content =
-                document.getElementById(`tab-${tab}`);
-
-            if (content) {
-                content.classList.add("active");
-            }
-
-        });
-
-    });
-
-}
-
-
-function setupConsole() {
-
-    $("consoleForm").addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-            const input = $("consoleInput");
-            const command = input.value.trim();
-
-            if (!command) {
-                return;
-            }
-
-            input.value = "";
-
-            addConsoleLine(
-                `> ${command}`,
-                "command"
-            );
-
-            try {
-
-                const data = await api(
-                    `${API}/service/${encodeURIComponent(serviceId)}/console`,
-                    {
-                        method: "POST",
-                        body: JSON.stringify({
-                            command
-                        })
-                    }
-                );
-
-                if (data.message) {
-
-                    addConsoleLine(
-                        data.message,
-                        "system"
-                    );
-
-                } else {
-
-                    addConsoleLine(
-                        "Komenda została zapisana w panelu.",
-                        "success"
-                    );
-
-                }
-
-            } catch (error) {
-
-                addConsoleLine(
-                    `Błąd: ${error.message}`,
-                    "error"
-                );
-
-            }
-
-        }
+    return String(
+        value || ""
     );
-
-
-    $("clearConsole").addEventListener(
-        "click",
-        () => {
-
-            $("consoleOutput").innerHTML = "";
-
-            addConsoleLine(
-                "[ZenityHost] Konsola wyczyszczona.",
-                "system"
-            );
-
-        }
-    );
-
-
-    loadConsole();
-
 }
-
 
 async function loadConsole() {
+    if (!serviceId) {
+        return;
+    }
 
     try {
+        const data =
+            await api(
+                `${API}/service/${encodeURIComponent(serviceId)}/console`
+            );
 
-        const data = await api(
-            `${API}/service/${encodeURIComponent(serviceId)}/console`
-        );
+        const output =
+            getElement(
+                "console",
+                "consoleOutput"
+            );
 
-        const lines =
-            Array.isArray(data.lines)
-                ? data.lines
-                : Array.isArray(data.console)
-                    ? data.console
-                    : [];
-
-        if (!lines.length) {
+        if (!output) {
             return;
         }
 
-        $("consoleOutput").innerHTML = "";
+        output.textContent =
+            normalizeConsole(data);
 
-        lines.forEach(line => {
-
-            if (typeof line === "string") {
-
-                addConsoleLine(
-                    line,
-                    "system"
-                );
-
-            } else {
-
-                addConsoleLine(
-                    line.message ||
-                    line.command ||
-                    JSON.stringify(line),
-                    line.type || "system"
-                );
-
-            }
-
-        });
+        output.scrollTop =
+            output.scrollHeight;
 
     } catch (error) {
-
-        console.warn(
-            "Konsola:",
-            error.message
+        console.error(
+            "Minecraft console:",
+            error
         );
+    }
+}
 
+async function sendCommand() {
+    if (!serviceId) {
+        return;
     }
 
-}
+    const input =
+        getElement(
+            "consoleCommand",
+            "command"
+        );
 
+    if (!input) {
+        return;
+    }
 
-function addConsoleLine(text, type = "system") {
+    const command =
+        input.value.trim();
 
-    const output = $("consoleOutput");
-
-    const line =
-        document.createElement("div");
-
-    line.className =
-        `console-line ${type}`;
-
-    line.textContent = text;
-
-    output.appendChild(line);
-
-    output.scrollTop =
-        output.scrollHeight;
-
-}
-
-
-async function loadFiles() {
-
-    const list = $("filesList");
-
-    list.innerHTML =
-        `<div class="file-loading">
-            Ładowanie plików...
-        </div>`;
+    if (!command) {
+        return;
+    }
 
     try {
-
-        const data = await api(
-            `${API}/service/${encodeURIComponent(serviceId)}/files`
+        await api(
+            `${API}/service/${encodeURIComponent(serviceId)}/console`,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    command
+                })
+            }
         );
+
+        input.value = "";
+
+        await loadConsole();
+
+    } catch (error) {
+        showError(
+            error.message
+        );
+    }
+}
+
+async function loadFiles() {
+    if (!serviceId) {
+        return;
+    }
+
+    try {
+        const data =
+            await api(
+                `${API}/service/${encodeURIComponent(serviceId)}/files`
+            );
 
         const files =
             Array.isArray(data.files)
                 ? data.files
                 : [];
 
-        if (!files.length) {
+        const container =
+            getElement("files");
 
-            list.innerHTML =
-                `<div class="file-loading">
-                    Brak plików do wyświetlenia.
-                </div>`;
-
+        if (!container) {
             return;
-
         }
 
-        list.innerHTML =
-            files
-                .map(file => renderFile(file))
-                .join("");
+        if (!files.length) {
+            container.innerHTML =
+                `<div class="empty">
+                    Brak plików.
+                </div>`;
+            return;
+        }
+
+        container.innerHTML =
+            files.map(file => {
+
+                const name =
+                    file.name ||
+                    file.path ||
+                    "plik";
+
+                return `
+                    <div class="file">
+                        ${escapeHtml(name)}
+                    </div>
+                `;
+
+            }).join("");
 
     } catch (error) {
-
-        list.innerHTML =
-            `<div class="file-loading">
-                Nie udało się pobrać plików.
-            </div>`;
-
+        console.error(
+            "Minecraft files:",
+            error
+        );
     }
-
 }
-
-
-function renderFile(file) {
-
-    const name =
-        typeof file === "string"
-            ? file
-            : file.name || file.path || "plik";
-
-    const type =
-        typeof file === "string"
-            ? "file"
-            : file.type || "file";
-
-    const icon =
-        type === "directory" ||
-        type === "folder"
-            ? "▰"
-            : "▱";
-
-    return `
-        <div class="file-row">
-
-            <div class="file-icon">
-                ${icon}
-            </div>
-
-            <div class="file-info">
-
-                <div class="file-name">
-                    ${escapeHtml(name)}
-                </div>
-
-                <div class="file-meta">
-                    ${type === "directory" ? "Folder" : "Plik"}
-                </div>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-
-function setupSettings() {
-
-    $("settingsForm").addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-            await saveSettings();
-
-        }
-    );
-
-}
-
-
-async function saveSettings() {
-
-    if (!serviceId) {
-        return;
-    }
-
-    const config = {
-        ...(service?.config || {}),
-        gameMode: $("gameMode").value,
-        maxPlayers: Number($("maxPlayers").value) || 20,
-        pvp: $("pvp").checked
-    };
-
-    try {
-
-        await api(
-            `${API}/service/${encodeURIComponent(serviceId)}`,
-            {
-                method: "PATCH",
-                body: JSON.stringify({
-                    name: $("settingName").value.trim(),
-                    config
-                })
-            }
-        );
-
-        if (service) {
-
-            service.name =
-                $("settingName").value.trim();
-
-            service.config = config;
-
-        }
-
-        renderService();
-
-        showToast(
-            "Ustawienia zostały zapisane.",
-            "success"
-        );
-
-    } catch (error) {
-
-        showToast(
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-function setupRuntime() {
-
-    document.querySelectorAll(
-        ".software-card"
-    ).forEach(card => {
-
-        card.addEventListener(
-            "click",
-            () => {
-
-                setSoftware(
-                    card.dataset.software,
-                    true
-                );
-
-            }
-        );
-
-    });
-
-
-    $("minecraftVersion").addEventListener(
-        "change",
-        updateSelectedVersion
-    );
-
-
-    $("saveRuntime").addEventListener(
-        "click",
-        saveRuntime
-    );
-
-}
-
-
-function setSoftware(software, rerender = true) {
-
-    document.querySelectorAll(
-        ".software-card"
-    ).forEach(card => {
-
-        card.classList.toggle(
-            "active",
-            card.dataset.software === software
-        );
-
-    });
-
-    if (rerender) {
-
-        if (!service) {
-            service = {
-                config: {}
-            };
-        }
-
-        service.config = {
-            ...(service.config || {}),
-            software
-        };
-
-        renderVersions();
-
-    }
-
-}
-
-
-function updateSelectedVersion() {
-
-    $("selectedVersion").textContent =
-        $("minecraftVersion").value || "—";
-
-}
-
-
-async function saveRuntime() {
-
-    const software =
-        document.querySelector(
-            ".software-card.active"
-        )?.dataset.software || "paper";
-
-    const version =
-        $("minecraftVersion").value;
-
-    if (!version) {
-
-        showToast(
-            "Wybierz wersję Minecraft.",
-            "error"
-        );
-
-        return;
-
-    }
-
-    try {
-
-        const config = {
-            ...(service?.config || {}),
-            software,
-            version
-        };
-
-        await api(
-            `${API}/service/${encodeURIComponent(serviceId)}`,
-            {
-                method: "PATCH",
-                body: JSON.stringify({
-                    config
-                })
-            }
-        );
-
-        if (service) {
-            service.config = config;
-        }
-
-        showToast(
-            `${software} ${version} zostało zapisane.`,
-            "success"
-        );
-
-    } catch (error) {
-
-        showToast(
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-function setupButtons() {
-
-    $("startButton").addEventListener(
-        "click",
-        () => {
-
-            showToast(
-                "Uruchamianie zostanie wykonane przez backend serwera.",
-                "success"
-            );
-
-        }
-    );
-
-
-    $("stopButton").addEventListener(
-        "click",
-        () => {
-
-            showToast(
-                "Zatrzymywanie zostanie wykonane przez backend serwera.",
-                "success"
-            );
-
-        }
-    );
-
-
-    $("restartButton").addEventListener(
-        "click",
-        () => {
-
-            showToast(
-                "Restart zostanie wykonany przez backend serwera.",
-                "success"
-            );
-
-        }
-    );
-
-
-    $("refreshFiles").addEventListener(
-        "click",
-        loadFiles
-    );
-
-}
-
-
-function setServerName(name) {
-
-    $("serverName").textContent =
-        name || "Serwer Minecraft";
-
-    document.title =
-        `ZenityHost — ${name || "Minecraft"}`;
-
-}
-
-
-function translateStatus(status) {
-
-    const map = {
-        ready: "Gotowy",
-        running: "Uruchomiony",
-        stopped: "Zatrzymany",
-        provisioning: "Przygotowywanie",
-        error: "Błąd",
-        failed: "Błąd"
-    };
-
-    return map[String(status || "").toLowerCase()]
-        || status
-        || "Nieznany";
-
-}
-
-
-function formatDate(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return "—";
-    }
-
-    return date.toLocaleString(
-        "pl-PL",
-        {
-            dateStyle: "medium",
-            timeStyle: "short"
-        }
-    );
-
-}
-
-
-function showToast(message, type = "") {
-
-    const container =
-        $("toastContainer");
-
-    const toast =
-        document.createElement("div");
-
-    toast.className =
-        `toast ${type}`;
-
-    toast.textContent =
-        message;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-
-        toast.remove();
-
-    }, 3500);
-
-}
-
 
 function escapeHtml(value) {
-
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
+    return String(value ?? "")
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 }
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadService();
+        loadStatus();
+        loadConsole();
+        loadFiles();
+
+        setInterval(
+            loadStatus,
+            10000
+        );
+
+        setInterval(
+            loadConsole,
+            5000
+        );
+
+        const sendButton =
+            getElement(
+                "sendCommand"
+            );
+
+        if (sendButton) {
+            sendButton.addEventListener(
+                "click",
+                sendCommand
+            );
+        }
+
+        const commandInput =
+            getElement(
+                "consoleCommand",
+                "command"
+            );
+
+        if (commandInput) {
+            commandInput.addEventListener(
+                "keydown",
+                event => {
+                    if (
+                        event.key ===
+                        "Enter"
+                    ) {
+                        event.preventDefault();
+                        sendCommand();
+                    }
+                }
+            );
+        }
+    }
+);
