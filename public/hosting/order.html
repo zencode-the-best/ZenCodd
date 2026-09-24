@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pl">
-
 <head>
 
     <meta charset="UTF-8">
@@ -10,7 +9,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Zamówienie — ZenityHost</title>
+    <title>ZenityHost — Zamów usługę</title>
 
     <style>
 
@@ -21,15 +20,18 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: Arial, sans-serif;
-            color: #fff;
             background:
                 radial-gradient(
                     circle at top right,
-                    rgba(30,92,170,.18),
+                    rgba(242,201,76,.08),
                     transparent 35%
                 ),
                 #07111f;
+            color: #fff;
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
         }
 
         .topbar {
@@ -37,15 +39,18 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 30px;
-            background: #091727;
+            padding: 0 35px;
             border-bottom:
-                1px solid rgba(255,255,255,.08);
+                1px solid rgba(255,255,255,.07);
+            background:
+                rgba(5,13,24,.92);
+            backdrop-filter: blur(12px);
         }
 
         .logo {
             font-size: 22px;
             font-weight: 900;
+            letter-spacing: .5px;
         }
 
         .logo span {
@@ -53,109 +58,131 @@
         }
 
         .back {
-            color: #aebdd0;
+            color: #aebbd0;
             text-decoration: none;
+            font-weight: 700;
         }
 
         .back:hover {
             color: #fff;
         }
 
-        .container {
-            width: min(
-                1100px,
-                calc(100% - 30px)
-            );
-            margin: 35px auto;
+        main {
+            width: min(1180px, calc(100% - 30px));
+            margin: 35px auto 60px;
         }
 
-        h1 {
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
             margin: 0 0 8px;
             font-size: 34px;
         }
 
-        .subtitle {
-            color: #9cabc0;
-            margin-bottom: 30px;
+        .header p {
+            margin: 0;
+            color: #91a0b5;
+            font-size: 16px;
         }
 
         .layout {
             display: grid;
             grid-template-columns:
-                minmax(0, 1fr)
-                350px;
-            gap: 24px;
+                minmax(0, 1.5fr)
+                minmax(320px, .8fr);
+            gap: 25px;
+            align-items: start;
         }
 
         .card {
-            background: #0b192b;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(16,35,58,.96),
+                    rgba(8,20,35,.96)
+                );
             border:
-                1px solid rgba(255,255,255,.08);
-            border-radius: 18px;
+                1px solid rgba(255,255,255,.07);
+            border-radius: 16px;
             padding: 25px;
+            box-shadow:
+                0 18px 45px rgba(0,0,0,.2);
         }
 
         .card h2 {
-            margin-top: 0;
+            margin: 0 0 20px;
+            font-size: 19px;
         }
 
         .field {
-            margin-top: 20px;
+            margin-bottom: 22px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #dce5ef;
-            font-weight: 700;
+            margin-bottom: 9px;
+            color: #dce4ef;
+            font-weight: 800;
         }
 
-        input,
-        select {
+        select,
+        input {
             width: 100%;
-            padding: 13px 14px;
-            border-radius: 10px;
-            border:
-                1px solid #263b55;
-            background: #071321;
+            border: 1px solid rgba(255,255,255,.08);
+            background: #0a192b;
             color: #fff;
+            border-radius: 10px;
+            padding: 13px;
             outline: none;
+            font-size: 15px;
         }
 
-        input:focus,
-        select:focus {
-            border-color: #f2c94c;
+        select:focus,
+        input:focus {
+            border-color: rgba(242,201,76,.6);
         }
 
         .packages {
             display: grid;
             grid-template-columns:
-                repeat(3, 1fr);
+                repeat(2, minmax(0, 1fr));
             gap: 12px;
         }
 
         .package {
-            padding: 18px;
-            border:
-                1px solid #263b55;
-            border-radius: 13px;
-            background: #071321;
             cursor: pointer;
-            transition: .15s;
+            padding: 17px;
+            border-radius: 12px;
+            background: #0b1b2e;
+            border:
+                1px solid rgba(255,255,255,.07);
+            transition:
+                .15s ease;
         }
 
         .package:hover {
-            border-color: #667b95;
+            transform: translateY(-2px);
+            border-color:
+                rgba(242,201,76,.35);
         }
 
         .package.active {
             border-color: #f2c94c;
             background:
                 rgba(242,201,76,.08);
+            box-shadow:
+                0 0 0 1px rgba(242,201,76,.12);
         }
 
         .package-name {
             font-weight: 900;
+            font-size: 16px;
         }
 
         .package-price {
@@ -172,39 +199,45 @@
         }
 
         .day {
-            padding: 13px;
-            text-align: center;
-            border:
-                1px solid #263b55;
-            border-radius: 10px;
-            background: #071321;
             cursor: pointer;
+            text-align: center;
+            padding: 13px 8px;
+            border-radius: 10px;
+            background: #0b1b2e;
+            border:
+                1px solid rgba(255,255,255,.07);
+            font-weight: 800;
+            transition: .15s ease;
+        }
+
+        .day:hover {
+            border-color:
+                rgba(242,201,76,.35);
         }
 
         .day.active {
+            color: #111;
+            background: #f2c94c;
             border-color: #f2c94c;
-            background:
-                rgba(242,201,76,.08);
         }
 
-        .wallet {
-            padding: 16px;
-            margin-bottom: 20px;
-            border:
-                1px solid #263b55;
+        .config {
+            display: none;
+            padding: 18px;
+            margin-top: 15px;
             border-radius: 12px;
-            background: #071321;
+            background:
+                rgba(0,0,0,.12);
+            border:
+                1px solid rgba(255,255,255,.06);
         }
 
-        .wallet small {
-            color: #8fa0b5;
+        .config .field {
+            margin-bottom: 15px;
         }
 
-        .wallet strong {
-            display: block;
-            margin-top: 5px;
-            color: #f2c94c;
-            font-size: 25px;
+        .config .field:last-child {
+            margin-bottom: 0;
         }
 
         .summary-row {
@@ -252,6 +285,10 @@
             font-size: 16px;
         }
 
+        .purchase:hover:not(:disabled) {
+            filter: brightness(1.05);
+        }
+
         .purchase:disabled {
             opacity: .45;
             cursor: not-allowed;
@@ -285,19 +322,54 @@
             padding: 15px 0;
         }
 
+        .wallet {
+            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            background:
+                rgba(242,201,76,.06);
+            border:
+                1px solid rgba(242,201,76,.14);
+        }
+
+        .wallet-title {
+            color: #9faec1;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .wallet-balance {
+            color: #f2c94c;
+            font-size: 25px;
+            font-weight: 900;
+        }
+
         @media (max-width: 800px) {
 
             .layout {
                 grid-template-columns: 1fr;
             }
 
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+        }
+
+        @media (max-width: 520px) {
+
             .packages {
                 grid-template-columns: 1fr;
             }
 
-            .topbar {
-                padding: 0 15px;
+            .days {
+                grid-template-columns: 1fr;
             }
+
         }
 
     </style>
@@ -313,25 +385,26 @@
     </div>
 
     <a
+        href="/hosting/"
         class="back"
-        href="/hosting"
     >
-        ← Wróć do ZenityHost
+        ← Wróć
     </a>
 
 </header>
 
-<main class="container">
+<main>
 
-    <h1 id="title">
-        Zamówienie
-    </h1>
+    <div class="header">
 
-    <div
-        class="subtitle"
-        id="subtitle"
-    >
-        Ładowanie...
+        <h1 id="title">
+            Zamów usługę
+        </h1>
+
+        <p id="subtitle">
+            Wybierz pakiet i skonfiguruj usługę.
+        </p>
+
     </div>
 
     <div class="layout">
@@ -351,11 +424,7 @@
                 <div
                     id="packages"
                     class="packages"
-                >
-                    <div class="loading">
-                        Ładowanie pakietów...
-                    </div>
-                </div>
+                ></div>
 
             </div>
 
@@ -392,20 +461,29 @@
 
             </div>
 
+            <!-- MINECRAFT -->
+
             <div
                 id="minecraftConfig"
-                style="display:none"
+                class="config"
             >
 
                 <div class="field">
 
-                    <label for="minecraftSoftware">
+                    <label
+                        for="minecraftSoftware"
+                    >
                         Oprogramowanie
                     </label>
 
                     <select
                         id="minecraftSoftware"
                     >
+
+                        <option value="vanilla">
+                            Vanilla
+                        </option>
+
                         <option value="paper">
                             Paper
                         </option>
@@ -414,103 +492,133 @@
                             Purpur
                         </option>
 
-                        <option value="vanilla">
-                            Vanilla
+                        <option value="fabric">
+                            Fabric
                         </option>
+
+                        <option value="forge">
+                            Forge
+                        </option>
+
+                        <option value="velocity">
+                            Velocity
+                        </option>
+
                     </select>
 
                 </div>
 
                 <div class="field">
 
-                    <label for="minecraftVersion">
+                    <label
+                        for="minecraftVersion"
+                    >
                         Wersja Minecraft
                     </label>
 
                     <select
                         id="minecraftVersion"
                     >
+
                         <option value="">
                             Ładowanie...
                         </option>
+
                     </select>
 
                 </div>
 
                 <div class="field">
 
-                    <label for="minecraftName">
+                    <label
+                        for="serverName"
+                    >
                         Nazwa serwera
                     </label>
 
                     <input
-                        id="minecraftName"
-                        placeholder="Mój serwer Minecraft"
+                        id="serverName"
+                        value="Blazemc.pl"
+                        placeholder="np. Blazemc.pl"
                     >
 
                 </div>
 
             </div>
 
+            <!-- DISCORD -->
+
             <div
                 id="discordConfig"
-                style="display:none"
+                class="config"
             >
 
                 <div class="field">
 
-                    <label for="discordNode">
+                    <label
+                        for="discordNode"
+                    >
                         Wersja Node.js
                     </label>
 
                     <select
                         id="discordNode"
                     >
-                        <option value="22">
-                            Node.js 22
+
+                        <option value="18">
+                            Node.js 18
                         </option>
 
                         <option value="20">
                             Node.js 20
                         </option>
 
-                        <option value="18">
-                            Node.js 18
+                        <option value="22">
+                            Node.js 22
                         </option>
+
                     </select>
 
                 </div>
 
                 <div class="field">
 
-                    <label for="discordName">
+                    <label
+                        for="discordBotName"
+                    >
                         Nazwa bota
                     </label>
 
                     <input
-                        id="discordName"
-                        placeholder="Mój bot Discord"
+                        id="discordBotName"
+                        placeholder="np. ZenityBot"
                     >
 
                 </div>
 
             </div>
 
+            <!-- WWW -->
+
             <div
                 id="webConfig"
-                style="display:none"
+                class="config"
             >
 
                 <div class="field">
 
-                    <label for="webType">
+                    <label
+                        for="webType"
+                    >
                         Typ strony
                     </label>
 
-                    <select id="webType">
+                    <select
+                        id="webType"
+                    >
 
                         <option value="static">
-                            Strona statyczna
+                            Static HTML
                         </option>
 
                         <option value="php">
@@ -523,13 +631,15 @@
 
                 <div class="field">
 
-                    <label for="webName">
+                    <label
+                        for="webName"
+                    >
                         Nazwa strony
                     </label>
 
                     <input
                         id="webName"
-                        placeholder="Moja strona"
+                        placeholder="np. moja-strona"
                     >
 
                 </div>
@@ -546,13 +656,16 @@
 
             <div class="wallet">
 
-                <small>
+                <div class="wallet-title">
                     Twój portfel
-                </small>
+                </div>
 
-                <strong id="wallet">
+                <div
+                    id="walletBalance"
+                    class="wallet-balance"
+                >
                     0.00 zł
-                </strong>
+                </div>
 
             </div>
 
@@ -661,21 +774,26 @@ const type =
     String(
         params.get("type") ||
         ""
-    ).toLowerCase();
+    ).trim().toLowerCase();
 
 const API =
     "/api/hosting";
 
 const typeNames = {
-    minecraft: "Serwery Minecraft",
-    discord: "Boty Discord",
-    web: "Strony WWW"
+
+    minecraft:
+        "Serwery Minecraft",
+
+    discord:
+        "Boty Discord",
+
+    web:
+        "Strony WWW"
+
 };
 
 /*
- * Ceny są rozdzielone.
- * Minecraft nie korzysta z pakietów Discord
- * ani WWW.
+ * Ceny są rozdzielone według typu usługi.
  */
 
 const localPrices = {
@@ -802,6 +920,7 @@ function showError(message) {
 
     element.style.display =
         "block";
+
 }
 
 function hideError() {
@@ -816,6 +935,7 @@ function hideError() {
 
     element.style.display =
         "none";
+
 }
 
 function money(value) {
@@ -823,6 +943,7 @@ function money(value) {
     return `${Number(
         value || 0
     ).toFixed(2)} zł`;
+
 }
 
 function escapeHtml(value) {
@@ -850,58 +971,127 @@ function escapeHtml(value) {
             "'",
             "&#039;"
         );
+
 }
 
 function getPackagePrice() {
-
-    if (!selectedPackage) {
-        return 0;
-    }
 
     const service =
         prices[type];
 
     if (
         !service ||
-        typeof service !== "object"
-    ) {
-        return 0;
-    }
-
-    const selected =
-        service[selectedPackage];
-
-    if (
-        !selected ||
-        typeof selected !== "object"
+        !selectedPackage ||
+        !service[selectedPackage]
     ) {
         return 0;
     }
 
     return Number(
-        selected[selectedDays] ||
-        0
+        service[selectedPackage][
+            selectedDays
+        ] || 0
     );
+
 }
 
 function getFinalPrice() {
 
-    const base =
+    const price =
         getPackagePrice();
 
-    if (!discountPercent) {
-        return base;
+    if (
+        !Number.isFinite(price) ||
+        price <= 0
+    ) {
+        return 0;
+    }
+
+    if (
+        !discountPercent ||
+        discountPercent <= 0
+    ) {
+        return price;
     }
 
     return Math.max(
         0,
-        base -
+        price -
         (
-            base *
+            price *
             discountPercent /
             100
         )
     );
+
+}
+
+function getConfig() {
+
+    if (type === "minecraft") {
+
+        return {
+
+            software:
+                document.getElementById(
+                    "minecraftSoftware"
+                )?.value || "vanilla",
+
+            minecraftVersion:
+                document.getElementById(
+                    "minecraftVersion"
+                )?.value || "",
+
+            serverName:
+                document.getElementById(
+                    "serverName"
+                )?.value.trim() ||
+                "Serwer Minecraft"
+
+        };
+
+    }
+
+    if (type === "discord") {
+
+        return {
+
+            nodeVersion:
+                document.getElementById(
+                    "discordNode"
+                )?.value || "20",
+
+            botName:
+                document.getElementById(
+                    "discordBotName"
+                )?.value.trim() ||
+                "ZenityBot"
+
+        };
+
+    }
+
+    if (type === "web") {
+
+        return {
+
+            webType:
+                document.getElementById(
+                    "webType"
+                )?.value || "static",
+
+            webName:
+                document.getElementById(
+                    "webName"
+                )?.value.trim() ||
+                "moja-strona"
+
+        };
+
+    }
+
+    return {};
+
 }
 
 function updateSummary() {
@@ -933,6 +1123,7 @@ function updateSummary() {
     purchaseButton.disabled =
         !selectedPackage ||
         getPackagePrice() <= 0;
+
 }
 
 function renderPackages() {
@@ -952,7 +1143,11 @@ function renderPackages() {
             "Nieprawidłowy typ usługi."
         );
 
+        purchaseButton.disabled =
+            true;
+
         return;
+
     }
 
     packagesElement.innerHTML =
@@ -972,14 +1167,17 @@ function renderPackages() {
             true;
 
         return;
+
     }
 
     if (
         !selectedPackage ||
         !service[selectedPackage]
     ) {
+
         selectedPackage =
             packageNames[0];
+
     }
 
     packageNames.forEach(
@@ -1004,12 +1202,15 @@ function renderPackages() {
                 name ===
                 selectedPackage
             ) {
+
                 element.classList.add(
                     "active"
                 );
+
             }
 
             element.innerHTML = `
+
                 <div class="package-name">
                     ${escapeHtml(name)}
                 </div>
@@ -1017,6 +1218,7 @@ function renderPackages() {
                 <div class="package-price">
                     ${money(price)}
                 </div>
+
             `;
 
             element.addEventListener(
@@ -1042,16 +1244,19 @@ function renderPackages() {
                     );
 
                     updateSummary();
+
                 }
             );
 
             packagesElement.appendChild(
                 element
             );
+
         }
     );
 
     updateSummary();
+
 }
 
 async function loadPrices() {
@@ -1068,40 +1273,65 @@ async function loadPrices() {
             );
 
         if (!response.ok) {
-            throw new Error(
-                `HTTP ${response.status}`
-            );
+            return;
         }
 
         const data =
             await response.json();
 
-        const serverPrices =
+        const remotePrices =
             data.prices ||
+            data.data ||
             data;
 
         if (
-            serverPrices &&
-            typeof serverPrices ===
-                "object" &&
-            serverPrices[type] &&
-            typeof serverPrices[type] ===
-                "object"
+            remotePrices &&
+            typeof remotePrices === "object"
         ) {
 
-            prices[type] =
-                serverPrices[type];
+            if (
+                remotePrices.minecraft &&
+                typeof remotePrices.minecraft === "object"
+            ) {
+
+                prices.minecraft =
+                    remotePrices.minecraft;
+
+            }
+
+            if (
+                remotePrices.discord &&
+                typeof remotePrices.discord === "object"
+            ) {
+
+                prices.discord =
+                    remotePrices.discord;
+
+            }
+
+            if (
+                remotePrices.web &&
+                typeof remotePrices.web === "object"
+            ) {
+
+                prices.web =
+                    remotePrices.web;
+
+            }
+
         }
 
     } catch (error) {
 
         console.warn(
-            "Ceny API niedostępne, używam cen lokalnych:",
+            "Nie udało się pobrać cen z API:",
             error
         );
+
     }
 
     renderPackages();
+
 }
 
 async function loadWallet() {
@@ -1117,24 +1347,29 @@ async function loadWallet() {
                 }
             );
 
-        if (!response.ok) {
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-        }
-
         const data =
             await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                "Nie udało się pobrać portfela."
+            );
+
+        }
 
         walletBalance =
             Number(
                 data.balance ??
                 data.wallet?.balance ??
+                data.data?.balance ??
                 0
             );
 
         document.getElementById(
-            "wallet"
+            "walletBalance"
         ).textContent =
             money(walletBalance);
 
@@ -1145,118 +1380,60 @@ async function loadWallet() {
             error
         );
 
+        walletBalance =
+            0;
+
         document.getElementById(
-            "wallet"
+            "walletBalance"
         ).textContent =
-            "—";
+            "0.00 zł";
+
     }
+
 }
 
 function extractVersions(data) {
 
-    let versions = [];
-
     if (
         Array.isArray(data)
     ) {
-        versions =
-            data;
+        return data;
     }
 
-    else if (
-        Array.isArray(
-            data?.versions
-        )
+    if (
+        Array.isArray(data?.versions)
     ) {
-        versions =
-            data.versions;
+        return data.versions;
     }
 
-    else if (
-        data?.versions &&
-        typeof data.versions ===
-            "object"
+    if (
+        Array.isArray(data?.data)
     ) {
-
-        const software =
-            document.getElementById(
-                "minecraftSoftware"
-            )?.value ||
-            "paper";
-
-        if (
-            Array.isArray(
-                data.versions[
-                    software
-                ]
-            )
-        ) {
-            versions =
-                data.versions[
-                    software
-                ];
-        } else {
-            versions =
-                Object.values(
-                    data.versions
-                ).flat();
-        }
-
+        return data.data;
     }
 
-    else if (
-        Array.isArray(
-            data?.options?.versions
-        )
+    if (
+        Array.isArray(data?.data?.versions)
     ) {
-        versions =
-            data.options.versions;
+        return data.data.versions;
     }
 
-    else if (
-        data?.options?.versions &&
-        typeof data.options.versions ===
-            "object"
-    ) {
-        versions =
-            Object.values(
-                data.options.versions
-            ).flat();
-    }
+    return [];
 
-    return [
-        ...new Set(
-            versions
-                .map(item => {
-
-                    if (
-                        typeof item ===
-                        "string"
-                    ) {
-                        return item;
-                    }
-
-                    if (
-                        item &&
-                        typeof item ===
-                            "object"
-                    ) {
-                        return (
-                            item.version ||
-                            item.name ||
-                            item.id ||
-                            ""
-                        );
-                    }
-
-                    return "";
-                })
-                .filter(Boolean)
-        )
-    ];
 }
 
 async function loadMinecraftVersions() {
+
+    if (
+        type !== "minecraft"
+    ) {
+        return;
+    }
+
+    const software =
+        document.getElementById(
+            "minecraftSoftware"
+        )?.value || "vanilla";
 
     const select =
         document.getElementById(
@@ -1276,7 +1453,7 @@ async function loadMinecraftVersions() {
 
         const response =
             await fetch(
-                `${API}/minecraft/options`,
+                `${API}/minecraft/options?software=${encodeURIComponent(software)}`,
                 {
                     credentials:
                         "include"
@@ -1287,17 +1464,17 @@ async function loadMinecraftVersions() {
             await response.json();
 
         if (!response.ok) {
+
             throw new Error(
                 data.error ||
                 data.message ||
-                `HTTP ${response.status}`
+                "Nie udało się pobrać wersji Minecraft."
             );
+
         }
 
         const versions =
-            extractVersions(
-                data
-            );
+            extractVersions(data);
 
         select.innerHTML =
             "";
@@ -1310,10 +1487,27 @@ async function loadMinecraftVersions() {
                 </option>`;
 
             return;
+
         }
 
         versions.forEach(
             version => {
+
+                const value =
+                    String(
+                        typeof version === "object"
+                            ? (
+                                version.version ||
+                                version.id ||
+                                version.name ||
+                                ""
+                            )
+                            : version
+                    );
+
+                if (!value) {
+                    return;
+                }
 
                 const option =
                     document.createElement(
@@ -1321,14 +1515,15 @@ async function loadMinecraftVersions() {
                     );
 
                 option.value =
-                    version;
+                    value;
 
                 option.textContent =
-                    version;
+                    value;
 
                 select.appendChild(
                     option
                 );
+
             }
         );
 
@@ -1344,10 +1539,8 @@ async function loadMinecraftVersions() {
                 Nie udało się pobrać wersji
             </option>`;
 
-        showError(
-            `Nie udało się załadować wersji Minecraft: ${error.message}`
-        );
     }
+
 }
 
 async function loadMinecraftOptions() {
@@ -1358,74 +1551,103 @@ async function loadMinecraftOptions() {
         return;
     }
 
+    try {
+
+        const response =
+            await fetch(
+                `${API}/minecraft/options`,
+                {
+                    credentials:
+                        "include"
+                }
+            );
+
+        if (!response.ok) {
+
+            await loadMinecraftVersions();
+
+            return;
+
+        }
+
+        const data =
+            await response.json();
+
+        const softwareList =
+            Array.isArray(
+                data?.software
+            )
+                ? data.software
+                : Array.isArray(
+                    data?.softwareList
+                )
+                    ? data.softwareList
+                    : [];
+
+        const softwareSelect =
+            document.getElementById(
+                "minecraftSoftware"
+            );
+
+        if (
+            softwareSelect &&
+            softwareList.length
+        ) {
+
+            softwareSelect.innerHTML =
+                "";
+
+            softwareList.forEach(
+                item => {
+
+                    const value =
+                        String(
+                            typeof item === "object"
+                                ? (
+                                    item.id ||
+                                    item.value ||
+                                    item.name ||
+                                    ""
+                                )
+                                : item
+                        ).toLowerCase();
+
+                    if (!value) {
+                        return;
+                    }
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        value;
+
+                    option.textContent =
+                        value.charAt(0).toUpperCase() +
+                        value.slice(1);
+
+                    softwareSelect.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Minecraft options:",
+            error
+        );
+
+    }
+
     await loadMinecraftVersions();
-}
 
-function getConfig() {
-
-    if (
-        type === "minecraft"
-    ) {
-
-        return {
-
-            software:
-                document.getElementById(
-                    "minecraftSoftware"
-                ).value,
-
-            version:
-                document.getElementById(
-                    "minecraftVersion"
-                ).value,
-
-            serverName:
-                document.getElementById(
-                    "minecraftName"
-                ).value.trim()
-
-        };
-    }
-
-    if (
-        type === "discord"
-    ) {
-
-        return {
-
-            nodeVersion:
-                document.getElementById(
-                    "discordNode"
-                ).value,
-
-            botName:
-                document.getElementById(
-                    "discordName"
-                ).value.trim()
-
-        };
-    }
-
-    if (
-        type === "web"
-    ) {
-
-        return {
-
-            webType:
-                document.getElementById(
-                    "webType"
-                ).value,
-
-            webName:
-                document.getElementById(
-                    "webName"
-                ).value.trim()
-
-        };
-    }
-
-    return {};
 }
 
 async function checkDiscount() {
@@ -1438,7 +1660,9 @@ async function checkDiscount() {
         );
 
     const code =
-        input.value.trim();
+        String(
+            input.value || ""
+        ).trim();
 
     if (!code) {
 
@@ -1456,6 +1680,7 @@ async function checkDiscount() {
         updateSummary();
 
         return;
+
     }
 
     try {
@@ -1482,16 +1707,19 @@ async function checkDiscount() {
             await response.json();
 
         if (!response.ok) {
+
             throw new Error(
                 data.error ||
                 data.message ||
-                "Kod rabatowy jest nieprawidłowy."
+                "Nieprawidłowy kod rabatowy."
             );
+
         }
 
         const percent =
             Number(
                 data.percent ??
+                data.discountPercent ??
                 data.discount ??
                 data.code?.percent ??
                 0
@@ -1501,9 +1729,11 @@ async function checkDiscount() {
             !Number.isFinite(percent) ||
             percent <= 0
         ) {
+
             throw new Error(
-                "Kod rabatowy nie ma prawidłowego rabatu."
+                "Kod nie zawiera prawidłowego rabatu."
             );
+
         }
 
         discountPercent =
@@ -1537,7 +1767,9 @@ async function checkDiscount() {
         );
 
         updateSummary();
+
     }
+
 }
 
 async function purchaseService() {
@@ -1557,6 +1789,7 @@ async function purchaseService() {
         );
 
         return;
+
     }
 
     if (!selectedPackage) {
@@ -1566,6 +1799,7 @@ async function purchaseService() {
         );
 
         return;
+
     }
 
     const price =
@@ -1581,6 +1815,7 @@ async function purchaseService() {
         );
 
         return;
+
     }
 
     if (
@@ -1593,6 +1828,7 @@ async function purchaseService() {
         );
 
         return;
+
     }
 
     purchaseButton.disabled =
@@ -1603,12 +1839,35 @@ async function purchaseService() {
 
     try {
 
+        /*
+         * WAŻNE:
+         * Backend dostaje trzy pola z tym samym
+         * technicznym typem usługi.
+         *
+         * Nigdy nie wysyłamy tutaj:
+         * "Serwery Minecraft"
+         * "Boty Discord"
+         * "Strony WWW"
+         *
+         * Wysyłamy wyłącznie:
+         * minecraft / discord / web
+         */
+
         const body = {
+
+            service:
+                type,
 
             type:
                 type,
 
+            serviceType:
+                type,
+
             package:
+                selectedPackage,
+
+            packageName:
                 selectedPackage,
 
             days:
@@ -1624,23 +1883,37 @@ async function purchaseService() {
         if (
             appliedDiscountCode
         ) {
+
             body.code =
                 appliedDiscountCode;
+
+            body.discountCode =
+                appliedDiscountCode;
+
         }
+
+        console.log(
+            "ZenityHost purchase:",
+            body
+        );
 
         const response =
             await fetch(
                 `${API}/purchase`,
                 {
                     method: "POST",
+
                     credentials:
                         "include",
+
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
+
                     body:
                         JSON.stringify(body)
+
                 }
             );
 
@@ -1648,11 +1921,13 @@ async function purchaseService() {
             await response.json();
 
         if (!response.ok) {
+
             throw new Error(
                 data.error ||
                 data.message ||
                 `HTTP ${response.status}`
             );
+
         }
 
         const service =
@@ -1665,9 +1940,11 @@ async function purchaseService() {
             service.serviceId;
 
         if (!serviceId) {
+
             throw new Error(
                 "Zakup został wykonany, ale serwer nie zwrócił ID usługi."
             );
+
         }
 
         const paths = {
@@ -1702,7 +1979,9 @@ async function purchaseService() {
 
         purchaseButton.textContent =
             "Kup usługę";
+
     }
+
 }
 
 function setupDays() {
@@ -1711,38 +1990,50 @@ function setupDays() {
         .querySelectorAll(
             ".day"
         )
-        .forEach(day => {
+        .forEach(
+            day => {
 
-            day.addEventListener(
-                "click",
-                () => {
+                day.addEventListener(
+                    "click",
+                    () => {
 
-                    document
-                        .querySelectorAll(
-                            ".day"
-                        )
-                        .forEach(item =>
-                            item.classList.remove(
-                                "active"
+                        document
+                            .querySelectorAll(
+                                ".day"
                             )
+                            .forEach(
+                                item =>
+                                    item.classList.remove(
+                                        "active"
+                                    )
+                            );
+
+                        day.classList.add(
+                            "active"
                         );
 
-                    day.classList.add(
-                        "active"
-                    );
+                        selectedDays =
+                            Number(
+                                day.dataset.days
+                            );
 
-                    selectedDays =
-                        Number(
-                            day.dataset.days
-                        );
+                        selectedPackage =
+                            null;
 
-                    selectedPackage =
-                        null;
+                        discountPercent =
+                            0;
 
-                    renderPackages();
-                }
-            );
-        });
+                        appliedDiscountCode =
+                            null;
+
+                        renderPackages();
+
+                    }
+                );
+
+            }
+        );
+
 }
 
 function setupType() {
@@ -1754,9 +2045,7 @@ function setupType() {
     ];
 
     if (
-        !validTypes.includes(
-            type
-        )
+        !validTypes.includes(type)
     ) {
 
         document.getElementById(
@@ -1780,6 +2069,7 @@ function setupType() {
         );
 
         return false;
+
     }
 
     document.getElementById(
@@ -1818,14 +2108,17 @@ function setupType() {
             : "none";
 
     return true;
+
 }
 
-document.getElementById(
-    "checkCode"
-).addEventListener(
-    "click",
-    checkDiscount
-);
+document
+    .getElementById(
+        "checkCode"
+    )
+    .addEventListener(
+        "click",
+        checkDiscount
+    );
 
 purchaseButton.addEventListener(
     "click",
@@ -1849,6 +2142,8 @@ document
 
     setupDays();
 
+    renderPackages();
+
     await Promise.all([
         loadWallet(),
         loadPrices()
@@ -1856,7 +2151,10 @@ document
 
     await loadMinecraftOptions();
 
+    updateSummary();
+
 })();
+
 </script>
 
 </body>
