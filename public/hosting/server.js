@@ -1,6 +1,4 @@
-const params = new URLSearchParams(
-    window.location.search
-);
+const params = new URLSearchParams(window.location.search);
 
 const serviceId =
     params.get("id") ||
@@ -11,35 +9,91 @@ const API = "/api/hosting";
 let service = null;
 let powerState = "offline";
 
-const $ = id =>
-    document.getElementById(id);
+const $ = id => document.getElementById(id);
 
+
+/* =========================
+   HELPERS
+========================= */
 
 function escapeHtml(value) {
-
     return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
 }
 
+function objectToText(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    if (typeof value === "string") {
+        return value;
+    }
+
+    if (
+        typeof value === "number" ||
+        typeof value === "boolean"
+    ) {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+        return value
+            .map(item => objectToText(item))
+            .filter(Boolean)
+            .join(" ");
+    }
+
+    if (typeof value === "object") {
+
+        const preferredKeys = [
+            "text",
+            "message",
+            "content",
+            "command",
+            "output",
+            "log",
+            "line"
+        ];
+
+        for (const key of preferredKeys) {
+            if (
+                value[key] !== undefined &&
+                value[key] !== null
+            ) {
+                return objectToText(value[key]);
+            }
+        }
+
+        try {
+            return JSON.stringify(value);
+        } catch {
+            return "";
+        }
+    }
+
+    return String(value);
+}
 
 function showToast(message) {
 
     const toast = $("toast");
 
-    toast.textContent = message;
+    if (!toast) return;
+
+    toast.textContent = objectToText(message);
+
     toast.classList.add("show");
 
     setTimeout(() => {
         toast.classList.remove("show");
     }, 2200);
-
 }
-
 
 function nowTime() {
 
@@ -51,16 +105,23 @@ function nowTime() {
             second: "2-digit"
         }
     );
-
 }
 
 
-function addConsole(
-    text,
-    type = "info"
-) {
+/* =========================
+   CONSOLE
+========================= */
+
+function addConsole(text, type = "info") {
 
     const consoleBox = $("console");
+
+    if (!consoleBox) return;
+
+    const cleanText =
+        objectToText(text);
+
+    if (!cleanText) return;
 
     const line =
         document.createElement("div");
@@ -68,23 +129,36 @@ function addConsole(
     line.className =
         `console-line ${type}`;
 
-    line.innerHTML =
-        `<span class="time">[${nowTime()}]</span> ${escapeHtml(text)}`;
+    const time =
+        document.createElement("span");
+
+    time.className = "time";
+    time.textContent = `[${nowTime()}]`;
+
+    line.appendChild(time);
+    line.appendChild(
+        document.createTextNode(` ${cleanText}`)
+    );
 
     consoleBox.appendChild(line);
 
     consoleBox.scrollTop =
         consoleBox.scrollHeight;
-
 }
-
 
 function clearConsole() {
 
-    $("console").innerHTML = "";
+    const consoleBox = $("console");
 
+    if (consoleBox) {
+        consoleBox.innerHTML = "";
+    }
 }
 
+
+/* =========================
+   SERVER NAME
+========================= */
 
 function slugify(value) {
 
@@ -103,33 +177,32 @@ function slugify(value) {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 32) || "serwer";
-
 }
 
 
+/* =========================
+   NETWORK
+========================= */
+
 function generateNetworkData() {
 
+    if (service?.hostname && service?.ipv4) {
+
+        return {
+            hostname: service.hostname,
+            ipv4: service.ipv4
+        };
+    }
+
     const raw =
-        String(
-            service?.id ||
-            serviceId ||
-            "server"
-        );
+        String(service?.id || serviceId || "server");
 
     let hash = 0;
 
-    for (
-        let i = 0;
-        i < raw.length;
-        i++
-    ) {
+    for (let i = 0; i < raw.length; i++) {
 
         hash =
-            (
-                hash * 31 +
-                raw.charCodeAt(i)
-            ) >>> 0;
-
+            (hash * 31 + raw.charCodeAt(i)) >>> 0;
     }
 
     const octet3 =
@@ -137,16 +210,12 @@ function generateNetworkData() {
 
     const octet4 =
         10 + (
-            Math.floor(hash / 230) %
-            230
+            Math.floor(hash / 230) % 230
         );
 
     const port =
-        20000 +
-        (
-            hash %
-            39999
-        );
+        service?.port ||
+        20000 + (hash % 39999);
 
     const configuredName =
         service?.serverName ||
@@ -160,24 +229,21 @@ function generateNetworkData() {
         `${slugify(configuredName)}.zenityhost.pl`;
 
     return {
-
         hostname,
-
-        ipv4:
-            `185.${octet3}.${octet4}:${port}`
-
+        ipv4: `185.${octet3}.${octet4}:${port}`
     };
-
 }
 
+
+/* =========================
+   RESOURCES
+========================= */
 
 function getServerResources() {
 
     const packageName =
-        String(
-            service?.package ||
-            ""
-        ).toLowerCase();
+        String(service?.package || "")
+            .toLowerCase();
 
     const resources = {
 
@@ -221,65 +287,81 @@ function getServerResources() {
             disk: "25 GB"
         }
     );
-
 }
 
 
+/* =========================
+   POWER STATE
+========================= */
+
 function setStatus(status) {
 
-    powerState = status;
+    powerState =
+        status || "offline";
 
     const badge =
         $("statusBadge");
 
-    badge.className =
-        "status-badge";
+    if (badge) {
 
-    if (status === "online") {
+        badge.className =
+            "status-badge";
 
-        badge.classList.add("online");
-        badge.textContent = "ONLINE";
+        if (powerState === "online") {
 
-    } else if (status === "starting") {
+            badge.classList.add("online");
+            badge.textContent = "ONLINE";
 
-        badge.classList.add("starting");
-        badge.textContent = "URUCHAMIANIE";
+        } else if (
+            powerState === "starting"
+        ) {
 
-    } else {
+            badge.classList.add("starting");
+            badge.textContent = "URUCHAMIANIE";
 
-        badge.classList.add("offline");
-        badge.textContent = "OFFLINE";
+        } else {
 
+            badge.classList.add("offline");
+            badge.textContent = "OFFLINE";
+        }
     }
 
+    const startButton =
+        $("startButton");
 
-    $("startButton").disabled =
-        status === "online" ||
-        status === "starting";
+    const restartButton =
+        $("restartButton");
 
-    $("restartButton").disabled =
-        status !== "online";
+    const stopButton =
+        $("stopButton");
 
-    $("stopButton").disabled =
-        status === "offline" ||
-        status === "starting";
+    if (startButton) {
+        startButton.disabled =
+            powerState === "online" ||
+            powerState === "starting";
+    }
 
+    if (restartButton) {
+        restartButton.disabled =
+            powerState !== "online";
+    }
+
+    if (stopButton) {
+        stopButton.disabled =
+            powerState === "offline" ||
+            powerState === "starting";
+    }
 }
-
 
 function savePowerState() {
 
-    if (!serviceId) {
-        return;
-    }
+    if (!serviceId) return;
 
     localStorage.setItem(
         `zenityhost-power-${serviceId}`,
         powerState
     );
-
 }
-
 
 function loadPowerState() {
 
@@ -293,9 +375,12 @@ function loadPowerState() {
         ) ||
         "offline"
     );
-
 }
 
+
+/* =========================
+   LOAD SERVICE
+========================= */
 
 async function loadService() {
 
@@ -307,7 +392,6 @@ async function loadService() {
         );
 
         return;
-
     }
 
     try {
@@ -330,7 +414,6 @@ async function loadService() {
                 data.error ||
                 "Nie udało się pobrać usługi."
             );
-
         }
 
         service =
@@ -340,8 +423,8 @@ async function loadService() {
 
         renderService();
 
+        await loadStatus();
         await loadConsole();
-
         await loadFiles();
 
     } catch (error) {
@@ -351,13 +434,17 @@ async function loadService() {
             "Błąd podczas ładowania usługi.",
             "error"
         );
-
     }
-
 }
 
 
+/* =========================
+   RENDER SERVICE
+========================= */
+
 function renderService() {
+
+    if (!service) return;
 
     const network =
         generateNetworkData();
@@ -373,91 +460,151 @@ function renderService() {
         ) ||
         "Serwer Minecraft";
 
+    const values = {
 
-    $("serverName").textContent =
-        displayName;
+        serverName: displayName,
 
-    $("serverId").textContent =
-        service.id ||
-        serviceId;
+        serverId:
+            service.id ||
+            serviceId,
 
-    $("serverHostname").textContent =
-        network.hostname;
+        serverHostname:
+            network.hostname,
 
-    $("serverIPv4").textContent =
-        network.ipv4;
+        serverIPv4:
+            network.ipv4,
 
+        package:
+            service.package ||
+            "—",
 
-    $("package").textContent =
-        service.package ||
-        "—";
+        days:
+            service.days
+                ? `${service.days} dni`
+                : "—",
 
-    $("days").textContent =
-        service.days
-            ? `${service.days} dni`
-            : "—";
+        software:
+            service.software ||
+            service.config?.software ||
+            "Paper",
 
-    $("software").textContent =
-        service.software ||
-        "Paper";
+        minecraftVersion:
+            service.minecraftVersion ||
+            service.config?.minecraftVersion ||
+            "—",
 
-    $("minecraftVersion").textContent =
-        service.minecraftVersion ||
-        "—";
+        ram:
+            resources.ram,
 
-    $("ram").textContent =
-        resources.ram;
+        cpu:
+            resources.cpu,
 
-    $("cpu").textContent =
-        resources.cpu;
+        disk:
+            resources.disk
+    };
 
-    $("disk").textContent =
-        resources.disk;
+    Object.entries(values).forEach(
+        ([id, value]) => {
 
+            const element = $(id);
+
+            if (element) {
+                element.textContent =
+                    objectToText(value);
+            }
+        }
+    );
 
     if (service.expiresAt) {
 
-        const date =
-            new Date(
-                service.expiresAt
-            );
+        const expires =
+            new Date(service.expiresAt);
 
-        $("expiresAt").textContent =
-            date.toLocaleDateString(
-                "pl-PL"
-            );
+        const expiresElement =
+            $("expiresAt");
 
+        if (
+            expiresElement &&
+            !Number.isNaN(expires.getTime())
+        ) {
+
+            expiresElement.textContent =
+                expires.toLocaleDateString(
+                    "pl-PL"
+                );
+        }
     }
 
-
-    const saved =
-        loadPowerState();
-
-    setStatus(saved);
-
-
-    if (
-        service.status ===
-        "provisioning"
-    ) {
-
-        setStatus("starting");
-
-        setTimeout(() => {
-
-            setStatus(
-                loadPowerState() ===
-                "online"
-                    ? "online"
-                    : "offline"
-            );
-
-        }, 2500);
-
-    }
-
+    setStatus(
+        service.powerState ||
+        service.status === "running"
+            ? "online"
+            : loadPowerState()
+    );
 }
 
+
+/* =========================
+   STATUS
+========================= */
+
+async function loadStatus() {
+
+    if (!serviceId) return;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/service/${encodeURIComponent(serviceId)}/status`,
+                {
+                    credentials: "include"
+                }
+            );
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data =
+            await response.json();
+
+        const backendState =
+            data.powerState ||
+            data.status;
+
+        if (
+            backendState === "online" ||
+            backendState === "running"
+        ) {
+
+            setStatus("online");
+            savePowerState();
+
+        } else if (
+            backendState === "starting" ||
+            backendState === "provisioning"
+        ) {
+
+            setStatus("starting");
+
+        } else {
+
+            setStatus("offline");
+        }
+
+    } catch {
+
+        setStatus(
+            loadPowerState()
+        );
+    }
+}
+
+
+/* =========================
+   WALLET
+========================= */
 
 async function loadWallet() {
 
@@ -481,20 +628,35 @@ async function loadWallet() {
                 0
             );
 
-        $("walletBalance").textContent =
-            `${balance.toFixed(2)} zł`;
+        const element =
+            $("walletBalance");
+
+        if (element) {
+
+            element.textContent =
+                `${balance.toFixed(2)} zł`;
+        }
 
     } catch {
 
-        $("walletBalance").textContent =
-            "0.00 zł";
+        const element =
+            $("walletBalance");
 
+        if (element) {
+            element.textContent =
+                "0.00 zł";
+        }
     }
-
 }
 
 
+/* =========================
+   CONSOLE LOAD
+========================= */
+
 async function loadConsole() {
+
+    if (!serviceId) return;
 
     try {
 
@@ -514,8 +676,9 @@ async function loadConsole() {
         }
 
         const entries =
-            data.console ||
-            [];
+            Array.isArray(data.console)
+                ? data.console
+                : [];
 
         clearConsole();
 
@@ -532,18 +695,19 @@ async function loadConsole() {
             );
 
             return;
-
         }
 
         entries.forEach(entry => {
 
-            addConsole(
-                entry.text ||
-                entry.command ||
-                "",
-                "info"
-            );
+            const text =
+                objectToText(entry);
 
+            if (text) {
+                addConsole(
+                    text,
+                    "info"
+                );
+            }
         });
 
     } catch {
@@ -555,12 +719,24 @@ async function loadConsole() {
             "info"
         );
 
+        addConsole(
+            "Serwer jest obecnie wyłączony.",
+            "info"
+        );
     }
-
 }
 
 
+/* =========================
+   FILES
+========================= */
+
 async function loadFiles() {
+
+    const container =
+        $("files");
+
+    if (!container) return;
 
     try {
 
@@ -576,24 +752,25 @@ async function loadFiles() {
             await response.json();
 
         const files =
-            data.files ||
-            [];
-
-        const container =
-            $("files");
+            Array.isArray(data.files)
+                ? data.files
+                : [];
 
         container.innerHTML = "";
 
         if (!files.length) {
 
-            container.innerHTML =
-                `<div class="file">
-                    <span class="file-icon">📁</span>
-                    <span>Brak plików — serwer zostanie przygotowany po uruchomieniu.</span>
-                </div>`;
+            container.innerHTML = `
+                <div class="file">
+                    <span class="file-icon">DIR</span>
+                    <span>
+                        Brak plików — serwer zostanie
+                        przygotowany po uruchomieniu.
+                    </span>
+                </div>
+            `;
 
             return;
-
         }
 
         files.forEach(file => {
@@ -601,41 +778,57 @@ async function loadFiles() {
             const row =
                 document.createElement("div");
 
-            row.className =
-                "file";
+            row.className = "file";
 
-            row.innerHTML =
-                `
+            const icon =
+                file.type === "folder"
+                    ? "DIR"
+                    : "FILE";
+
+            const name =
+                file.name ||
+                file.path ||
+                "plik";
+
+            row.innerHTML = `
                 <span class="file-icon">
-                    ${file.type === "folder" ? "📁" : "📄"}
+                    ${icon}
                 </span>
+
                 <span>
-                    ${escapeHtml(
-                        file.name ||
-                        file.path ||
-                        "plik"
-                    )}
+                    ${escapeHtml(name)}
                 </span>
-                `;
+            `;
 
             container.appendChild(row);
-
         });
 
     } catch {
 
-        $("files").innerHTML =
-            `<div class="file">
-                <span class="file-icon">📁</span>
-                <span>Brak plików</span>
-            </div>`;
+        container.innerHTML = `
+            <div class="file">
+                <span class="file-icon">
+                    DIR
+                </span>
 
+                <span>
+                    Brak plików
+                </span>
+            </div>
+        `;
     }
-
 }
 
 
+/* =========================
+   BACKEND COMMAND
+========================= */
+
 async function sendBackendCommand(command) {
+
+    if (!serviceId) {
+        return false;
+    }
 
     try {
 
@@ -645,14 +838,15 @@ async function sendBackendCommand(command) {
                 {
                     method: "POST",
                     credentials: "include",
+
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
-                    body:
-                        JSON.stringify({
-                            command
-                        })
+
+                    body: JSON.stringify({
+                        command
+                    })
                 }
             );
 
@@ -663,16 +857,22 @@ async function sendBackendCommand(command) {
             return false;
         }
 
+        if (data.service) {
+            service = data.service;
+        }
+
         return true;
 
     } catch {
 
         return false;
-
     }
-
 }
 
+
+/* =========================
+   START
+========================= */
 
 async function startServer() {
 
@@ -690,50 +890,76 @@ async function startServer() {
         "info"
     );
 
-    await sendBackendCommand(
-        "system: start"
-    );
-
-    setTimeout(async () => {
-
-        setStatus("online");
-
-        savePowerState();
-
-        addConsole(
-            "Serwer został uruchomiony.",
-            "success"
-        );
-
-        addConsole(
-            `Minecraft ${service?.minecraftVersion || "1.21.8"} wystartował.`,
-            "success"
-        );
-
-        addConsole(
-            `IP: ${generateNetworkData().hostname}`,
-            "info"
-        );
-
-        addConsole(
-            `IPv4: ${generateNetworkData().ipv4}`,
-            "info"
-        );
-
+    const success =
         await sendBackendCommand(
-            "system: online"
+            "system: start"
         );
 
-    }, 1800);
+    if (!success) {
 
+        setStatus("offline");
+
+        addConsole(
+            "Nie udało się wysłać polecenia do panelu.",
+            "error"
+        );
+
+        return;
+    }
+
+    setTimeout(
+        async () => {
+
+            setStatus("online");
+
+            savePowerState();
+
+            addConsole(
+                "Serwer został uruchomiony.",
+                "success"
+            );
+
+            addConsole(
+                `Minecraft ${
+                    service?.minecraftVersion ||
+                    service?.config?.minecraftVersion ||
+                    "1.21.8"
+                } wystartował.`,
+                "success"
+            );
+
+            const network =
+                generateNetworkData();
+
+            addConsole(
+                `IP: ${network.hostname}`,
+                "info"
+            );
+
+            addConsole(
+                `IPv4: ${network.ipv4}`,
+                "info"
+            );
+
+            await sendBackendCommand(
+                "system: online"
+            );
+
+            await loadStatus();
+
+        },
+        1800
+    );
 }
 
 
+/* =========================
+   STOP
+========================= */
+
 async function stopServer() {
 
-    if (
-        powerState === "offline"
-    ) {
+    if (powerState === "offline") {
         return;
     }
 
@@ -742,35 +968,52 @@ async function stopServer() {
         "info"
     );
 
-    await sendBackendCommand(
-        "system: stop"
-    );
+    const success =
+        await sendBackendCommand(
+            "system: stop"
+        );
 
-    setTimeout(async () => {
-
-        setStatus("offline");
-
-        savePowerState();
+    if (!success) {
 
         addConsole(
-            "Serwer został wyłączony.",
-            "success"
+            "Nie udało się zatrzymać serwera.",
+            "error"
         );
 
-        await sendBackendCommand(
-            "system: offline"
-        );
+        return;
+    }
 
-    }, 1000);
+    setTimeout(
+        async () => {
 
+            setStatus("offline");
+
+            savePowerState();
+
+            addConsole(
+                "Serwer został wyłączony.",
+                "success"
+            );
+
+            await sendBackendCommand(
+                "system: offline"
+            );
+
+            await loadStatus();
+
+        },
+        1000
+    );
 }
 
 
+/* =========================
+   RESTART
+========================= */
+
 async function restartServer() {
 
-    if (
-        powerState !== "online"
-    ) {
+    if (powerState !== "online") {
         return;
     }
 
@@ -779,31 +1022,50 @@ async function restartServer() {
         "info"
     );
 
-    await sendBackendCommand(
-        "system: restart"
-    );
+    const success =
+        await sendBackendCommand(
+            "system: restart"
+        );
+
+    if (!success) {
+
+        addConsole(
+            "Nie udało się zrestartować serwera.",
+            "error"
+        );
+
+        return;
+    }
 
     setStatus("starting");
 
-    setTimeout(async () => {
+    setTimeout(
+        async () => {
 
-        setStatus("online");
+            setStatus("online");
 
-        savePowerState();
+            savePowerState();
 
-        addConsole(
-            "Serwer został ponownie uruchomiony.",
-            "success"
-        );
+            addConsole(
+                "Serwer został ponownie uruchomiony.",
+                "success"
+            );
 
-        await sendBackendCommand(
-            "system: online"
-        );
+            await sendBackendCommand(
+                "system: online"
+            );
 
-    }, 1800);
+            await loadStatus();
 
+        },
+        1800
+    );
 }
 
+
+/* =========================
+   COMMAND
+========================= */
 
 async function sendCommand(event) {
 
@@ -811,6 +1073,8 @@ async function sendCommand(event) {
 
     const input =
         $("commandInput");
+
+    if (!input) return;
 
     const command =
         input.value.trim();
@@ -826,9 +1090,7 @@ async function sendCommand(event) {
 
     input.value = "";
 
-    if (
-        powerState !== "online"
-    ) {
+    if (powerState !== "online") {
 
         addConsole(
             "Nie można wykonać komendy — serwer jest wyłączony.",
@@ -836,40 +1098,31 @@ async function sendCommand(event) {
         );
 
         return;
-
     }
 
     await sendBackendCommand(
         command
     );
 
-    if (
-        command === "help"
-    ) {
+    if (command === "help") {
 
         addConsole(
             "Dostępne komendy: help, list, stop, restart, say <tekst>",
             "info"
         );
 
-    } else if (
-        command === "list"
-    ) {
+    } else if (command === "list") {
 
         addConsole(
             "There are 0 of a max of 20 players online.",
             "info"
         );
 
-    } else if (
-        command === "stop"
-    ) {
+    } else if (command === "stop") {
 
         await stopServer();
 
-    } else if (
-        command === "restart"
-    ) {
+    } else if (command === "restart") {
 
         await restartServer();
 
@@ -888,16 +1141,22 @@ async function sendCommand(event) {
             `Wykonano: ${command}`,
             "success"
         );
-
     }
-
 }
 
+
+/* =========================
+   COPY
+========================= */
 
 async function copyText(elementId) {
 
     const element =
         $(elementId);
+
+    if (!element) {
+        return;
+    }
 
     const value =
         element.textContent.trim();
@@ -917,11 +1176,13 @@ async function copyText(elementId) {
         showToast(
             "Nie udało się skopiować."
         );
-
     }
-
 }
 
+
+/* =========================
+   EVENTS
+========================= */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -936,5 +1197,9 @@ document.addEventListener(
             30000
         );
 
+        setInterval(
+            loadStatus,
+            10000
+        );
     }
 );

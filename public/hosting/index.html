@@ -1,485 +1,547 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZenityHost</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
+    <title>ZenityHost — Panel klienta</title>
 
-body{
-    min-height:100vh;
-    font-family:Arial,Helvetica,sans-serif;
-    background:radial-gradient(circle at top,#102b4f,#050b14 70%);
-    color:#fff;
-}
-
-a{text-decoration:none;color:inherit}
-
-.layout{display:flex;min-height:100vh}
-
-.sidebar{
-    width:250px;
-    flex-shrink:0;
-    padding:24px 15px;
-    background:rgba(4,10,20,.97);
-    border-right:1px solid rgba(255,255,255,.07)
-}
-
-.logo{
-    padding:0 12px 25px;
-    font-size:23px;
-    font-weight:900
-}
-
-.logo span{color:#4da3ff}
-
-.menu-title{
-    padding:0 12px;
-    margin:18px 0 8px;
-    color:#60738a;
-    font-size:11px;
-    font-weight:900;
-    text-transform:uppercase
-}
-
-.nav{
-    display:flex;
-    flex-direction:column;
-    gap:5px
-}
-
-.nav a{
-    padding:12px;
-    border-radius:10px;
-    color:#9aaabd;
-    font-size:14px;
-    font-weight:700
-}
-
-.nav a:hover,
-.nav a.active{
-    background:rgba(77,163,255,.11);
-    color:white
-}
-
-.nav a.active{
-    border-left:3px solid #4da3ff
-}
-
-.wallet-small{
-    margin-top:25px;
-    padding:14px;
-    border-radius:13px;
-    background:linear-gradient(
-        135deg,
-        rgba(212,167,44,.16),
-        rgba(77,163,255,.07)
-    );
-    border:1px solid rgba(212,167,44,.18)
-}
-
-.wallet-small-label{
-    color:#8393a7;
-    font-size:11px;
-    margin-bottom:5px
-}
-
-.wallet-small-value{
-    color:#f4d05c;
-    font-size:18px;
-    font-weight:900
-}
-
-.main{
-    width:100%;
-    padding:35px
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-    margin-bottom:30px
-}
-
-.topbar h1{font-size:30px}
-
-.topbar p{
-    margin-top:7px;
-    color:#8fa0b5
-}
-
-.wallet{
-    padding:11px 16px;
-    border-radius:11px;
-    background:linear-gradient(135deg,#d4a72c,#f4d05c);
-    color:#111827;
-    font-weight:900
-}
-
-.hero{
-    padding:28px;
-    margin-bottom:25px;
-    border-radius:18px;
-    background:linear-gradient(
-        135deg,
-        rgba(16,48,82,.9),
-        rgba(8,20,35,.95)
-    );
-    border:1px solid rgba(77,163,255,.13)
-}
-
-.hero h2{
-    font-size:25px;
-    margin-bottom:8px
-}
-
-.hero p{
-    color:#8fa0b5;
-    line-height:1.6
-}
-
-.services{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:18px
-}
-
-.service{
-    padding:25px;
-    min-height:245px;
-    border-radius:17px;
-    background:#0b1728;
-    border:1px solid rgba(255,255,255,.07);
-    transition:.2s
-}
-
-.service:hover{
-    transform:translateY(-3px);
-    border-color:rgba(77,163,255,.35)
-}
-
-.service-icon{
-    width:52px;
-    height:52px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom:18px;
-    border-radius:13px;
-    background:#10243c;
-    font-size:25px
-}
-
-.service h3{
-    font-size:20px;
-    margin-bottom:8px
-}
-
-.service p{
-    min-height:50px;
-    color:#8fa0b5;
-    line-height:1.5;
-    font-size:13px
-}
-
-.go-button{
-    width:100%;
-    margin-top:20px;
-    padding:12px;
-    border:0;
-    border-radius:10px;
-    background:linear-gradient(135deg,#1665ad,#3289df);
-    color:white;
-    font-weight:900;
-    cursor:pointer
-}
-
-.go-button:hover{filter:brightness(1.1)}
-
-.section{margin-top:40px}
-
-.section-head{margin-bottom:15px}
-
-.section-head h2{font-size:21px}
-
-.section-head p{
-    margin-top:5px;
-    color:#7e8fa4;
-    font-size:13px
-}
-
-.my-services{
-    display:grid;
-    gap:10px
-}
-
-.my-service,
-.empty{
-    padding:18px;
-    border-radius:13px;
-    background:#0b1728;
-    border:1px solid rgba(255,255,255,.07)
-}
-
-.my-service{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px
-}
-
-.my-service-name{font-weight:900}
-
-.my-service-meta{
-    margin-top:5px;
-    color:#8092a7;
-    font-size:12px
-}
-
-.status{
-    padding:5px 9px;
-    border-radius:8px;
-    background:rgba(70,200,120,.1);
-    color:#8ff0b5;
-    font-size:11px;
-    font-weight:800
-}
-
-.primary-button{
-    padding:9px 13px;
-    border:0;
-    border-radius:9px;
-    background:#1764a8;
-    color:white;
-    font-weight:800;
-    cursor:pointer
-}
-
-.ceo-navigation{display:none}
-
-@media(max-width:900px){
-    .services{grid-template-columns:1fr}
-}
-
-@media(max-width:650px){
-    .layout{display:block}
-    .sidebar{
-        width:100%;
-        border-right:0;
-        border-bottom:1px solid rgba(255,255,255,.07)
-    }
-    .main{padding:20px}
-    .topbar{
-        flex-direction:column;
-        align-items:flex-start
-    }
-    .my-service{
-        flex-direction:column;
-        align-items:flex-start
-    }
-}
-</style>
+    <link
+        rel="stylesheet"
+        href="/hosting/style.css?v=40"
+    >
 </head>
 
 <body>
 
-<div class="layout">
+<div class="app">
 
-<aside class="sidebar">
+    <aside class="sidebar">
 
-<div class="logo">
-Zenity<span>Host</span>
+        <div class="brand">
+            <div class="brand-mark">ZH</div>
+
+            <div class="brand-text">
+                <strong>ZenityHost</strong>
+                <span>Panel klienta</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-title">
+                PANEL
+            </div>
+
+            <a href="/hosting/" class="nav-item active">
+                <span class="nav-icon">01</span>
+                <span>Start</span>
+            </a>
+
+            <a href="#shop" class="nav-item">
+                <span class="nav-icon">02</span>
+                <span>Sklep</span>
+            </a>
+
+            <a href="#services" class="nav-item">
+                <span class="nav-icon">03</span>
+                <span>Moje usługi</span>
+            </a>
+
+            <a href="/wallet" class="nav-item">
+                <span class="nav-icon">04</span>
+                <span>Portfel</span>
+            </a>
+
+            <a href="https://zenitycode.pl" class="nav-item">
+                <span class="nav-icon">05</span>
+                <span>ZenityCode</span>
+            </a>
+
+        </div>
+
+        <div
+            id="ceoNavigation"
+            class="sidebar-section ceo-section"
+            style="display:none;"
+        >
+
+            <div class="sidebar-title">
+                ZARZĄDZANIE
+            </div>
+
+            <a href="/hosting/admin.html" class="nav-item">
+                <span class="nav-icon">A1</span>
+                <span>Panel CEO</span>
+            </a>
+
+            <a href="/hosting/admin.html#users" class="nav-item">
+                <span class="nav-icon">A2</span>
+                <span>Użytkownicy</span>
+            </a>
+
+            <a href="/hosting/admin.html#wallets" class="nav-item">
+                <span class="nav-icon">A3</span>
+                <span>Portfele</span>
+            </a>
+
+            <a href="/hosting/admin.html#services" class="nav-item">
+                <span class="nav-icon">A4</span>
+                <span>Usługi</span>
+            </a>
+
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <div class="wallet-card">
+
+                <div class="wallet-top">
+                    <span>PORTFEL</span>
+
+                    <span class="wallet-dot"></span>
+                </div>
+
+                <div
+                    id="sidebarWalletBalance"
+                    class="wallet-value"
+                >
+                    — zł
+                </div>
+
+                <a href="/wallet" class="wallet-link">
+                    Zarządzaj środkami
+                    <span>→</span>
+                </a>
+
+            </div>
+
+            <a href="/logout" class="logout">
+                <span class="logout-icon">↪</span>
+                Wyloguj się
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <div class="breadcrumb">
+                    ZenityHost
+                    <span>/</span>
+                    Panel klienta
+                </div>
+
+                <div class="page-title">
+                    Panel klienta
+                </div>
+            </div>
+
+            <div class="topbar-right">
+
+                <div class="top-wallet">
+                    <span class="top-wallet-label">
+                        Dostępne środki
+                    </span>
+
+                    <strong id="walletBalance">
+                        — zł
+                    </strong>
+                </div>
+
+                <div class="account">
+                    <div class="account-avatar">
+                        Z
+                    </div>
+
+                    <div class="account-info">
+                        <strong>Klient</strong>
+                        <span>Aktywne konto</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <div class="hero-label">
+                    ZENITYHOST
+                </div>
+
+                <h1>
+                    Wszystko, czego potrzebujesz
+                    <span>w jednym panelu.</span>
+                </h1>
+
+                <p>
+                    Zarządzaj serwerami Minecraft, botami Discord
+                    i stronami WWW z jednego miejsca.
+                </p>
+
+                <div class="hero-actions">
+
+                    <a
+                        href="#shop"
+                        class="hero-button primary"
+                    >
+                        Przeglądaj ofertę
+                        <span>→</span>
+                    </a>
+
+                    <a
+                        href="#services"
+                        class="hero-button secondary"
+                    >
+                        Moje usługi
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="hero-decoration">
+
+                <div class="hero-circle circle-one"></div>
+                <div class="hero-circle circle-two"></div>
+
+                <div class="hero-panel">
+
+                    <div class="hero-panel-top">
+                        <span>ZENITYHOST</span>
+                        <span class="live-dot"></span>
+                    </div>
+
+                    <div class="hero-panel-line"></div>
+
+                    <div class="hero-panel-content">
+
+                        <div>
+                            <small>STATUS</small>
+                            <strong>ONLINE</strong>
+                        </div>
+
+                        <div>
+                            <small>USŁUGI</small>
+                            <strong>24/7</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section id="shop" class="section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-kicker">
+                        SKLEP
+                    </span>
+
+                    <h2>
+                        Wybierz usługę
+                    </h2>
+
+                    <p>
+                        Wybierz produkt i skonfiguruj go
+                        według swoich potrzeb.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="services-grid">
+
+
+                <article class="service-card minecraft">
+
+                    <div class="service-card-top">
+
+                        <div class="service-badge">
+                            MC
+                        </div>
+
+                        <span class="service-number">
+                            01
+                        </span>
+
+                    </div>
+
+                    <div class="service-card-content">
+
+                        <h3>
+                            Serwery Minecraft
+                        </h3>
+
+                        <p>
+                            Wydajne serwery Minecraft
+                            z prostym panelem zarządzania.
+                        </p>
+
+                        <div class="feature-list">
+
+                            <span>
+                                <i></i>
+                                Panel zarządzania
+                            </span>
+
+                            <span>
+                                <i></i>
+                                Wybór wersji
+                            </span>
+
+                            <span>
+                                <i></i>
+                                Automatyczna konfiguracja
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="service-card-bottom">
+
+                        <div class="from-price">
+                            <span>od</span>
+                            <strong>2,99 zł</strong>
+                        </div>
+
+                        <button
+                            class="go-button"
+                            data-service="minecraft"
+                        >
+                            Wybierz
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="service-card discord">
+
+                    <div class="service-card-top">
+
+                        <div class="service-badge">
+                            DC
+                        </div>
+
+                        <span class="service-number">
+                            02
+                        </span>
+
+                    </div>
+
+                    <div class="service-card-content">
+
+                        <h3>
+                            Boty Discord
+                        </h3>
+
+                        <p>
+                            Stabilny hosting dla botów Discord
+                            gotowych do działania 24/7.
+                        </p>
+
+                        <div class="feature-list">
+
+                            <span>
+                                <i></i>
+                                Działanie 24/7
+                            </span>
+
+                            <span>
+                                <i></i>
+                                Łatwe zarządzanie
+                            </span>
+
+                            <span>
+                                <i></i>
+                                Szybkie uruchomienie
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="service-card-bottom">
+
+                        <div class="from-price">
+                            <span>od</span>
+                            <strong>1,00 zł</strong>
+                        </div>
+
+                        <button
+                            class="go-button"
+                            data-service="discord"
+                        >
+                            Wybierz
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <article class="service-card web">
+
+                    <div class="service-card-top">
+
+                        <div class="service-badge">
+                            WEB
+                        </div>
+
+                        <span class="service-number">
+                            03
+                        </span>
+
+                    </div>
+
+                    <div class="service-card-content">
+
+                        <h3>
+                            Strony WWW
+                        </h3>
+
+                        <p>
+                            Hosting stron internetowych
+                            dla małych i większych projektów.
+                        </p>
+
+                        <div class="feature-list">
+
+                            <span>
+                                <i></i>
+                                Szybkie wdrożenie
+                            </span>
+
+                            <span>
+                                <i></i>
+                                Stabilne środowisko
+                            </span>
+
+                            <span>
+                                <i></i>
+                                Panel klienta
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="service-card-bottom">
+
+                        <div class="from-price">
+                            <span>od</span>
+                            <strong>2,00 zł</strong>
+                        </div>
+
+                        <button
+                            class="go-button"
+                            data-service="web"
+                        >
+                            Wybierz
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <section id="services" class="section services-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-kicker">
+                        TWOJE KONTO
+                    </span>
+
+                    <h2>
+                        Moje usługi
+                    </h2>
+
+                    <p>
+                        Wszystkie zakupione usługi
+                        znajdziesz w tym miejscu.
+                    </p>
+                </div>
+
+                <a
+                    href="#shop"
+                    class="small-action"
+                >
+                    Dodaj usługę
+                    <span>+</span>
+                </a>
+
+            </div>
+
+
+            <div
+                id="myServicesList"
+                class="my-services"
+            >
+
+                <div class="empty">
+                    Ładowanie usług...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer class="footer">
+
+            <div>
+                <strong>ZenityHost</strong>
+                <span>
+                    © 2026 ZenityCode
+                </span>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://zenitycode.pl">
+                    ZenityCode
+                </a>
+
+                <a href="/wallet">
+                    Portfel
+                </a>
+            </div>
+
+        </footer>
+
+    </main>
+
 </div>
 
-<div class="menu-title">Panel</div>
 
-<nav class="nav">
-
-<a href="/hosting">
-🏠 Start
-</a>
-
-<a href="/hosting#shop" class="active">
-🛒 Sklep
-</a>
-
-<a href="#myServices">
-🖥️ Moje usługi
-</a>
-
-<a href="/wallet">
-💰 Portfel
-</a>
-
-<a href="/">
-🌐 ZenityCode
-</a>
-
-</nav>
-
-<div id="ceoNavigation" class="ceo-navigation">
-
-<div class="menu-title">CEO</div>
-
-<nav class="nav">
-
-<a href="/hosting/admin.html">
-📊 Dashboard CEO
-</a>
-
-<a href="/hosting/admin.html#users">
-👥 Użytkownicy
-</a>
-
-<a href="/hosting/admin.html#wallets">
-💰 Portfele
-</a>
-
-<a href="/hosting/admin.html#services">
-🖥️ Wszystkie usługi
-</a>
-
-<a href="/hosting/admin.html#codes">
-🏷️ Kody rabatowe
-</a>
-
-</nav>
-
-</div>
-
-<div class="wallet-small">
-
-<div class="wallet-small-label">
-Saldo portfela
-</div>
-
-<div id="sidebarWalletBalance"
-class="wallet-small-value">
-...
-</div>
-
-</div>
-
-</aside>
-
-<main class="main">
-
-<div class="topbar">
-
-<div>
-<h1>ZenityHost</h1>
-<p>Hosting Minecraft, botów Discord i stron WWW.</p>
-</div>
-
-<a href="/wallet" class="wallet">
-💰 <span id="walletBalance">...</span>
-</a>
-
-</div>
-
-<section class="hero" id="shop">
-
-<h2>Sklep ZenityHost</h2>
-
-<p>
-Wybierz usługę, którą chcesz zamówić.
-Kliknij „Przejdź”, aby przejść do konfiguracji.
-</p>
-
-</section>
-
-<section class="services">
-
-<article class="service">
-
-<div class="service-icon">🟩</div>
-
-<h3>Serwery Minecraft</h3>
-
-<p>
-Hosting serwerów Minecraft z wyborem
-oprogramowania, wersji i konfiguracji.
-</p>
-
-<button
-class="go-button"
-data-service="minecraft">
-Przejdź →
-</button>
-
-</article>
-
-<article class="service">
-
-<div class="service-icon">🤖</div>
-
-<h3>Boty Discord</h3>
-
-<p>
-Hosting botów Discord z Node.js
-i konfiguracją projektu.
-</p>
-
-<button
-class="go-button"
-data-service="discord">
-Przejdź →
-</button>
-
-</article>
-
-<article class="service">
-
-<div class="service-icon">🌐</div>
-
-<h3>Strony WWW</h3>
-
-<p>
-Hosting stron HTML, CSS, JS
-oraz PHP.
-</p>
-
-<button
-class="go-button"
-data-service="web">
-Przejdź →
-</button>
-
-</article>
-
-</section>
-
-<section id="myServices" class="section">
-
-<div class="section-head">
-
-<h2>Moje usługi</h2>
-
-<p>
-Zakupione usługi dostępne na Twoim koncie.
-</p>
-
-</div>
-
-<div id="myServicesList" class="my-services">
-
-<div class="empty">
-Ładowanie usług...
-</div>
-
-</div>
-
-</section>
-
-</main>
-
-</div>
-
-<script src="/hosting/script.js?v=30"></script>
+<script src="/hosting/script.js?v=40"></script>
 
 </body>
 </html>
