@@ -7,6 +7,7 @@ const passport = require("passport");
 
 require("./oauth");
 require("./discord-client");
+require("./routes/hosting-control")(app);
 
 const authRoutes = require("./routes/auth");
 const pluginRoutes = require("./routes/plugins");

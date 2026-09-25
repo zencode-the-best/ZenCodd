@@ -4,248 +4,308 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ZenityHost — Usługa</title>
+    <title>ZenityHost — Serwer</title>
 
     <link rel="stylesheet" href="/hosting/server.css">
 </head>
 
 <body>
 
-<div class="background background-one"></div>
-<div class="background background-two"></div>
+<div class="app">
 
-<header class="topbar">
+    <aside class="sidebar">
 
-    <a href="/hosting" class="brand">
-
-        <div class="brand-logo">
-            Z
+        <div class="brand">
+            <div class="brand-logo">Z</div>
+            <div>
+                <strong>ZENITY</strong>
+                <span>HOST</span>
+            </div>
         </div>
 
-        <div class="brand-text">
-            <strong>ZENITY<span>HOST</span></strong>
-            <small>Panel usług</small>
-        </div>
+        <nav>
 
-    </a>
+            <a href="/hosting">
+                <span>⌂</span>
+                Start
+            </a>
 
-    <div class="top-right">
+            <a href="/hosting#sklep">
+                <span>🛒</span>
+                Sklep
+            </a>
 
-        <a href="/hosting" class="back-button">
-            ← Wróć do panelu
-        </a>
+            <a href="/hosting#uslugi" class="active">
+                <span>▣</span>
+                Moje usługi
+            </a>
 
-        <div class="wallet">
-            <span>◆</span>
-            <strong id="walletBalance">0.00 zł</strong>
-        </div>
+            <a href="/hosting#wallet">
+                <span>◉</span>
+                Portfel
+            </a>
 
-    </div>
+            <a href="https://zenitycode.pl">
+                <span>◆</span>
+                ZenityCode
+            </a>
 
-</header>
+        </nav>
 
-
-<main class="page">
-
-    <section class="loading-card" id="loading">
-
-        <div class="loader"></div>
-
-        <h1>Ładowanie usługi</h1>
-
-        <p>
-            Pobieramy informacje z panelu ZenityHost...
-        </p>
-
-    </section>
+    </aside>
 
 
-    <section class="error-card hidden" id="error">
+    <main class="main">
 
-        <div class="error-icon">
-            !
-        </div>
+        <header class="topbar">
 
-        <h1>Nie udało się otworzyć usługi</h1>
+            <button
+                class="back-button"
+                onclick="history.back()"
+            >
+                ← Wróć
+            </button>
 
-        <p id="errorMessage">
-            Nie znaleziono usługi.
-        </p>
+            <div class="account">
+                <span id="walletBalance">0.00 zł</span>
+            </div>
 
-        <a href="/hosting" class="primary-button">
-            Wróć do panelu
-        </a>
-
-    </section>
+        </header>
 
 
-    <section id="service" class="hidden">
+        <section class="server-page">
 
-        <div class="service-header">
-
-            <div class="service-left">
-
-                <div id="serviceIcon" class="service-icon">
-                    Z
-                </div>
+            <div class="server-header">
 
                 <div>
 
-                    <span id="serviceType" class="service-type">
-                        USŁUGA
-                    </span>
+                    <div class="server-type">
+                        SERWER MINECRAFT
+                    </div>
 
-                    <h1 id="serviceName">
-                        —
+                    <h1 id="serverName">
+                        Ładowanie...
                     </h1>
 
-                    <div class="service-meta">
-
-                        <span id="serviceId">
-                            ID: —
-                        </span>
-
-                        <span>•</span>
-
-                        <span id="serviceStatus" class="status">
-                            —
-                        </span>
-
+                    <div class="server-id">
+                        ID: <strong id="serverId">—</strong>
                     </div>
 
                 </div>
 
-            </div>
-
-            <div class="service-actions">
-
-                <button
-                    id="openService"
-                    class="primary-button"
+                <div
+                    id="statusBadge"
+                    class="status-badge offline"
                 >
-                    Otwórz panel →
-                </button>
+                    OFFLINE
+                </div>
 
             </div>
 
-        </div>
+
+            <div class="connection-card">
+
+                <div class="connection-item">
+
+                    <span class="connection-label">
+                        IP
+                    </span>
+
+                    <strong id="serverHostname">
+                        —.zenityhost.pl
+                    </strong>
+
+                    <button
+                        onclick="copyText('serverHostname')"
+                        class="copy-button"
+                    >
+                        Kopiuj
+                    </button>
+
+                </div>
 
 
-        <div id="provisioning" class="provisioning hidden">
+                <div class="connection-item">
 
-            <div class="loader small"></div>
+                    <span class="connection-label">
+                        IPv4
+                    </span>
 
-            <div>
+                    <strong id="serverIPv4">
+                        —
+                    </strong>
 
-                <strong>Usługa jest przygotowywana</strong>
-
-                <p>
-                    ZenityHost przygotowuje środowisko.
-                    Zwykle trwa to tylko kilka sekund.
-                </p>
-
-            </div>
-
-            <strong id="countdown">
-                —
-            </strong>
-
-        </div>
-
-
-        <div class="grid">
-
-            <div class="info-card">
-
-                <span>Pakiet</span>
-
-                <strong id="package">
-                    —
-                </strong>
-
-            </div>
-
-            <div class="info-card">
-
-                <span>Okres</span>
-
-                <strong id="days">
-                    —
-                </strong>
-
-            </div>
-
-            <div class="info-card">
-
-                <span>Cena</span>
-
-                <strong id="price">
-                    —
-                </strong>
-
-            </div>
-
-            <div class="info-card">
-
-                <span>Wygasa</span>
-
-                <strong id="expires">
-                    —
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <section class="panel">
-
-            <div class="panel-header">
-
-                <div>
-
-                    <h2>Szczegóły usługi</h2>
-
-                    <p>
-                        Informacje zapisane w panelu ZenityHost
-                    </p>
+                    <button
+                        onclick="copyText('serverIPv4')"
+                        class="copy-button"
+                    >
+                        Kopiuj
+                    </button>
 
                 </div>
 
             </div>
 
-            <div class="details">
 
-                <div>
-                    <span>Typ usługi</span>
-                    <strong id="detailType">—</strong>
-                </div>
+            <div class="server-grid">
 
-                <div>
-                    <span>ID usługi</span>
-                    <strong id="detailId">—</strong>
-                </div>
+                <section class="panel">
 
-                <div>
-                    <span>Utworzono</span>
-                    <strong id="created">—</strong>
-                </div>
+                    <div class="panel-header">
 
-                <div>
-                    <span>Data wygaśnięcia</span>
-                    <strong id="detailExpires">—</strong>
-                </div>
+                        <div>
+                            <h2>Konsola</h2>
+                            <p>
+                                Podgląd działania serwera
+                            </p>
+                        </div>
+
+                        <div class="console-actions">
+
+                            <button
+                                id="startButton"
+                                class="button green"
+                                onclick="startServer()"
+                            >
+                                ▶ Włącz
+                            </button>
+
+                            <button
+                                id="restartButton"
+                                class="button blue"
+                                onclick="restartServer()"
+                            >
+                                ↻ Restart
+                            </button>
+
+                            <button
+                                id="stopButton"
+                                class="button red"
+                                onclick="stopServer()"
+                            >
+                                ■ Wyłącz
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="console"
+                        class="console"
+                    ></div>
+
+
+                    <form
+                        class="command-form"
+                        onsubmit="sendCommand(event)"
+                    >
+
+                        <input
+                            id="commandInput"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Wpisz komendę..."
+                        >
+
+                        <button type="submit">
+                            Wyślij
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                <aside class="side-column">
+
+                    <section class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h2>Informacje</h2>
+                                <p>Parametry usługi</p>
+                            </div>
+                        </div>
+
+                        <div class="info-list">
+
+                            <div class="info-row">
+                                <span>Pakiet</span>
+                                <strong id="package">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Okres</span>
+                                <strong id="days">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Silnik</span>
+                                <strong id="software">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Wersja</span>
+                                <strong id="minecraftVersion">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>RAM</span>
+                                <strong id="ram">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>CPU</span>
+                                <strong id="cpu">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Dysk</span>
+                                <strong id="disk">—</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Wygasa</span>
+                                <strong id="expiresAt">—</strong>
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h2>Pliki</h2>
+                                <p>Pliki serwera</p>
+                            </div>
+                        </div>
+
+                        <div id="files" class="files">
+                            Ładowanie...
+                        </div>
+
+                    </section>
+
+                </aside>
 
             </div>
 
         </section>
 
-    </section>
+    </main>
 
-</main>
+</div>
 
 
-<div id="toast" class="toast hidden"></div>
+<div
+    id="toast"
+    class="toast"
+></div>
 
 
 <script src="/hosting/server.js"></script>

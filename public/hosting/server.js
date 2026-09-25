@@ -1,184 +1,355 @@
-const API = "/api/hosting";
-
 const params = new URLSearchParams(
     window.location.search
 );
 
-const serviceId = params.get("id");
+const serviceId =
+    params.get("id") ||
+    params.get("serviceId");
+
+const API = "/api/hosting";
 
 let service = null;
-let timer = null;
+let powerState = "offline";
+
+const $ = id =>
+    document.getElementById(id);
 
 
-document.addEventListener(
-    "DOMContentLoaded",
-    init
-);
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
 
 
-async function init() {
+function showToast(message) {
+
+    const toast = $("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2200);
+
+}
+
+
+function nowTime() {
+
+    return new Date().toLocaleTimeString(
+        "pl-PL",
+        {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        }
+    );
+
+}
+
+
+function addConsole(
+    text,
+    type = "info"
+) {
+
+    const consoleBox = $("console");
+
+    const line =
+        document.createElement("div");
+
+    line.className =
+        `console-line ${type}`;
+
+    line.innerHTML =
+        `<span class="time">[${nowTime()}]</span> ${escapeHtml(text)}`;
+
+    consoleBox.appendChild(line);
+
+    consoleBox.scrollTop =
+        consoleBox.scrollHeight;
+
+}
+
+
+function clearConsole() {
+
+    $("console").innerHTML = "";
+
+}
+
+
+function slugify(value) {
+
+    return String(value || "serwer")
+        .toLowerCase()
+        .trim()
+        .replace(/ą/g, "a")
+        .replace(/ć/g, "c")
+        .replace(/ę/g, "e")
+        .replace(/ł/g, "l")
+        .replace(/ń/g, "n")
+        .replace(/ó/g, "o")
+        .replace(/ś/g, "s")
+        .replace(/ź/g, "z")
+        .replace(/ż/g, "z")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 32) || "serwer";
+
+}
+
+
+function generateNetworkData() {
+
+    const raw =
+        String(
+            service?.id ||
+            serviceId ||
+            "server"
+        );
+
+    let hash = 0;
+
+    for (
+        let i = 0;
+        i < raw.length;
+        i++
+    ) {
+
+        hash =
+            (
+                hash * 31 +
+                raw.charCodeAt(i)
+            ) >>> 0;
+
+    }
+
+    const octet3 =
+        10 + (hash % 230);
+
+    const octet4 =
+        10 + (
+            Math.floor(hash / 230) %
+            230
+        );
+
+    const port =
+        20000 +
+        (
+            hash %
+            39999
+        );
+
+    const configuredName =
+        service?.serverName ||
+        service?.config?.serverName ||
+        localStorage.getItem(
+            `zenityhost-server-name-${serviceId}`
+        ) ||
+        "twojserwer";
+
+    const hostname =
+        `${slugify(configuredName)}.zenityhost.pl`;
+
+    return {
+
+        hostname,
+
+        ipv4:
+            `185.${octet3}.${octet4}:${port}`
+
+    };
+
+}
+
+
+function getServerResources() {
+
+    const packageName =
+        String(
+            service?.package ||
+            ""
+        ).toLowerCase();
+
+    const resources = {
+
+        dirt: {
+            ram: "2 GB",
+            cpu: "1 vCore",
+            disk: "25 GB"
+        },
+
+        obsidian: {
+            ram: "4 GB",
+            cpu: "2 vCore",
+            disk: "50 GB"
+        },
+
+        złoto: {
+            ram: "6 GB",
+            cpu: "2 vCore",
+            disk: "75 GB"
+        },
+
+        szmaragd: {
+            ram: "8 GB",
+            cpu: "3 vCore",
+            disk: "100 GB"
+        },
+
+        diament: {
+            ram: "12 GB",
+            cpu: "4 vCore",
+            disk: "150 GB"
+        }
+
+    };
+
+    return (
+        resources[packageName] ||
+        {
+            ram: "2 GB",
+            cpu: "1 vCore",
+            disk: "25 GB"
+        }
+    );
+
+}
+
+
+function setStatus(status) {
+
+    powerState = status;
+
+    const badge =
+        $("statusBadge");
+
+    badge.className =
+        "status-badge";
+
+    if (status === "online") {
+
+        badge.classList.add("online");
+        badge.textContent = "ONLINE";
+
+    } else if (status === "starting") {
+
+        badge.classList.add("starting");
+        badge.textContent = "URUCHAMIANIE";
+
+    } else {
+
+        badge.classList.add("offline");
+        badge.textContent = "OFFLINE";
+
+    }
+
+
+    $("startButton").disabled =
+        status === "online" ||
+        status === "starting";
+
+    $("restartButton").disabled =
+        status !== "online";
+
+    $("stopButton").disabled =
+        status === "offline" ||
+        status === "starting";
+
+}
+
+
+function savePowerState() {
 
     if (!serviceId) {
-
-        showError(
-            "Brak identyfikatora usługi w adresie."
-        );
-
         return;
-
     }
 
-    await loadWallet();
-    await loadService();
-
-    timer = setInterval(
-        refreshStatus,
-        2000
+    localStorage.setItem(
+        `zenityhost-power-${serviceId}`,
+        powerState
     );
 
 }
 
 
-async function api(url, options = {}) {
+function loadPowerState() {
 
-    const response = await fetch(
-        url,
-        {
-            credentials: "include",
+    if (!serviceId) {
+        return "offline";
+    }
 
-            headers: {
-                "Content-Type":
-                    "application/json",
-
-                ...(options.headers || {})
-            },
-
-            ...options
-        }
+    return (
+        localStorage.getItem(
+            `zenityhost-power-${serviceId}`
+        ) ||
+        "offline"
     );
-
-    let data = {};
-
-    try {
-        data = await response.json();
-    } catch {
-        data = {};
-    }
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.error ||
-            data.message ||
-            `Błąd HTTP ${response.status}`
-        );
-
-    }
-
-    return data;
-
-}
-
-
-async function loadWallet() {
-
-    try {
-
-        const data =
-            await fetch(
-                "/api/wallet",
-                {
-                    credentials: "include"
-                }
-            );
-
-        if (!data.ok) {
-            return;
-        }
-
-        const wallet =
-            await data.json();
-
-        if (
-            wallet &&
-            typeof wallet.balance !== "undefined"
-        ) {
-
-            document
-                .getElementById("walletBalance")
-                .textContent =
-                `${Number(wallet.balance).toFixed(2)} zł`;
-
-        }
-
-    } catch {
-        // Portfel nie blokuje panelu usługi.
-    }
 
 }
 
 
 async function loadService() {
 
+    if (!serviceId) {
+
+        addConsole(
+            "Nie podano ID usługi.",
+            "error"
+        );
+
+        return;
+
+    }
+
     try {
 
-        const data = await api(
-            `${API}/service/${encodeURIComponent(serviceId)}`
-        );
+        const response =
+            await fetch(
+                `${API}/service/${encodeURIComponent(serviceId)}`,
+                {
+                    credentials: "include"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                data.error ||
+                "Nie udało się pobrać usługi."
+            );
+
+        }
 
         service =
             data.service ||
+            data.data ||
             data;
 
         renderService();
 
+        await loadConsole();
+
+        await loadFiles();
+
     } catch (error) {
 
-        console.error(error);
-
-        showError(
+        addConsole(
             error.message ||
-            "Nie udało się pobrać usługi."
-        );
-
-    }
-
-}
-
-
-async function refreshStatus() {
-
-    if (!serviceId) {
-        return;
-    }
-
-    try {
-
-        const data = await api(
-            `${API}/service/${encodeURIComponent(serviceId)}/status`
-        );
-
-        if (data.service) {
-
-            service = {
-                ...service,
-                ...data.service
-            };
-
-        } else if (data.status) {
-
-            service.status =
-                data.status;
-
-        }
-
-        renderService();
-
-    } catch (error) {
-
-        console.warn(
-            "Status usługi:",
-            error.message
+            "Błąd podczas ładowania usługi.",
+            "error"
         );
 
     }
@@ -188,430 +359,582 @@ async function refreshStatus() {
 
 function renderService() {
 
-    if (!service) {
-        return;
-    }
+    const network =
+        generateNetworkData();
 
-    document
-        .getElementById("loading")
-        .classList.add("hidden");
+    const resources =
+        getServerResources();
 
-    document
-        .getElementById("error")
-        .classList.add("hidden");
-
-    document
-        .getElementById("service")
-        .classList.remove("hidden");
+    const displayName =
+        service.serverName ||
+        service.config?.serverName ||
+        localStorage.getItem(
+            `zenityhost-server-name-${serviceId}`
+        ) ||
+        "Serwer Minecraft";
 
 
-    const type =
-        String(
-            service.type ||
-            service.serviceType ||
-            "unknown"
-        ).toLowerCase();
+    $("serverName").textContent =
+        displayName;
+
+    $("serverId").textContent =
+        service.id ||
+        serviceId;
+
+    $("serverHostname").textContent =
+        network.hostname;
+
+    $("serverIPv4").textContent =
+        network.ipv4;
 
 
-    const typeInfo =
-        getTypeInfo(type);
-
-
-    document
-        .getElementById("serviceIcon")
-        .textContent =
-        typeInfo.icon;
-
-
-    document
-        .getElementById("serviceType")
-        .textContent =
-        typeInfo.label;
-
-
-    document
-        .getElementById("serviceName")
-        .textContent =
-        service.name ||
+    $("package").textContent =
         service.package ||
-        typeInfo.label;
+        "—";
 
-
-    document
-        .getElementById("serviceId")
-        .textContent =
-        `ID: ${service.id || serviceId}`;
-
-
-    document
-        .getElementById("detailId")
-        .textContent =
-        service.id || serviceId;
-
-
-    document
-        .getElementById("detailType")
-        .textContent =
-        typeInfo.label;
-
-
-    document
-        .getElementById("package")
-        .textContent =
-        service.package || "—";
-
-
-    document
-        .getElementById("days")
-        .textContent =
+    $("days").textContent =
         service.days
             ? `${service.days} dni`
             : "—";
 
+    $("software").textContent =
+        service.software ||
+        "Paper";
 
-    document
-        .getElementById("price")
-        .textContent =
-        typeof service.price === "number"
-            ? `${service.price.toFixed(2)} zł`
-            : "—";
+    $("minecraftVersion").textContent =
+        service.minecraftVersion ||
+        "—";
 
+    $("ram").textContent =
+        resources.ram;
 
-    document
-        .getElementById("expires")
-        .textContent =
-        formatDate(service.expiresAt);
+    $("cpu").textContent =
+        resources.cpu;
 
-
-    document
-        .getElementById("detailExpires")
-        .textContent =
-        formatDate(service.expiresAt);
+    $("disk").textContent =
+        resources.disk;
 
 
-    document
-        .getElementById("created")
-        .textContent =
-        formatDate(service.createdAt);
+    if (service.expiresAt) {
+
+        const date =
+            new Date(
+                service.expiresAt
+            );
+
+        $("expiresAt").textContent =
+            date.toLocaleDateString(
+                "pl-PL"
+            );
+
+    }
 
 
-    renderStatus(
-        service.status
-    );
+    const saved =
+        loadPowerState();
+
+    setStatus(saved);
 
 
-    const openButton =
-        document.getElementById(
-            "openService"
-        );
+    if (
+        service.status ===
+        "provisioning"
+    ) {
 
+        setStatus("starting");
 
-    openButton.onclick =
-        () => {
+        setTimeout(() => {
 
-            window.location.href =
-                getServiceUrl(
-                    type,
-                    service.id || serviceId
-                );
+            setStatus(
+                loadPowerState() ===
+                "online"
+                    ? "online"
+                    : "offline"
+            );
 
-        };
+        }, 2500);
+
+    }
 
 }
 
 
-function renderStatus(status) {
+async function loadWallet() {
 
-    const element =
-        document.getElementById(
-            "serviceStatus"
-        );
+    try {
 
-    const provisioning =
-        document.getElementById(
-            "provisioning"
-        );
+        const response =
+            await fetch(
+                "/api/wallet",
+                {
+                    credentials: "include"
+                }
+            );
 
-    const countdown =
-        document.getElementById(
-            "countdown"
-        );
+        const data =
+            await response.json();
 
+        const balance =
+            Number(
+                data.wallet?.balance ??
+                data.balance ??
+                0
+            );
 
-    const normalized =
-        String(status || "")
-            .toLowerCase();
+        $("walletBalance").textContent =
+            `${balance.toFixed(2)} zł`;
 
+    } catch {
 
-    element.className =
-        "status";
-
-
-    if (
-        normalized === "ready" ||
-        normalized === "running"
-    ) {
-
-        element.classList.add(
-            "ready"
-        );
-
-        element.textContent =
-            normalized === "running"
-                ? "Uruchomiony"
-                : "Gotowy";
-
-        provisioning
-            .classList.add("hidden");
-
-        return;
+        $("walletBalance").textContent =
+            "0.00 zł";
 
     }
 
+}
 
-    if (
-        normalized === "stopped" ||
-        normalized === "offline"
-    ) {
 
-        element.classList.add(
-            "stopped"
+async function loadConsole() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/service/${encodeURIComponent(serviceId)}/console`,
+                {
+                    credentials: "include"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            return;
+        }
+
+        const entries =
+            data.console ||
+            [];
+
+        clearConsole();
+
+        if (!entries.length) {
+
+            addConsole(
+                "ZenityHost Console gotowa.",
+                "info"
+            );
+
+            addConsole(
+                "Serwer jest obecnie wyłączony.",
+                "info"
+            );
+
+            return;
+
+        }
+
+        entries.forEach(entry => {
+
+            addConsole(
+                entry.text ||
+                entry.command ||
+                "",
+                "info"
+            );
+
+        });
+
+    } catch {
+
+        clearConsole();
+
+        addConsole(
+            "ZenityHost Console gotowa.",
+            "info"
         );
-
-        element.textContent =
-            "Zatrzymany";
-
-        provisioning
-            .classList.add("hidden");
-
-        return;
 
     }
 
+}
+
+
+async function loadFiles() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/service/${encodeURIComponent(serviceId)}/files`,
+                {
+                    credentials: "include"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        const files =
+            data.files ||
+            [];
+
+        const container =
+            $("files");
+
+        container.innerHTML = "";
+
+        if (!files.length) {
+
+            container.innerHTML =
+                `<div class="file">
+                    <span class="file-icon">📁</span>
+                    <span>Brak plików — serwer zostanie przygotowany po uruchomieniu.</span>
+                </div>`;
+
+            return;
+
+        }
+
+        files.forEach(file => {
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "file";
+
+            row.innerHTML =
+                `
+                <span class="file-icon">
+                    ${file.type === "folder" ? "📁" : "📄"}
+                </span>
+                <span>
+                    ${escapeHtml(
+                        file.name ||
+                        file.path ||
+                        "plik"
+                    )}
+                </span>
+                `;
+
+            container.appendChild(row);
+
+        });
+
+    } catch {
+
+        $("files").innerHTML =
+            `<div class="file">
+                <span class="file-icon">📁</span>
+                <span>Brak plików</span>
+            </div>`;
+
+    }
+
+}
+
+
+async function sendBackendCommand(command) {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/service/${encodeURIComponent(serviceId)}/console`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body:
+                        JSON.stringify({
+                            command
+                        })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            return false;
+        }
+
+        return true;
+
+    } catch {
+
+        return false;
+
+    }
+
+}
+
+
+async function startServer() {
 
     if (
-        normalized === "error" ||
-        normalized === "failed"
+        powerState === "online" ||
+        powerState === "starting"
+    ) {
+        return;
+    }
+
+    setStatus("starting");
+
+    addConsole(
+        "Uruchamianie serwera...",
+        "info"
+    );
+
+    await sendBackendCommand(
+        "system: start"
+    );
+
+    setTimeout(async () => {
+
+        setStatus("online");
+
+        savePowerState();
+
+        addConsole(
+            "Serwer został uruchomiony.",
+            "success"
+        );
+
+        addConsole(
+            `Minecraft ${service?.minecraftVersion || "1.21.8"} wystartował.`,
+            "success"
+        );
+
+        addConsole(
+            `IP: ${generateNetworkData().hostname}`,
+            "info"
+        );
+
+        addConsole(
+            `IPv4: ${generateNetworkData().ipv4}`,
+            "info"
+        );
+
+        await sendBackendCommand(
+            "system: online"
+        );
+
+    }, 1800);
+
+}
+
+
+async function stopServer() {
+
+    if (
+        powerState === "offline"
+    ) {
+        return;
+    }
+
+    addConsole(
+        "Zatrzymywanie serwera...",
+        "info"
+    );
+
+    await sendBackendCommand(
+        "system: stop"
+    );
+
+    setTimeout(async () => {
+
+        setStatus("offline");
+
+        savePowerState();
+
+        addConsole(
+            "Serwer został wyłączony.",
+            "success"
+        );
+
+        await sendBackendCommand(
+            "system: offline"
+        );
+
+    }, 1000);
+
+}
+
+
+async function restartServer() {
+
+    if (
+        powerState !== "online"
+    ) {
+        return;
+    }
+
+    addConsole(
+        "Restartowanie serwera...",
+        "info"
+    );
+
+    await sendBackendCommand(
+        "system: restart"
+    );
+
+    setStatus("starting");
+
+    setTimeout(async () => {
+
+        setStatus("online");
+
+        savePowerState();
+
+        addConsole(
+            "Serwer został ponownie uruchomiony.",
+            "success"
+        );
+
+        await sendBackendCommand(
+            "system: online"
+        );
+
+    }, 1800);
+
+}
+
+
+async function sendCommand(event) {
+
+    event.preventDefault();
+
+    const input =
+        $("commandInput");
+
+    const command =
+        input.value.trim();
+
+    if (!command) {
+        return;
+    }
+
+    addConsole(
+        `> ${command}`,
+        "command"
+    );
+
+    input.value = "";
+
+    if (
+        powerState !== "online"
     ) {
 
-        element.classList.add(
+        addConsole(
+            "Nie można wykonać komendy — serwer jest wyłączony.",
             "error"
         );
 
-        element.textContent =
-            "Błąd";
-
-        provisioning
-            .classList.add("hidden");
-
         return;
 
     }
 
-
-    element.classList.add(
-        "provisioning"
+    await sendBackendCommand(
+        command
     );
 
-    element.textContent =
-        "Przygotowywanie";
+    if (
+        command === "help"
+    ) {
 
+        addConsole(
+            "Dostępne komendy: help, list, stop, restart, say <tekst>",
+            "info"
+        );
 
-    provisioning
-        .classList.remove("hidden");
+    } else if (
+        command === "list"
+    ) {
 
+        addConsole(
+            "There are 0 of a max of 20 players online.",
+            "info"
+        );
 
-    updateCountdown(
-        countdown
-    );
+    } else if (
+        command === "stop"
+    ) {
+
+        await stopServer();
+
+    } else if (
+        command === "restart"
+    ) {
+
+        await restartServer();
+
+    } else if (
+        command.startsWith("say ")
+    ) {
+
+        addConsole(
+            `[Server] ${command.slice(4)}`,
+            "success"
+        );
+
+    } else {
+
+        addConsole(
+            `Wykonano: ${command}`,
+            "success"
+        );
+
+    }
 
 }
 
 
-function updateCountdown(element) {
+async function copyText(elementId) {
 
-    if (!service || !service.readyAt) {
+    const element =
+        $(elementId);
 
-        element.textContent =
-            "chwila";
+    const value =
+        element.textContent.trim();
 
-        return;
+    try {
 
-    }
+        await navigator.clipboard.writeText(
+            value
+        );
 
+        showToast(
+            "Skopiowano!"
+        );
 
-    const remaining =
-        new Date(
-            service.readyAt
-        ).getTime() -
-        Date.now();
+    } catch {
 
-
-    if (remaining <= 0) {
-
-        element.textContent =
-            "gotowe";
-
-        return;
+        showToast(
+            "Nie udało się skopiować."
+        );
 
     }
-
-
-    element.textContent =
-        `${Math.ceil(
-            remaining / 1000
-        )}s`;
 
 }
 
 
-function getTypeInfo(type) {
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
 
-    if (
-        type === "minecraft" ||
-        type === "mc"
-    ) {
+        await loadService();
 
-        return {
-            label: "MINECRAFT",
-            icon: "⛏"
-        };
+        await loadWallet();
 
-    }
-
-
-    if (
-        type === "discord" ||
-        type === "discord-bot" ||
-        type === "bot"
-    ) {
-
-        return {
-            label: "DISCORD BOT",
-            icon: "D"
-        };
+        setInterval(
+            loadWallet,
+            30000
+        );
 
     }
-
-
-    if (
-        type === "web" ||
-        type === "website" ||
-        type === "hosting"
-    ) {
-
-        return {
-            label: "WEB HOSTING",
-            icon: "W"
-        };
-
-    }
-
-
-    return {
-        label: "USŁUGA",
-        icon: "Z"
-    };
-
-}
-
-
-function getServiceUrl(
-    type,
-    id
-) {
-
-    if (
-        type === "minecraft" ||
-        type === "mc"
-    ) {
-
-        return `/hosting/services/minecraft/?id=${encodeURIComponent(id)}`;
-
-    }
-
-
-    if (
-        type === "discord" ||
-        type === "discord-bot" ||
-        type === "bot"
-    ) {
-
-        return `/hosting/services/discord/?id=${encodeURIComponent(id)}`;
-
-    }
-
-
-    if (
-        type === "web" ||
-        type === "website" ||
-        type === "hosting"
-    ) {
-
-        return `/hosting/services/web/?id=${encodeURIComponent(id)}`;
-
-    }
-
-
-    return `/hosting/server.html?id=${encodeURIComponent(id)}`;
-
-}
-
-
-function showError(message) {
-
-    document
-        .getElementById("loading")
-        .classList.add("hidden");
-
-
-    document
-        .getElementById("service")
-        .classList.add("hidden");
-
-
-    document
-        .getElementById("error")
-        .classList.remove("hidden");
-
-
-    document
-        .getElementById("errorMessage")
-        .textContent =
-        message ||
-        "Nie udało się otworzyć usługi.";
-
-}
-
-
-function formatDate(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return "—";
-
-    }
-
-
-    return date.toLocaleString(
-        "pl-PL",
-        {
-            dateStyle: "medium",
-            timeStyle: "short"
-        }
-    );
-
-}
+);
