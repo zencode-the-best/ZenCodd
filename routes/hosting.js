@@ -92,10 +92,11 @@ function readJSON(file, fallback = []) {
             return fallback;
         }
 
-        const content = fs.readFileSync(
-            file,
-            "utf8"
-        );
+        const content =
+            fs.readFileSync(
+                file,
+                "utf8"
+            );
 
         if (!content.trim()) {
             return fallback;
@@ -113,7 +114,8 @@ function readJSON(file, fallback = []) {
 
 function writeJSON(file, data) {
 
-    const directory = path.dirname(file);
+    const directory =
+        path.dirname(file);
 
     if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory, {
@@ -289,14 +291,6 @@ const MINECRAFT_SOFTWARE = [
     "velocity"
 ];
 
-
-/*
- * Kolejność:
- * starsze -> nowsze
- *
- * 26.3 jest aktualną oficjalną wersją Minecraft Java
- * na moment przygotowania tego pliku.
- */
 
 const MINECRAFT_VERSIONS = {
 
@@ -1225,7 +1219,9 @@ router.patch(
                 const software =
                     String(
                         req.body.software
-                    );
+                    )
+                    .trim()
+                    .toLowerCase();
 
                 if (
                     !MINECRAFT_SOFTWARE.includes(
@@ -1252,25 +1248,30 @@ router.patch(
             }
 
             if (
-                req.body.minecraftVersion
+                req.body.minecraftVersion ||
+                req.body.version
             ) {
 
                 const version =
                     String(
-                        req.body.minecraftVersion
-                    );
+                        req.body.minecraftVersion ??
+                        req.body.version ??
+                        ""
+                    ).trim();
 
                 const software =
                     service.software ||
                     "paper";
 
+                const versions =
+                    MINECRAFT_VERSIONS[
+                        software
+                    ] || [];
+
                 if (
-                    !MINECRAFT_VERSIONS[
-                        software
-                    ] ||
-                    !MINECRAFT_VERSIONS[
-                        software
-                    ].includes(version)
+                    !versions.includes(
+                        version
+                    )
                 ) {
 
                     return res
@@ -1404,15 +1405,6 @@ router.post(
     "/purchase",
     requireLogin,
     (req, res) => {
-
-        /*
-         * Frontend może wysłać:
-         * service
-         * type
-         * serviceType
-         *
-         * Wszystkie trzy są obsługiwane.
-         */
 
         const rawService =
             req.body.service ??
@@ -1726,9 +1718,26 @@ router.post(
             "minecraft"
         ) {
 
+            /*
+             * order.html wysyła konfigurację
+             * wewnątrz req.body.config.
+             *
+             * Obsługujemy również stare formaty,
+             * gdzie wartości były bezpośrednio
+             * w req.body.
+             */
+
+            const minecraftConfig =
+                req.body.config &&
+                typeof req.body.config === "object"
+                    ? req.body.config
+                    : {};
+
+
             software =
                 String(
                     req.body.software ??
+                    minecraftConfig.software ??
                     "paper"
                 )
                 .trim()
@@ -1739,8 +1748,11 @@ router.post(
                 String(
                     req.body.minecraftVersion ??
                     req.body.version ??
+                    minecraftConfig.minecraftVersion ??
+                    minecraftConfig.version ??
                     ""
-                ).trim();
+                )
+                .trim();
 
 
             if (
@@ -1763,13 +1775,14 @@ router.post(
             }
 
 
+            const minecraftVersions =
+                MINECRAFT_VERSIONS[
+                    software
+                ] || [];
+
+
             if (
-                !MINECRAFT_VERSIONS[
-                    software
-                ] ||
-                !MINECRAFT_VERSIONS[
-                    software
-                ].includes(
+                !minecraftVersions.includes(
                     minecraftVersion
                 )
             ) {
@@ -1802,10 +1815,19 @@ router.post(
             "discord"
         ) {
 
+            const discordConfig =
+                req.body.config &&
+                typeof req.body.config === "object"
+                    ? req.body.config
+                    : {};
+
+
             nodeVersion =
                 String(
                     req.body.nodeVersion ??
                     req.body.node ??
+                    discordConfig.nodeVersion ??
+                    discordConfig.node ??
                     "22"
                 );
 
@@ -1844,10 +1866,19 @@ router.post(
             "web"
         ) {
 
+            const webConfig =
+                req.body.config &&
+                typeof req.body.config === "object"
+                    ? req.body.config
+                    : {};
+
+
             webType =
                 String(
                     req.body.webType ??
                     req.body.web ??
+                    webConfig.webType ??
+                    webConfig.web ??
                     "static"
                 );
 
@@ -1929,6 +1960,13 @@ router.post(
             );
 
 
+        const minecraftConfig =
+            req.body.config &&
+            typeof req.body.config === "object"
+                ? req.body.config
+                : {};
+
+
         const newService = {
 
             id:
@@ -1982,6 +2020,29 @@ router.post(
 
             webType:
                 webType,
+
+            serverName:
+                service === "minecraft"
+                    ? String(
+                        req.body.serverName ??
+                        minecraftConfig.serverName ??
+                        "Serwer Minecraft"
+                    ).trim()
+                    : null,
+
+            botName:
+                service === "discord"
+                    ? String(
+                        req.body.botName ??
+                        (
+                            req.body.config &&
+                            typeof req.body.config === "object"
+                                ? req.body.config.botName
+                                : null
+                        ) ??
+                        "ZenityBot"
+                    ).trim()
+                    : null,
 
             status:
                 "provisioning",
