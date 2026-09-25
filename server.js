@@ -7,7 +7,6 @@ const passport = require("passport");
 
 require("./oauth");
 require("./discord-client");
-require("./routes/hosting-control")(app);
 
 const authRoutes = require("./routes/auth");
 const pluginRoutes = require("./routes/plugins");
@@ -19,6 +18,8 @@ const hostingRoutes = require("./routes/hosting");
 const walletRoutes = require("./routes/wallet");
 
 const app = express();
+
+require("./routes/hosting-control")(app);
 
 app.set("trust proxy", 1);
 
