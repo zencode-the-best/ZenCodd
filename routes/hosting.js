@@ -51,29 +51,17 @@ const TRANSACTIONS_FILE = path.join(
    TWORZENIE KATALOGÓW / PLIKÓW
 ========================================================= */
 
-function ensureFile(
-    file,
-    defaultValue
-) {
+function ensureFile(file, defaultValue) {
 
-    const directory =
-        path.dirname(file);
+    const directory = path.dirname(file);
 
-    if (
-        !fs.existsSync(directory)
-    ) {
-        fs.mkdirSync(
-            directory,
-            {
-                recursive: true
-            }
-        );
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, {
+            recursive: true
+        });
     }
 
-    if (
-        !fs.existsSync(file)
-    ) {
-
+    if (!fs.existsSync(file)) {
         fs.writeFileSync(
             file,
             JSON.stringify(
@@ -82,96 +70,55 @@ function ensureFile(
                 2
             )
         );
-
     }
-
 }
 
 
-/* =========================================================
-   INIT
-========================================================= */
-
-ensureFile(
-    SERVICES_FILE,
-    []
-);
-
-ensureFile(
-    CODES_FILE,
-    []
-);
-
-ensureFile(
-    WALLET_FILE,
-    []
-);
-
-ensureFile(
-    TRANSACTIONS_FILE,
-    []
-);
+ensureFile(SERVICES_FILE, []);
+ensureFile(CODES_FILE, []);
+ensureFile(WALLET_FILE, []);
+ensureFile(TRANSACTIONS_FILE);
 
 
 /* =========================================================
-   POMOCNICZE JSON
+   JSON
 ========================================================= */
 
-function readJSON(
-    file,
-    fallback = []
-) {
+function readJSON(file, fallback = []) {
 
     try {
 
-        if (
-            !fs.existsSync(file)
-        ) {
+        if (!fs.existsSync(file)) {
             return fallback;
         }
 
-        const content =
-            fs.readFileSync(
-                file,
-                "utf8"
-            );
+        const content = fs.readFileSync(
+            file,
+            "utf8"
+        );
 
         if (!content.trim()) {
             return fallback;
         }
 
-        return JSON.parse(
-            content
-        );
+        return JSON.parse(content);
 
     } catch {
 
         return fallback;
 
     }
-
 }
 
 
-function writeJSON(
-    file,
-    data
-) {
+function writeJSON(file, data) {
 
-    const directory =
-        path.dirname(file);
+    const directory = path.dirname(file);
 
-    if (
-        !fs.existsSync(directory)
-    ) {
-
-        fs.mkdirSync(
-            directory,
-            {
-                recursive: true
-            }
-        );
-
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, {
+            recursive: true
+        });
     }
 
     fs.writeFileSync(
@@ -182,7 +129,6 @@ function writeJSON(
             2
         )
     );
-
 }
 
 
@@ -190,15 +136,9 @@ function writeJSON(
    LOGOWANIE
 ========================================================= */
 
-function requireLogin(
-    req,
-    res,
-    next
-) {
+function requireLogin(req, res, next) {
 
-    if (
-        !req.user
-    ) {
+    if (!req.user) {
 
         return res
             .status(401)
@@ -211,37 +151,27 @@ function requireLogin(
     }
 
     next();
-
 }
-
 
 
 /* =========================================================
    CEO
 ========================================================= */
 
-function isCEO(
-    req
-) {
+function isCEO(req) {
 
     return (
         req.user &&
         String(req.user.id) ===
-            String(OWNER_ID)
+        String(OWNER_ID)
     );
 
 }
 
 
-function requireCEO(
-    req,
-    res,
-    next
-) {
+function requireCEO(req, res, next) {
 
-    if (
-        !isCEO(req)
-    ) {
+    if (!isCEO(req)) {
 
         return res
             .status(403)
@@ -254,7 +184,6 @@ function requireCEO(
     }
 
     next();
-
 }
 
 
@@ -348,55 +277,182 @@ const PRICES = {
 
 
 /* =========================================================
-   DOZWOLONE OPCJE
+   MINECRAFT
 ========================================================= */
 
 const MINECRAFT_SOFTWARE = [
+    "vanilla",
     "paper",
     "purpur",
-    "vanilla"
+    "fabric",
+    "forge",
+    "velocity"
 ];
+
+
+/*
+ * Kolejność:
+ * starsze -> nowsze
+ *
+ * 26.3 jest aktualną oficjalną wersją Minecraft Java
+ * na moment przygotowania tego pliku.
+ */
 
 const MINECRAFT_VERSIONS = {
 
-    paper: [
-        "1.21.4",
-        "1.21.3",
-        "1.21.1",
-        "1.21",
-        "1.20.6",
-        "1.20.4",
+    vanilla: [
+
+        "1.8.8",
+        "1.9.4",
+        "1.10.2",
+        "1.11.2",
+        "1.12.2",
+        "1.13.2",
+        "1.14.4",
+        "1.15.2",
+        "1.16.5",
+        "1.17.1",
+        "1.18.2",
+        "1.19.4",
+        "1.20.1",
         "1.20.2",
-        "1.20.1"
+        "1.20.4",
+        "1.20.6",
+        "1.21",
+        "1.21.1",
+        "1.21.3",
+        "1.21.4",
+        "1.21.5",
+        "1.21.6",
+        "1.21.7",
+        "1.21.8",
+        "26.1",
+        "26.1.1",
+        "26.2",
+        "26.3"
+
+    ],
+
+    paper: [
+
+        "1.8.8",
+        "1.9.4",
+        "1.10.2",
+        "1.11.2",
+        "1.12.2",
+        "1.13.2",
+        "1.14.4",
+        "1.15.2",
+        "1.16.5",
+        "1.17.1",
+        "1.18.2",
+        "1.19.4",
+        "1.20.1",
+        "1.20.2",
+        "1.20.4",
+        "1.20.6",
+        "1.21",
+        "1.21.1",
+        "1.21.3",
+        "1.21.4",
+        "1.21.5",
+        "1.21.6",
+        "1.21.7",
+        "1.21.8",
+        "26.1",
+        "26.1.1",
+        "26.2",
+        "26.3"
+
     ],
 
     purpur: [
-        "1.21.4",
-        "1.21.3",
-        "1.21.1",
-        "1.21",
-        "1.20.6",
+
+        "1.14.4",
+        "1.15.2",
+        "1.16.5",
+        "1.17.1",
+        "1.18.2",
+        "1.19.4",
+        "1.20.1",
+        "1.20.2",
         "1.20.4",
-        "1.20.1"
+        "1.20.6",
+        "1.21",
+        "1.21.1",
+        "1.21.3",
+        "1.21.4",
+        "1.21.5",
+        "1.21.6",
+        "1.21.7",
+        "1.21.8"
+
     ],
 
-    vanilla: [
-        "1.21.4",
-        "1.21.3",
-        "1.21.1",
-        "1.21",
-        "1.20.6",
+    fabric: [
+
+        "1.14.4",
+        "1.15.2",
+        "1.16.5",
+        "1.17.1",
+        "1.18.2",
+        "1.19.4",
+        "1.20.1",
+        "1.20.2",
         "1.20.4",
-        "1.20.1"
+        "1.20.6",
+        "1.21",
+        "1.21.1",
+        "1.21.3",
+        "1.21.4",
+        "1.21.5",
+        "1.21.6",
+        "1.21.7",
+        "1.21.8",
+        "26.1",
+        "26.1.1",
+        "26.2",
+        "26.3"
+
+    ],
+
+    forge: [
+
+        "1.12.2",
+        "1.13.2",
+        "1.14.4",
+        "1.15.2",
+        "1.16.5",
+        "1.17.1",
+        "1.18.2",
+        "1.19.4",
+        "1.20.1",
+        "1.20.2",
+        "1.20.4",
+        "1.20.6",
+        "1.21",
+        "1.21.1"
+
+    ],
+
+    velocity: [
+
+        "3.2.0",
+        "3.3.0",
+        "3.3.1",
+        "3.4.0"
+
     ]
 
 };
 
+
 const NODE_VERSIONS = [
-    "22",
+    "18",
     "20",
-    "18"
+    "22"
 ];
+
 
 const WEB_TYPES = [
     "static",
@@ -408,9 +464,7 @@ const WEB_TYPES = [
    GENERATOR ID
 ========================================================= */
 
-function createId(
-    prefix
-) {
+function createId(prefix) {
 
     return (
         prefix +
@@ -426,33 +480,67 @@ function createId(
 
 
 /* =========================================================
-   TYPY
+   NAZWA USŁUGI
 ========================================================= */
 
-function serviceName(
-    type
-) {
+function serviceName(type) {
 
-    if (
-        type === "minecraft"
-    ) {
+    if (type === "minecraft") {
         return "Serwer Minecraft";
     }
 
-    if (
-        type === "discord"
-    ) {
+    if (type === "discord") {
         return "Hosting Discord Bot";
     }
 
-    if (
-        type === "web"
-    ) {
+    if (type === "web") {
         return "Web Hosting";
     }
 
     return type;
+}
 
+
+/* =========================================================
+   NORMALIZACJA TYPU USŁUGI
+========================================================= */
+
+function normalizeServiceType(value) {
+
+    const type =
+        String(value || "")
+            .trim()
+            .toLowerCase();
+
+    if (
+        type === "minecraft" ||
+        type === "mc" ||
+        type === "minecraft-server" ||
+        type === "minecraft_server"
+    ) {
+        return "minecraft";
+    }
+
+    if (
+        type === "discord" ||
+        type === "discord-bot" ||
+        type === "discord_bot" ||
+        type === "bot"
+    ) {
+        return "discord";
+    }
+
+    if (
+        type === "web" ||
+        type === "website" ||
+        type === "www" ||
+        type === "web-hosting" ||
+        type === "web_hosting"
+    ) {
+        return "web";
+    }
+
+    return "";
 }
 
 
@@ -460,9 +548,7 @@ function serviceName(
    PORTFEL
 ========================================================= */
 
-function getWallet(
-    userId
-) {
+function getWallet(userId) {
 
     const wallets =
         readJSON(
@@ -507,9 +593,7 @@ function getWallet(
 
         };
 
-        wallets.push(
-            wallet
-        );
+        wallets.push(wallet);
 
         writeJSON(
             WALLET_FILE,
@@ -519,7 +603,6 @@ function getWallet(
     }
 
     return wallet;
-
 }
 
 
@@ -527,10 +610,7 @@ function getWallet(
    ZMIANA PORTFELA
 ========================================================= */
 
-function changeBalance(
-    userId,
-    amount
-) {
+function changeBalance(userId, amount) {
 
     const wallets =
         readJSON(
@@ -575,16 +655,11 @@ function changeBalance(
 
         };
 
-        wallets.push(
-            wallet
-        );
-
+        wallets.push(wallet);
     }
 
     const oldBalance =
-        Number(
-            wallet.balance || 0
-        );
+        Number(wallet.balance || 0);
 
     const newBalance =
         Number(
@@ -594,9 +669,7 @@ function changeBalance(
             ).toFixed(2)
         );
 
-    if (
-        newBalance < 0
-    ) {
+    if (newBalance < 0) {
         return null;
     }
 
@@ -612,7 +685,6 @@ function changeBalance(
     );
 
     return wallet;
-
 }
 
 
@@ -620,9 +692,7 @@ function changeBalance(
    TRANSAKCJA
 ========================================================= */
 
-function addTransaction(
-    transaction
-) {
+function addTransaction(transaction) {
 
     const transactions =
         readJSON(
@@ -630,15 +700,12 @@ function addTransaction(
             []
         );
 
-    transactions.push(
-        transaction
-    );
+    transactions.push(transaction);
 
     writeJSON(
         TRANSACTIONS_FILE,
         transactions
     );
-
 }
 
 
@@ -648,10 +715,7 @@ function addTransaction(
 
 router.post(
     "/codes/check",
-    async (
-        req,
-        res
-    ) => {
+    async (req, res) => {
 
         const code =
             String(
@@ -695,9 +759,7 @@ router.post(
 
         }
 
-        if (
-            found.active === false
-        ) {
+        if (found.active === false) {
 
             return res.json({
                 success: false,
@@ -710,9 +772,9 @@ router.post(
         if (
             found.expiresAt &&
             Date.now() >
-                new Date(
-                    found.expiresAt
-                ).getTime()
+            new Date(
+                found.expiresAt
+            ).getTime()
         ) {
 
             return res.json({
@@ -726,7 +788,7 @@ router.post(
         if (
             found.maxUses &&
             Number(found.used || 0) >=
-                Number(found.maxUses)
+            Number(found.maxUses)
         ) {
 
             return res.json({
@@ -756,15 +818,12 @@ router.post(
 
 
 /* =========================================================
-   INFORMACJE O CENACH
+   CENY
 ========================================================= */
 
 router.get(
     "/prices",
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
             success: true,
@@ -781,10 +840,7 @@ router.get(
 
 router.get(
     "/minecraft/options",
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
 
@@ -808,10 +864,7 @@ router.get(
 
 router.get(
     "/discord/options",
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
 
@@ -832,10 +885,7 @@ router.get(
 
 router.get(
     "/web/options",
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
 
@@ -851,59 +901,50 @@ router.get(
 
 
 /* =========================================================
-   AKTUALIZACJA STATUSU PROVISIONING
+   PROVISIONING
 ========================================================= */
 
-function updateProvisioning(
-    services
-) {
+function updateProvisioning(services) {
 
     let changed = false;
 
-    const now =
-        Date.now();
+    const now = Date.now();
 
-    services.forEach(
-        service => {
+    services.forEach(service => {
 
-            if (
-                service.status !==
-                    "provisioning"
-            ) {
-                return;
-            }
-
-            if (
-                !service.readyAt
-            ) {
-                return;
-            }
-
-            if (
-                now >=
-                new Date(
-                    service.readyAt
-                ).getTime()
-            ) {
-
-                service.status =
-                    "ready";
-
-                service.readyAt =
-                    null;
-
-                service.updatedAt =
-                    new Date().toISOString();
-
-                changed = true;
-
-            }
-
+        if (
+            service.status !==
+            "provisioning"
+        ) {
+            return;
         }
-    );
+
+        if (!service.readyAt) {
+            return;
+        }
+
+        if (
+            now >=
+            new Date(
+                service.readyAt
+            ).getTime()
+        ) {
+
+            service.status =
+                "ready";
+
+            service.readyAt =
+                null;
+
+            service.updatedAt =
+                new Date().toISOString();
+
+            changed = true;
+        }
+
+    });
 
     return changed;
-
 }
 
 
@@ -953,30 +994,25 @@ function getServiceById(
 
     if (
         String(service.ownerId) !==
-            String(userId) &&
+        String(userId) &&
         !ceo
     ) {
 
         return null;
-
     }
 
     return service;
-
 }
 
 
 /* =========================================================
-   LISTA MOICH USŁUG
+   MOJE USŁUGI
 ========================================================= */
 
 router.get(
     "/services",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
@@ -1016,6 +1052,7 @@ router.get(
             services:
                 userServices.map(
                     service => ({
+
                         id:
                             service.id,
 
@@ -1023,6 +1060,9 @@ router.get(
                             serviceName(
                                 service.type
                             ),
+
+                        serviceType:
+                            service.type,
 
                         package:
                             service.package,
@@ -1074,10 +1114,7 @@ router.get(
 router.get(
     "/service/:id",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const service =
             getServiceById(
@@ -1113,16 +1150,13 @@ router.get(
 
 
 /* =========================================================
-   AKTUALIZACJA USŁUGI
+   EDYCJA USŁUGI
 ========================================================= */
 
 router.patch(
     "/service/:id",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
@@ -1161,7 +1195,7 @@ router.patch(
 
         if (
             String(service.ownerId) !==
-                String(req.user.id) &&
+            String(req.user.id) &&
             !ceo
         ) {
 
@@ -1186,9 +1220,7 @@ router.patch(
             "minecraft"
         ) {
 
-            if (
-                req.body.software
-            ) {
+            if (req.body.software) {
 
                 const software =
                     String(
@@ -1219,7 +1251,6 @@ router.patch(
 
             }
 
-
             if (
                 req.body.minecraftVersion
             ) {
@@ -1236,9 +1267,10 @@ router.patch(
                 if (
                     !MINECRAFT_VERSIONS[
                         software
-                    ].includes(
-                        version
-                    )
+                    ] ||
+                    !MINECRAFT_VERSIONS[
+                        software
+                    ].includes(version)
                 ) {
 
                     return res
@@ -1269,9 +1301,7 @@ router.patch(
             "discord"
         ) {
 
-            if (
-                req.body.nodeVersion
-            ) {
+            if (req.body.nodeVersion) {
 
                 const nodeVersion =
                     String(
@@ -1312,9 +1342,7 @@ router.patch(
             "web"
         ) {
 
-            if (
-                req.body.webType
-            ) {
+            if (req.body.webType) {
 
                 const webType =
                     String(
@@ -1351,12 +1379,10 @@ router.patch(
         service.updatedAt =
             new Date().toISOString();
 
-
         writeJSON(
             SERVICES_FILE,
             services
         );
-
 
         res.json({
 
@@ -1371,49 +1397,64 @@ router.patch(
 
 
 /* =========================================================
-   ZAKUP USŁUGI
+   ZAKUP
 ========================================================= */
 
 router.post(
     "/purchase",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
+
+        /*
+         * Frontend może wysłać:
+         * service
+         * type
+         * serviceType
+         *
+         * Wszystkie trzy są obsługiwane.
+         */
+
+        const rawService =
+            req.body.service ??
+            req.body.type ??
+            req.body.serviceType ??
+            "";
 
         const service =
-            String(
-                req.body.service || ""
+            normalizeServiceType(
+                rawService
             );
+
 
         const packageName =
             String(
-                req.body.packageName || ""
-            );
+                req.body.packageName ??
+                req.body.package ??
+                ""
+            ).trim();
+
 
         const days =
             Number(
                 req.body.days
             );
 
+
         const discountCode =
             String(
-                req.body.discountCode || ""
+                req.body.discountCode ??
+                req.body.code ??
+                ""
             )
             .trim()
             .toUpperCase();
 
 
-        /* -------------------------
-           WALIDACJA
-        ------------------------- */
+        /* =================================================
+           WALIDACJA TYPU
+        ================================================= */
 
-        if (
-            !PRICES[
-                service
-            ]
-        ) {
+        if (!service) {
 
             return res
                 .status(400)
@@ -1429,12 +1470,28 @@ router.post(
         }
 
 
+        if (!PRICES[service]) {
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nieprawidłowy typ usługi."
+
+                });
+
+        }
+
+
+        /* =================================================
+           WALIDACJA PAKIETU
+        ================================================= */
+
         if (
-            !PRICES[
-                service
-            ][
-                packageName
-            ]
+            !PRICES[service][packageName]
         ) {
 
             return res
@@ -1450,6 +1507,10 @@ router.post(
 
         }
 
+
+        /* =================================================
+           WALIDACJA DNI
+        ================================================= */
 
         if (
             ![
@@ -1485,15 +1546,12 @@ router.post(
             );
 
 
-        /* -------------------------
+        /* =================================================
            RABAT
-        ------------------------- */
+        ================================================= */
 
-        let discount =
-            0;
-
-        let usedCode =
-            null;
+        let discount = 0;
+        let usedCode = null;
 
 
         if (discountCode) {
@@ -1512,6 +1570,7 @@ router.post(
                         ).toUpperCase() ===
                         discountCode
                 );
+
 
             if (!code) {
 
@@ -1550,9 +1609,9 @@ router.post(
             if (
                 code.expiresAt &&
                 Date.now() >
-                    new Date(
-                        code.expiresAt
-                    ).getTime()
+                new Date(
+                    code.expiresAt
+                ).getTime()
             ) {
 
                 return res
@@ -1571,12 +1630,8 @@ router.post(
 
             if (
                 code.maxUses &&
-                Number(
-                    code.used || 0
-                ) >=
-                    Number(
-                        code.maxUses
-                    )
+                Number(code.used || 0) >=
+                Number(code.maxUses)
             ) {
 
                 return res
@@ -1622,14 +1677,15 @@ router.post(
             );
 
 
-        /* -------------------------
+        /* =================================================
            PORTFEL
-        ------------------------- */
+        ================================================= */
 
         const wallet =
             getWallet(
                 req.user.id
             );
+
 
         const balance =
             Number(
@@ -1638,8 +1694,7 @@ router.post(
 
 
         if (
-            balance <
-            price
+            balance < price
         ) {
 
             return res
@@ -1658,15 +1713,12 @@ router.post(
         }
 
 
-        /* -------------------------
-           OPCJE MINECRAFT
-        ------------------------- */
+        /* =================================================
+           MINECRAFT
+        ================================================= */
 
-        let software =
-            null;
-
-        let minecraftVersion =
-            null;
+        let software = null;
+        let minecraftVersion = null;
 
 
         if (
@@ -1676,16 +1728,19 @@ router.post(
 
             software =
                 String(
-                    req.body.software ||
+                    req.body.software ??
                     "paper"
-                );
+                )
+                .trim()
+                .toLowerCase();
 
 
             minecraftVersion =
                 String(
-                    req.body.minecraftVersion ||
+                    req.body.minecraftVersion ??
+                    req.body.version ??
                     ""
-                );
+                ).trim();
 
 
             if (
@@ -1711,6 +1766,9 @@ router.post(
             if (
                 !MINECRAFT_VERSIONS[
                     software
+                ] ||
+                !MINECRAFT_VERSIONS[
+                    software
                 ].includes(
                     minecraftVersion
                 )
@@ -1732,12 +1790,11 @@ router.post(
         }
 
 
-        /* -------------------------
-           OPCJE DISCORD
-        ------------------------- */
+        /* =================================================
+           DISCORD
+        ================================================= */
 
-        let nodeVersion =
-            null;
+        let nodeVersion = null;
 
 
         if (
@@ -1747,7 +1804,8 @@ router.post(
 
             nodeVersion =
                 String(
-                    req.body.nodeVersion ||
+                    req.body.nodeVersion ??
+                    req.body.node ??
                     "22"
                 );
 
@@ -1774,12 +1832,11 @@ router.post(
         }
 
 
-        /* -------------------------
-           OPCJE WEB
-        ------------------------- */
+        /* =================================================
+           WEB
+        ================================================= */
 
-        let webType =
-            null;
+        let webType = null;
 
 
         if (
@@ -1789,7 +1846,8 @@ router.post(
 
             webType =
                 String(
-                    req.body.webType ||
+                    req.body.webType ??
+                    req.body.web ??
                     "static"
                 );
 
@@ -1816,9 +1874,9 @@ router.post(
         }
 
 
-        /* -------------------------
-           ODEJMOWANIE PIENIĘDZY
-        ------------------------- */
+        /* =================================================
+           POBRANIE PIENIĘDZY
+        ================================================= */
 
         const updatedWallet =
             changeBalance(
@@ -1843,9 +1901,9 @@ router.post(
         }
 
 
-        /* -------------------------
+        /* =================================================
            USŁUGA
-        ------------------------- */
+        ================================================= */
 
         const services =
             readJSON(
@@ -1854,16 +1912,7 @@ router.post(
             );
 
 
-        /*
-         * Kilka sekund przygotowania
-         * panelu/usługi.
-         *
-         * Nie oznacza to uruchomienia
-         * prawdziwego procesu serwera.
-         */
-
-        const provisioningSeconds =
-            6;
+        const provisioningSeconds = 6;
 
 
         const readyAt =
@@ -1976,9 +2025,9 @@ router.post(
         );
 
 
-        /* -------------------------
+        /* =================================================
            KOD — UŻYCIE
-        ------------------------- */
+        ================================================= */
 
         if (usedCode) {
 
@@ -1999,14 +2048,12 @@ router.post(
                         ).toUpperCase()
                 );
 
-            if (
-                index !== -1
-            ) {
+
+            if (index !== -1) {
 
                 codes[index].used =
                     Number(
-                        codes[index].used ||
-                        0
+                        codes[index].used || 0
                     ) + 1;
 
                 writeJSON(
@@ -2019,9 +2066,9 @@ router.post(
         }
 
 
-        /* -------------------------
+        /* =================================================
            TRANSAKCJA
-        ------------------------- */
+        ================================================= */
 
         addTransaction({
 
@@ -2067,7 +2114,11 @@ router.post(
         });
 
 
-        res.json({
+        /* =================================================
+           ODPOWIEDŹ
+        ================================================= */
+
+        return res.json({
 
             success: true,
 
@@ -2103,16 +2154,13 @@ router.post(
 
 
 /* =========================================================
-   SPRAWDZENIE GOTOWOŚCI
+   STATUS
 ========================================================= */
 
 router.get(
     "/service/:id/status",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const service =
             getServiceById(
@@ -2156,16 +2204,13 @@ router.get(
 
 
 /* =========================================================
-   KONSOLE
+   KONSOLA
 ========================================================= */
 
 router.get(
     "/service/:id/console",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const service =
             getServiceById(
@@ -2194,8 +2239,7 @@ router.get(
             success: true,
 
             console:
-                service.console ||
-                []
+                service.console || []
 
         });
 
@@ -2204,19 +2248,13 @@ router.get(
 
 
 /* =========================================================
-   DODAWANIE WPISU DO KONSOLI
-   UWAGA:
-   To jest przygotowanie panelu.
-   Nie uruchamia prawdziwego procesu.
+   DODAWANIE DO KONSOLI
 ========================================================= */
 
 router.post(
     "/service/:id/console",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
@@ -2231,9 +2269,7 @@ router.post(
                     String(req.params.id)
             );
 
-        if (
-            index === -1
-        ) {
+        if (index === -1) {
 
             return res
                 .status(404)
@@ -2253,9 +2289,10 @@ router.post(
             String(req.user.id) ===
             String(OWNER_ID);
 
+
         if (
             String(service.ownerId) !==
-                String(req.user.id) &&
+            String(req.user.id) &&
             !ceo
         ) {
 
@@ -2295,9 +2332,7 @@ router.post(
         }
 
 
-        if (
-            !service.console
-        ) {
+        if (!service.console) {
             service.console = [];
         }
 
@@ -2340,16 +2375,13 @@ router.post(
 
 
 /* =========================================================
-   PLIKI USŁUGI
+   PLIKI
 ========================================================= */
 
 router.get(
     "/service/:id/files",
     requireLogin,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const service =
             getServiceById(
@@ -2378,8 +2410,7 @@ router.get(
             success: true,
 
             files:
-                service.files ||
-                []
+                service.files || []
 
         });
 
@@ -2395,10 +2426,7 @@ router.get(
     "/admin/services",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
@@ -2441,10 +2469,7 @@ router.get(
     "/admin/services/:id",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
@@ -2495,10 +2520,7 @@ router.delete(
     "/admin/services/:id",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
@@ -2513,9 +2535,7 @@ router.delete(
                     String(req.params.id)
             );
 
-        if (
-            index === -1
-        ) {
+        if (index === -1) {
 
             return res
                 .status(404)
@@ -2561,17 +2581,14 @@ router.delete(
 
 
 /* =========================================================
-   CEO — KODY RABATOWE
+   CEO — KODY
 ========================================================= */
 
 router.get(
     "/admin/codes",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const codes =
             readJSON(
@@ -2599,10 +2616,7 @@ router.post(
     "/admin/codes",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const code =
             String(
@@ -2611,15 +2625,18 @@ router.post(
             .trim()
             .toUpperCase();
 
+
         const discount =
             Number(
                 req.body.discount
             );
 
+
         const maxUses =
             Number(
                 req.body.maxUses || 0
             );
+
 
         const expiresAt =
             req.body.expiresAt ||
@@ -2762,10 +2779,7 @@ router.patch(
     "/admin/codes/:id",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const codes =
             readJSON(
@@ -2780,9 +2794,7 @@ router.patch(
                     String(req.params.id)
             );
 
-        if (
-            index === -1
-        ) {
+        if (index === -1) {
 
             return res
                 .status(404)
@@ -2836,10 +2848,7 @@ router.delete(
     "/admin/codes/:id",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const codes =
             readJSON(
@@ -2854,9 +2863,7 @@ router.delete(
                     String(req.params.id)
             );
 
-        if (
-            index === -1
-        ) {
+        if (index === -1) {
 
             return res
                 .status(404)
@@ -2893,6 +2900,7 @@ router.delete(
     }
 );
 
+
 /* =========================================================
    CEO — PORTFEL UŻYTKOWNIKA
 ========================================================= */
@@ -2904,14 +2912,26 @@ router.get(
     (req, res) => {
 
         const userId =
-            String(req.params.userId || "").trim();
+            String(
+                req.params.userId || ""
+            ).trim();
+
 
         if (!userId) {
-            return res.status(400).json({
-                success: false,
-                message: "Nie podano ID użytkownika."
-            });
+
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nie podano ID użytkownika."
+
+                });
+
         }
+
 
         const wallets =
             readJSON(
@@ -2919,11 +2939,13 @@ router.get(
                 []
             );
 
+
         const transactions =
             readJSON(
                 TRANSACTIONS_FILE,
                 []
             );
+
 
         const wallet =
             wallets.find(
@@ -2932,15 +2954,26 @@ router.get(
                         item.userId ??
                         item.id ??
                         ""
-                    ) === userId
+                    ) ===
+                    userId
             );
 
+
         if (!wallet) {
-            return res.status(404).json({
-                success: false,
-                message: "Nie znaleziono portfela użytkownika."
-            });
+
+            return res
+                .status(404)
+                .json({
+
+                    success: false,
+
+                    message:
+                        "Nie znaleziono portfela użytkownika."
+
+                });
+
         }
+
 
         const userTransactions =
             transactions.filter(
@@ -2949,19 +2982,25 @@ router.get(
                         item.userId ??
                         item.user_id ??
                         ""
-                    ) === userId
+                    ) ===
+                    userId
             );
 
+
         res.json({
+
             success: true,
 
             wallet,
 
             transactions:
                 userTransactions
+
         });
+
     }
 );
+
 
 /* =========================================================
    CEO — STATYSTYKI
@@ -2971,10 +3010,7 @@ router.get(
     "/admin/stats",
     requireLogin,
     requireCEO,
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const services =
             readJSON(
