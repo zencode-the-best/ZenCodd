@@ -2,6 +2,8 @@ const express = require("express");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const minecraftRuntime =
+    require("./minecraft-runtime");
 
 const router = express.Router();
 
@@ -1516,7 +1518,7 @@ router.get(
 router.post(
     "/service/:id/console",
     requireLogin,
-    (req, res) => {
+    async (req, res) => {
 
         const services =
             readJSON(
@@ -1524,28 +1526,24 @@ router.post(
                 []
             );
 
-        const serviceIndex =
-            services.findIndex(
+        const service =
+            services.find(
                 item =>
                     String(item.id) ===
                     String(req.params.id)
             );
 
-        if (
-            serviceIndex === -1
-        ) {
+        if (!service) {
 
             return res
                 .status(404)
                 .json({
                     success: false,
-                    message: "Nie znaleziono usługi."
+                    message:
+                        "Nie znaleziono usługi."
                 });
 
         }
-
-        const service =
-            services[serviceIndex];
 
         if (
             String(service.ownerId) !==
@@ -1557,7 +1555,8 @@ router.post(
                 .status(403)
                 .json({
                     success: false,
-                    message: "Brak dostępu."
+                    message:
+                        "Brak dostępu."
                 });
 
         }
@@ -1573,99 +1572,144 @@ router.post(
                 .status(400)
                 .json({
                     success: false,
-                    message: "Nie podano komendy."
+                    message:
+                        "Nie podano komendy."
                 });
 
         }
 
         if (
-            !Array.isArray(
-                service.console
-            )
+            service.type !==
+            "minecraft"
         ) {
-            service.console = [];
+
+            return res
+                .status(400)
+                .json({
+                    success: false,
+                    message:
+                        "Konsola runtime jest dostępna obecnie dla serwerów Minecraft."
+                });
+
+        }
+
+        let result;
+
+        if (
+            command ===
+            "system: start"
+        ) {
+
+            result =
+                await minecraftRuntime
+                    .startMinecraft(
+                        service.id
+                    );
+
+        } else if (
+            command ===
+            "system: stop"
+        ) {
+
+            result =
+                minecraftRuntime
+                    .stopMinecraft(
+                        service.id
+                    );
+
+        } else if (
+            command ===
+            "system: restart"
+        ) {
+
+            result =
+                await minecraftRuntime
+                    .restartMinecraft(
+                        service.id
+                    );
+
+        } else if (
+            command ===
+            "system: online"
+        ) {
+
+            return res.json({
+                success: true,
+                service
+            });
+
+        } else if (
+            command ===
+            "system: offline"
+        ) {
+
+            result =
+                minecraftRuntime
+                    .stopMinecraft(
+                        service.id
+                    );
+
+        } else {
+
+            result =
+                minecraftRuntime
+                    .sendCommand(
+                        service.id,
+                        command
+                    );
+
         }
 
         if (
-            command === "system: start"
+            !result ||
+            result.ok === false
         ) {
 
-            service.powerState = "starting";
-            service.status = "starting";
+            return res
+                .status(400)
+                .json({
+
+                    success: false,
+
+                    message:
+                        result?.error ||
+                        "Nie udało się wykonać operacji.",
+
+                    error:
+                        result?.error ||
+                        "Nie udało się wykonać operacji."
+
+                });
 
         }
 
-        if (
-            command === "system: online"
-        ) {
+        const updatedServices =
+            readJSON(
+                SERVICES_FILE,
+                []
+            );
 
-            service.powerState = "online";
-            service.status = "online";
-
-        }
-
-        if (
-            command === "system: stop" ||
-            command === "system: offline"
-        ) {
-
-            service.powerState = "offline";
-            service.status = "offline";
-
-        }
-
-        if (
-            command === "system: restart"
-        ) {
-
-            service.powerState = "starting";
-            service.status = "starting";
-
-        }
-
-        service.console.push({
-
-            id:
-                createId("log"),
-
-            type:
-                command.startsWith("system:")
-                    ? "info"
-                    : "command",
-
-            text:
-                command,
-
-            createdAt:
-                new Date().toISOString()
-
-        });
-
-        service.updatedAt =
-            new Date().toISOString();
-
-        services[serviceIndex] =
-            service;
-
-        writeJSON(
-            SERVICES_FILE,
-            services
-        );
+        const updatedService =
+            updatedServices.find(
+                item =>
+                    String(item.id) ===
+                    String(service.id)
+            );
 
         res.json({
 
             success: true,
 
-            service,
+            service:
+                updatedService ||
+                service,
 
-            console:
-                service.console
+            result
 
         });
 
     }
 );
-
 
 /* FILES */
 

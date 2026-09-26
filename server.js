@@ -8,22 +8,44 @@ const passport = require("passport");
 require("./oauth");
 require("./discord-client");
 
-const authRoutes = require("./routes/auth");
-const pluginRoutes = require("./routes/plugins");
-const adminRoutes = require("./routes/admin");
-const logRoutes = require("./routes/logs");
-const settingsRoutes = require("./routes/settings");
-const productsRoutes = require("./routes/products");
-const hostingRoutes = require("./routes/hosting");
-const walletRoutes = require("./routes/wallet");
+const http = require("http");
+
+const minecraftRuntime =
+    require("./routes/minecraft-runtime");
+const authRoutes =
+    require("./routes/auth");
+
+const pluginRoutes =
+    require("./routes/plugins");
+
+const adminRoutes =
+    require("./routes/admin");
+
+const logRoutes =
+    require("./routes/logs");
+
+const settingsRoutes =
+    require("./routes/settings");
+
+const productsRoutes =
+    require("./routes/products");
+
+const hostingRoutes =
+    require("./routes/hosting");
+
+const walletRoutes =
+    require("./routes/wallet");
 
 const app = express();
 
-require("./routes/hosting-control")(app);
+app.set(
+    "trust proxy",
+    1
+);
 
-app.set("trust proxy", 1);
-
-app.use(express.json());
+app.use(
+    express.json()
+);
 
 app.use(
     express.urlencoded({
@@ -34,7 +56,8 @@ app.use(
 app.use(
     session({
         secret:
-            process.env.SESSION_SECRET,
+            process.env.SESSION_SECRET ||
+            "zenitycode-session-secret",
 
         resave: false,
 
@@ -43,6 +66,7 @@ app.use(
         cookie: {
             secure: true,
             httpOnly: true,
+            sameSite: "lax",
             maxAge:
                 1000 *
                 60 *
@@ -150,9 +174,11 @@ app.get(
                         err.message
                     );
 
-                    res.status(404).send(
-                        "Strona Skrypty nie jest jeszcze dostępna."
-                    );
+                    res
+                        .status(404)
+                        .send(
+                            "Strona Skrypty nie jest jeszcze dostępna."
+                        );
 
                 }
 
@@ -198,12 +224,122 @@ app.get(
 
 
 app.get(
+    "/hosting/order.html",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "hosting",
+                "order.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/hosting/server.html",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "hosting",
+                "server.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/hosting/admin.html",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "hosting",
+                "admin.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/hosting/services/minecraft/",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "hosting",
+                "services",
+                "minecraft",
+                "index.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/hosting/services/discord/",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "hosting",
+                "services",
+                "discord",
+                "index.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
+    "/hosting/services/web/",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "hosting",
+                "services",
+                "web",
+                "index.html"
+            )
+        );
+
+    }
+);
+
+
+app.get(
     "/wallet",
     (req, res) => {
 
         if (!req.user) {
 
-            return res.redirect("/");
+            return res.redirect(
+                "/"
+            );
 
         }
 
@@ -232,12 +368,14 @@ app.get(
 
         if (!req.user) {
 
-            return res.redirect("/");
+            return res.redirect(
+                "/"
+            );
 
         }
 
         if (
-            req.user.id !==
+            String(req.user.id) !==
             "1238570679465410571"
         ) {
 
@@ -330,7 +468,6 @@ app.get(
                 ? `https://cdn.discordapp.com/avatars/${req.user.id}/${req.user.avatar}.png`
                 : "https://cdn.discordapp.com/embed/avatars/0.png";
 
-
         res.json({
 
             logged: true,
@@ -381,7 +518,9 @@ app.get(
                 req.session.destroy(
                     () => {
 
-                        res.redirect("/");
+                        res.redirect(
+                            "/"
+                        );
 
                     }
                 );
@@ -428,16 +567,25 @@ app.use(
         next
     ) => {
 
-        console.error(err);
+        console.error(
+            "SERVER ERROR:",
+            err
+        );
 
-        res.status(500).json({
+        if (res.headersSent) {
+            return next(err);
+        }
 
-            success: false,
+        res
+            .status(500)
+            .json({
 
-            message:
-                "Wystąpił błąd serwera."
+                success: false,
 
-        });
+                message:
+                    "Wystąpił błąd serwera."
+
+            });
 
     }
 );
@@ -450,25 +598,34 @@ START
 */
 
 const PORT =
-    process.env.PORT || 3000;
+    process.env.PORT ||
+    3000;
 
+const server =
+    http.createServer(
+        app
+    );
 
-app.listen(
+minecraftRuntime.setupWebSocket(
+    server
+);
+
+server.listen(
     PORT,
     () => {
 
         console.log(`
-
 ========================================
 🚀 ZenityCode Studio uruchomione
 🌐 http://localhost:${PORT}
-🌍 ${process.env.BASE_URL}
-🤖 Discord Client: ${process.env.CLIENT_ID}
-🏰 Guild: ${process.env.GUILD_ID}
+🌍 ${process.env.BASE_URL || ""}
+🤖 Discord Client: ${process.env.CLIENT_ID || ""}
+🏰 Guild: ${process.env.GUILD_ID || ""}
 💳 Wallet: aktywny
 🖥️ ZenityHost: aktywny
+🎮 Minecraft Runtime: aktywny
+🔌 WebSocket Console: aktywny
 ========================================
-
         `);
 
     }

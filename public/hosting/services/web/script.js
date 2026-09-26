@@ -1,47 +1,16 @@
-const tabs =
-    document.querySelectorAll(
-        ".tab"
-    );
+const params = new URLSearchParams(window.location.search);
 
-const contents =
-    document.querySelectorAll(
-        ".tab-content"
-    );
+const serviceId =
+    params.get("id");
 
+const serviceType =
+    params.get("type") || "web";
 
-tabs.forEach(tab => {
+if (!serviceId) {
+    showError("Nie podano ID usługi.");
+}
 
-    tab.addEventListener(
-        "click",
-        () => {
-
-            tabs.forEach(
-                item =>
-                    item.classList.remove(
-                        "active"
-                    )
-            );
-
-            contents.forEach(
-                item =>
-                    item.classList.remove(
-                        "active"
-                    )
-            );
-
-            tab.classList.add(
-                "active"
-            );
-
-            document
-                .getElementById(
-                    tab.dataset.tab
-                )
-                .classList.add(
-                    "active"
-                );
-
-        }
-    );
-
-});
+if (serviceType !== "web") {
+    window.location.href =
+        `/hosting/services/web/?id=${encodeURIComponent(serviceId)}&type=web`;
+}
