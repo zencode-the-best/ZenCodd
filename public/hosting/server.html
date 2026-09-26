@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>ZenityHost — Serwer</title>
 
-    <link rel="stylesheet" href="/hosting/server.css">
+    <link
+        rel="stylesheet"
+        href="/hosting/server.css?v=2"
+    >
+
 </head>
 
 <body>
@@ -16,37 +25,45 @@
     <aside class="sidebar">
 
         <div class="brand">
-            <div class="brand-logo">Z</div>
+
+            <div class="brand-logo">
+                Z
+            </div>
+
             <div>
                 <strong>ZENITY</strong>
                 <span>HOST</span>
             </div>
+
         </div>
 
         <nav>
 
             <a href="/hosting">
-                <span>⌂</span>
+                <span>01</span>
                 Start
             </a>
 
             <a href="/hosting#sklep">
-                <span>🛒</span>
+                <span>02</span>
                 Sklep
             </a>
 
-            <a href="/hosting#uslugi" class="active">
-                <span>▣</span>
+            <a
+                href="/hosting#uslugi"
+                class="active"
+            >
+                <span>03</span>
                 Moje usługi
             </a>
 
             <a href="/hosting#wallet">
-                <span>◉</span>
+                <span>04</span>
                 Portfel
             </a>
 
             <a href="https://zenitycode.pl">
-                <span>◆</span>
+                <span>05</span>
                 ZenityCode
             </a>
 
@@ -67,13 +84,18 @@
             </button>
 
             <div class="account">
-                <span id="walletBalance">0.00 zł</span>
+
+                <span id="walletBalance">
+                    0.00 zł
+                </span>
+
             </div>
 
         </header>
 
 
         <section class="server-page">
+
 
             <div class="server-header">
 
@@ -88,7 +110,10 @@
                     </h1>
 
                     <div class="server-id">
-                        ID: <strong id="serverId">—</strong>
+                        ID:
+                        <strong id="serverId">
+                            —
+                        </strong>
                     </div>
 
                 </div>
@@ -112,7 +137,7 @@
                     </span>
 
                     <strong id="serverHostname">
-                        —.zenityhost.pl
+                        —
                     </strong>
 
                     <button
@@ -149,16 +174,23 @@
 
             <div class="server-grid">
 
+
                 <section class="panel">
 
                     <div class="panel-header">
 
                         <div>
-                            <h2>Konsola</h2>
+
+                            <h2>
+                                Konsola
+                            </h2>
+
                             <p>
                                 Podgląd działania serwera
                             </p>
+
                         </div>
+
 
                         <div class="console-actions">
 
@@ -167,7 +199,7 @@
                                 class="button green"
                                 onclick="startServer()"
                             >
-                                ▶ Włącz
+                                Włącz
                             </button>
 
                             <button
@@ -175,7 +207,7 @@
                                 class="button blue"
                                 onclick="restartServer()"
                             >
-                                ↻ Restart
+                                Restart
                             </button>
 
                             <button
@@ -183,7 +215,7 @@
                                 class="button red"
                                 onclick="stopServer()"
                             >
-                                ■ Wyłącz
+                                Wyłącz
                             </button>
 
                         </div>
@@ -218,78 +250,103 @@
                 </section>
 
 
+                <section class="panel info-under-console">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Informacje
+                            </h2>
+
+                            <p>
+                                Parametry usługi
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-list">
+
+                        <div class="info-row">
+                            <span>Pakiet</span>
+                            <strong id="package">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Okres</span>
+                            <strong id="days">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Silnik</span>
+                            <strong id="software">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Wersja</span>
+                            <strong id="minecraftVersion">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>RAM</span>
+                            <strong id="ram">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>CPU</span>
+                            <strong id="cpu">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Dysk</span>
+                            <strong id="disk">—</strong>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Wygasa</span>
+                            <strong id="expiresAt">—</strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
                 <aside class="side-column">
 
-                    <section class="panel">
-
-                        <div class="panel-header">
-                            <div>
-                                <h2>Informacje</h2>
-                                <p>Parametry usługi</p>
-                            </div>
-                        </div>
-
-                        <div class="info-list">
-
-                            <div class="info-row">
-                                <span>Pakiet</span>
-                                <strong id="package">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Okres</span>
-                                <strong id="days">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Silnik</span>
-                                <strong id="software">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Wersja</span>
-                                <strong id="minecraftVersion">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>RAM</span>
-                                <strong id="ram">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>CPU</span>
-                                <strong id="cpu">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Dysk</span>
-                                <strong id="disk">—</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Wygasa</span>
-                                <strong id="expiresAt">—</strong>
-                            </div>
-
-                        </div>
-
-                    </section>
-
 
                     <section class="panel">
 
                         <div class="panel-header">
+
                             <div>
-                                <h2>Pliki</h2>
-                                <p>Pliki serwera</p>
+
+                                <h2>
+                                    Pliki
+                                </h2>
+
+                                <p>
+                                    Pliki serwera
+                                </p>
+
                             </div>
+
                         </div>
 
-                        <div id="files" class="files">
+
+                        <div
+                            id="files"
+                            class="files"
+                        >
                             Ładowanie...
                         </div>
 
                     </section>
+
 
                 </aside>
 
@@ -308,7 +365,7 @@
 ></div>
 
 
-<script src="/hosting/server.js"></script>
+<script src="/hosting/server.js?v=2"></script>
 
 </body>
 </html>
