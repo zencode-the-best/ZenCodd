@@ -251,7 +251,9 @@ function changeBalance(userId, amount) {
     if (
         nextBalance < 0
     ) {
+
         return null;
+
     }
 
     wallet.balance =
@@ -796,8 +798,46 @@ router.get(
                     String(req.user.id)
             )
             .map(
-                item =>
-                    ensureNetwork(item)
+                item => {
+
+                    ensureNetwork(item);
+
+                    if (item.type === "minecraft") {
+
+                        const resources =
+                            getMinecraftResources(
+                                item.package || "dirt"
+                            );
+
+                        item.resources =
+                            resources;
+
+                        item.ram =
+                            item.ram ||
+                            resources.ram;
+
+                        item.cpu =
+                            item.cpu ||
+                            resources.cpu;
+
+                        item.disk =
+                            item.disk ||
+                            resources.disk;
+
+                        item.software =
+                            item.software ||
+                            "Paper";
+
+                        item.minecraftVersion =
+                            item.minecraftVersion ||
+                            item.config?.minecraftVersion ||
+                            "1.21.11";
+
+                    }
+
+                    return item;
+
+                }
             );
 
         writeJSON(
@@ -1256,6 +1296,11 @@ router.post(
                     ? network.port
                     : null,
 
+            resources:
+                service === "minecraft"
+                    ? getMinecraftResources(packageName)
+                    : null,
+
             status: "provisioning",
 
             powerState: "offline",
@@ -1710,6 +1755,7 @@ router.post(
 
     }
 );
+
 
 /* FILES */
 
