@@ -229,20 +229,20 @@ function addConsole(
     }
 
     const text =
-        String(message ?? "")
+        String(message)
             .replace(/\r/g, "");
 
     const lines =
-        text.split("\n");
+        text.split(/\n/);
 
     for (
-        const lineValue of lines
+        const line of lines
     ) {
 
-        const line =
-            lineValue.trimEnd();
+        const clean =
+            line.trimEnd();
 
-        if (!line.trim()) {
+        if (!clean) {
             continue;
         }
 
@@ -258,9 +258,11 @@ function addConsole(
                     .toString(16)
                     .slice(2)}`,
 
-            type: "runtime",
+            type:
+                "runtime",
 
-            text: line,
+            text:
+                clean,
 
             createdAt:
                 new Date().toISOString()
@@ -304,13 +306,12 @@ function downloadFile(
         (resolve, reject) => {
 
             if (
-                redirectCount >
-                5
+                redirectCount > 5
             ) {
 
                 reject(
                     new Error(
-                        "Zbyt wiele przekierowań podczas pobierania pliku."
+                        "Zbyt wiele przekierowań podczas pobierania Paper."
                     )
                 );
 
@@ -324,7 +325,9 @@ function downloadFile(
                     {
                         headers: {
                             "User-Agent":
-                                "ZenityHost/1.0"
+                                "ZenityHost/1.0 (https://zenitycode.pl)",
+                            "Accept":
+                                "*/*"
                         }
                     },
                     response => {
@@ -387,9 +390,7 @@ function downloadFile(
                             () => {
 
                                 file.close(
-                                    () => resolve(
-                                        destination
-                                    )
+                                    resolve
                                 );
 
                             }
@@ -398,27 +399,6 @@ function downloadFile(
                         file.on(
                             "error",
                             error => {
-
-                                try {
-                                    fs.unlinkSync(
-                                        destination
-                                    );
-                                } catch {}
-
-                                reject(
-                                    error
-                                );
-
-                            }
-                        );
-
-                        response.on(
-                            "error",
-                            error => {
-
-                                try {
-                                    file.close();
-                                } catch {}
 
                                 try {
                                     fs.unlinkSync(
@@ -450,114 +430,116 @@ async function getPaperDownload(
     version
 ) {
 
-    const encodedVersion =
-        encodeURIComponent(
-            String(version)
-        );
+    const userAgent =
+        "ZenityHost/1.0 (https://zenitycode.pl)";
 
-    /*
-     * Paper API:
-     *
-     * /versions/:version/builds
-     *
-     * Zamiast starego:
-     *
-     * /versions/:version
-     *
-     */
+    const url =
+        `https://fill.papermc.io/v3/projects/paper/versions/${encodeURIComponent(version)}/builds`;
 
-    const apiUrl =
-        `https://api.papermc.io/v2/projects/paper/versions/${encodedVersion}/builds`;
+    addConsole(
+        "__global__",
+        ""
+    );
 
     const response =
         await fetch(
-            apiUrl,
+            url,
             {
                 headers: {
                     "User-Agent":
-                        "ZenityHost/1.0"
+                        userAgent,
+
+                    "Accept":
+                        "application/json"
                 }
             }
         );
 
     if (!response.ok) {
 
+        let message =
+            `Paper Downloads API HTTP ${response.status}`;
+
+        try {
+
+            const errorData =
+                await response.json();
+
+            if (
+                errorData &&
+                errorData.message
+            ) {
+
+                message +=
+                    `: ${errorData.message}`;
+
+            }
+
+        } catch {}
+
         throw new Error(
-            `Paper API HTTP ${response.status}`
+            message
         );
 
     }
 
-    const data =
+    const builds =
         await response.json();
 
     if (
-        !data ||
-        !Array.isArray(data.builds) ||
-        !data.builds.length
+        !Array.isArray(builds)
     ) {
 
         throw new Error(
-            `Brak dostępnych buildów Paper dla wersji ${version}`
+            "Paper Downloads API zwróciło nieprawidłową odpowiedź."
         );
 
     }
 
-    const successfulBuilds =
-        data.builds.filter(
+    const stable =
+        builds.find(
             build =>
-                build &&
-                (
-                    build.channel ===
-                    "default" ||
-                    build.channel ===
-                    "experimental" ||
-                    build.channel ===
-                    undefined
-                )
+                String(
+                    build.channel || ""
+                ).toUpperCase() ===
+                "STABLE" &&
+
+                build.downloads &&
+
+                build.downloads[
+                    "server:default"
+                ] &&
+
+                build.downloads[
+                    "server:default"
+                ].url
         );
 
-    const availableBuilds =
-        successfulBuilds.length
-            ? successfulBuilds
-            : data.builds;
-
-    const latest =
-        availableBuilds[
-            availableBuilds.length - 1
-        ];
-
-    const build =
-        typeof latest === "number"
-            ? latest
-            : latest.id;
-
-    if (
-        !build
-    ) {
+    if (!stable) {
 
         throw new Error(
-            `Nie udało się ustalić numeru builda Paper dla ${version}`
+            `Brak stabilnego buildu Paper dla Minecraft ${version}.`
         );
 
     }
 
-    const file =
-        `paper-${version}-${build}.jar`;
-
-    const downloadUrl =
-        `https://api.papermc.io/v2/projects/paper/versions/${encodedVersion}/builds/${build}/downloads/${encodeURIComponent(file)}`;
+    const download =
+        stable.downloads[
+            "server:default"
+        ];
 
     return {
 
         version,
 
-        build,
+        build:
+            stable.id,
 
         url:
-            downloadUrl,
+            download.url,
 
-        file
+        file:
+            download.name
 
     };
 
@@ -576,15 +558,20 @@ function getMemory(
 
     const memoryMap = {
 
-        dirt: 2048,
+        dirt:
+            2048,
 
-        obsidian: 4096,
+        obsidian:
+            4096,
 
-        "złoto": 6144,
+        "złoto":
+            6144,
 
-        szmaragd: 8192,
+        szmaragd:
+            8192,
 
-        diament: 12288
+        diament:
+            12288
 
     };
 
@@ -592,7 +579,9 @@ function getMemory(
         service.memory ||
         service.ramMb ||
         service.ram ||
-        memoryMap[packageName] ||
+        memoryMap[
+            packageName
+        ] ||
         2048
     );
 
@@ -609,7 +598,7 @@ function getPort(
 
     if (
         Number.isInteger(port) &&
-        port > 0 &&
+        port >= 1 &&
         port <= 65535
     ) {
 
@@ -622,9 +611,8 @@ function getPort(
 }
 
 function ensureProperties(
-    service,
     directory,
-    port
+    service
 ) {
 
     const propertiesPath =
@@ -633,7 +621,10 @@ function ensureProperties(
             "server.properties"
         );
 
-    let properties = "";
+    const port =
+        getPort(service);
+
+    let properties = {};
 
     if (
         fs.existsSync(
@@ -641,45 +632,133 @@ function ensureProperties(
         )
     ) {
 
-        properties =
+        const content =
             fs.readFileSync(
                 propertiesPath,
                 "utf8"
             );
 
+        for (
+            const line of
+            content.split(/\r?\n/)
+        ) {
+
+            if (
+                !line ||
+                line.startsWith("#")
+            ) {
+                continue;
+            }
+
+            const separator =
+                line.indexOf("=");
+
+            if (
+                separator === -1
+            ) {
+                continue;
+            }
+
+            const key =
+                line
+                    .slice(
+                        0,
+                        separator
+                    )
+                    .trim();
+
+            const value =
+                line
+                    .slice(
+                        separator + 1
+                    )
+                    .trim();
+
+            properties[key] =
+                value;
+
+        }
+
     }
 
-    const lines =
-        properties
-            .split(/\r?\n/)
-            .filter(
-                line =>
-                    line.trim() &&
-                    !line.startsWith(
-                        "server-port="
-                    ) &&
-                    !line.startsWith(
-                        "server-ip="
-                    ) &&
-                    !line.startsWith(
-                        "motd="
-                    )
-            );
+    properties[
+        "server-port"
+    ] =
+        String(port);
 
-    lines.push(
-        `server-port=${port}`,
-        "server-ip=",
-        "online-mode=true",
-        "enable-command-block=true",
-        "motd=ZenityHost",
-        "max-players=20",
-        "view-distance=10",
-        "simulation-distance=10"
-    );
+    properties[
+        "server-ip"
+    ] =
+        "";
+
+    properties[
+        "online-mode"
+    ] =
+        "true";
+
+    properties[
+        "enable-command-block"
+    ] =
+        "true";
+
+    properties[
+        "motd"
+    ] =
+        "ZenityHost";
+
+    if (
+        !properties[
+            "max-players"
+        ]
+    ) {
+
+        properties[
+            "max-players"
+        ] =
+            "20";
+
+    }
+
+    if (
+        !properties[
+            "view-distance"
+        ]
+    ) {
+
+        properties[
+            "view-distance"
+        ] =
+            "10";
+
+    }
+
+    if (
+        !properties[
+            "simulation-distance"
+        ]
+    ) {
+
+        properties[
+            "simulation-distance"
+        ] =
+            "10";
+
+    }
+
+    const output =
+        Object.entries(
+            properties
+        )
+            .map(
+                ([key, value]) =>
+                    `${key}=${value}`
+            )
+            .join("\n") +
+        "\n";
 
     fs.writeFileSync(
         propertiesPath,
-        lines.join("\n") + "\n",
+        output,
         "utf8"
     );
 
@@ -695,11 +774,9 @@ async function prepareServer(
         );
 
     const version =
-        String(
-            service.minecraftVersion ||
-            service.version ||
-            "1.21.8"
-        );
+        service.minecraftVersion ||
+        service.version ||
+        "1.21.8";
 
     const software =
         String(
@@ -710,7 +787,8 @@ async function prepareServer(
         .toLowerCase();
 
     if (
-        software !== "paper"
+        software !==
+        "paper"
     ) {
 
         throw new Error(
@@ -731,7 +809,7 @@ async function prepareServer(
 
     addConsole(
         service.id,
-        `Znaleziono Paper ${version}, build ${info.build}.`
+        `Znaleziono stabilny Paper ${version}, build ${info.build}.`
     );
 
     const jarPath =
@@ -782,15 +860,9 @@ async function prepareServer(
         "utf8"
     );
 
-    const port =
-        getPort(
-            service
-        );
-
     ensureProperties(
-        service,
         directory,
-        port
+        service
     );
 
     return {
@@ -802,7 +874,8 @@ async function prepareServer(
 
         jarPath,
 
-        port,
+        port:
+            getPort(service),
 
         version,
 
@@ -818,7 +891,9 @@ async function startMinecraft(
 ) {
 
     const id =
-        String(serviceId);
+        String(
+            serviceId
+        );
 
     if (
         processes.has(id)
@@ -826,7 +901,8 @@ async function startMinecraft(
 
         return {
 
-            ok: false,
+            ok:
+                false,
 
             error:
                 "Serwer Minecraft jest już uruchomiony."
@@ -842,7 +918,8 @@ async function startMinecraft(
 
         return {
 
-            ok: false,
+            ok:
+                false,
 
             error:
                 "Nie znaleziono usługi."
@@ -854,9 +931,14 @@ async function startMinecraft(
     updateService(
         id,
         {
-            status: "provisioning",
-            powerState: "starting",
-            pid: null
+            status:
+                "provisioning",
+
+            powerState:
+                "starting",
+
+            pid:
+                null
         }
     );
 
@@ -908,17 +990,17 @@ async function startMinecraft(
 
         addConsole(
             id,
-            `RAM: ${memory} MB`
-        );
-
-        addConsole(
-            id,
-            `Minecraft ${prepared.version}`
+            `Minecraft: ${prepared.version}`
         );
 
         addConsole(
             id,
             `Paper build: ${prepared.build}`
+        );
+
+        addConsole(
+            id,
+            `RAM: ${memory} MB`
         );
 
         addConsole(
@@ -945,7 +1027,8 @@ async function startMinecraft(
                         "pipe"
                     ],
 
-                    windowsHide: true
+                    windowsHide:
+                        true
                 }
             );
 
@@ -957,9 +1040,14 @@ async function startMinecraft(
         updateService(
             id,
             {
-                status: "running",
-                powerState: "online",
-                pid: child.pid
+                status:
+                    "running",
+
+                powerState:
+                    "online",
+
+                pid:
+                    child.pid
             }
         );
 
@@ -1045,9 +1133,14 @@ async function startMinecraft(
                 updateService(
                     id,
                     {
-                        status: "error",
-                        powerState: "offline",
-                        pid: null
+                        status:
+                            "error",
+
+                        powerState:
+                            "offline",
+
+                        pid:
+                            null
                     }
                 );
 
@@ -1075,9 +1168,14 @@ async function startMinecraft(
                 updateService(
                     id,
                     {
-                        status: "stopped",
-                        powerState: "offline",
-                        pid: null
+                        status:
+                            "stopped",
+
+                        powerState:
+                            "offline",
+
+                        pid:
+                            null
                     }
                 );
 
@@ -1091,7 +1189,8 @@ async function startMinecraft(
 
         return {
 
-            ok: true,
+            ok:
+                true,
 
             pid:
                 child.pid
@@ -1103,9 +1202,14 @@ async function startMinecraft(
         updateService(
             id,
             {
-                status: "error",
-                powerState: "offline",
-                pid: null
+                status:
+                    "error",
+
+                powerState:
+                    "offline",
+
+                pid:
+                    null
             }
         );
 
@@ -1121,7 +1225,8 @@ async function startMinecraft(
 
         return {
 
-            ok: false,
+            ok:
+                false,
 
             error:
                 error.message
@@ -1137,7 +1242,9 @@ function stopMinecraft(
 ) {
 
     const id =
-        String(serviceId);
+        String(
+            serviceId
+        );
 
     const child =
         processes.get(id);
@@ -1147,9 +1254,14 @@ function stopMinecraft(
         updateService(
             id,
             {
-                status: "stopped",
-                powerState: "offline",
-                pid: null
+                status:
+                    "stopped",
+
+                powerState:
+                    "offline",
+
+                pid:
+                    null
             }
         );
 
@@ -1164,7 +1276,8 @@ function stopMinecraft(
         );
 
         return {
-            ok: true
+            ok:
+                true
         };
 
     }
@@ -1202,7 +1315,8 @@ function stopMinecraft(
     );
 
     return {
-        ok: true
+        ok:
+            true
     };
 
 }
@@ -1212,7 +1326,9 @@ async function restartMinecraft(
 ) {
 
     const id =
-        String(serviceId);
+        String(
+            serviceId
+        );
 
     const child =
         processes.get(id);
@@ -1244,14 +1360,33 @@ async function restartMinecraft(
             let finished =
                 false;
 
+            const timeout =
+                setTimeout(
+                    () => {
+
+                        try {
+                            child.kill(
+                                "SIGTERM"
+                            );
+                        } catch {}
+
+                        finish();
+
+                    },
+                    10000
+                );
+
             const finish =
                 async () => {
 
-                    if (finished) {
+                    if (
+                        finished
+                    ) {
                         return;
                     }
 
-                    finished = true;
+                    finished =
+                        true;
 
                     clearTimeout(
                         timeout
@@ -1272,22 +1407,6 @@ async function restartMinecraft(
 
                 };
 
-            const timeout =
-                setTimeout(
-                    () => {
-
-                        try {
-                            child.kill(
-                                "SIGTERM"
-                            );
-                        } catch {}
-
-                        finish();
-
-                    },
-                    10000
-                );
-
             child.once(
                 "close",
                 finish
@@ -1304,7 +1423,9 @@ function sendCommand(
 ) {
 
     const id =
-        String(serviceId);
+        String(
+            serviceId
+        );
 
     const child =
         processes.get(id);
@@ -1313,7 +1434,8 @@ function sendCommand(
 
         return {
 
-            ok: false,
+            ok:
+                false,
 
             error:
                 "Serwer Minecraft nie jest uruchomiony."
@@ -1324,14 +1446,16 @@ function sendCommand(
 
     const text =
         String(
-            command || ""
+            command ||
+            ""
         ).trim();
 
     if (!text) {
 
         return {
 
-            ok: false,
+            ok:
+                false,
 
             error:
                 "Komenda jest pusta."
@@ -1352,14 +1476,16 @@ function sendCommand(
         );
 
         return {
-            ok: true
+            ok:
+                true
         };
 
     } catch (error) {
 
         return {
 
-            ok: false,
+            ok:
+                false,
 
             error:
                 error.message
@@ -1377,7 +1503,8 @@ function setupWebSocket(
     const wss =
         new WebSocket.Server({
             server,
-            path: "/ws/minecraft"
+            path:
+                "/ws/minecraft"
         });
 
     wss.on(
@@ -1472,9 +1599,11 @@ function setupWebSocket(
                                 "console",
 
                             data:
-                                typeof entry === "string"
+                                typeof entry ===
+                                    "string"
                                     ? entry
-                                    : entry.text || ""
+                                    : entry.text ||
+                                      ""
 
                         })
                     );
@@ -1499,7 +1628,9 @@ function setupWebSocket(
                     () => {
 
                         const clients =
-                            sockets.get(id);
+                            sockets.get(
+                                id
+                            );
 
                         if (!clients) {
                             return;
@@ -1542,10 +1673,14 @@ function getRuntimeState(
 ) {
 
     const id =
-        String(serviceId);
+        String(
+            serviceId
+        );
 
     const child =
-        processes.get(id);
+        processes.get(
+            id
+        );
 
     return {
 
