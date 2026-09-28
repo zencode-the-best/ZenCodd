@@ -228,43 +228,54 @@ function addConsole(
         return;
     }
 
-    const line =
-        String(message)
-            .replace(/\r/g, "")
-            .trimEnd();
+    const text =
+        String(message ?? "")
+            .replace(/\r/g, "");
 
-    if (!line) {
-        return;
-    }
+    const lines =
+        text.split("\n");
 
-    service.console =
-        Array.isArray(service.console)
-            ? service.console
-            : [];
-
-    service.console.push({
-
-        id:
-            `console-${Date.now()}-${Math.random()
-                .toString(16)
-                .slice(2)}`,
-
-        type: "runtime",
-
-        text: line,
-
-        createdAt:
-            new Date().toISOString()
-
-    });
-
-    if (
-        service.console.length >
-        1000
+    for (
+        const lineValue of lines
     ) {
 
+        const line =
+            lineValue.trimEnd();
+
+        if (!line.trim()) {
+            continue;
+        }
+
         service.console =
-            service.console.slice(-1000);
+            Array.isArray(service.console)
+                ? service.console
+                : [];
+
+        service.console.push({
+
+            id:
+                `console-${Date.now()}-${Math.random()
+                    .toString(16)
+                    .slice(2)}`,
+
+            type: "runtime",
+
+            text: line,
+
+            createdAt:
+                new Date().toISOString()
+
+        });
+
+        if (
+            service.console.length >
+            1000
+        ) {
+
+            service.console =
+                service.console.slice(-1000);
+
+        }
 
     }
 
@@ -278,35 +289,68 @@ function addConsole(
 
     broadcast(
         serviceId,
-        line
+        text
     );
 
 }
 
 function downloadFile(
     url,
-    destination
+    destination,
+    redirectCount = 0
 ) {
 
     return new Promise(
         (resolve, reject) => {
 
+            if (
+                redirectCount >
+                5
+            ) {
+
+                reject(
+                    new Error(
+                        "Zbyt wiele przekierowań podczas pobierania pliku."
+                    )
+                );
+
+                return;
+
+            }
+
             const request =
                 https.get(
                     url,
+                    {
+                        headers: {
+                            "User-Agent":
+                                "ZenityHost/1.0"
+                        }
+                    },
                     response => {
 
+                        const status =
+                            response.statusCode ||
+                            0;
+
                         if (
-                            response.statusCode >= 300 &&
-                            response.statusCode < 400 &&
+                            status >= 300 &&
+                            status < 400 &&
                             response.headers.location
                         ) {
+
+                            const nextUrl =
+                                new URL(
+                                    response.headers.location,
+                                    url
+                                ).toString();
 
                             response.resume();
 
                             return downloadFile(
-                                response.headers.location,
-                                destination
+                                nextUrl,
+                                destination,
+                                redirectCount + 1
                             )
                                 .then(resolve)
                                 .catch(reject);
@@ -314,14 +358,14 @@ function downloadFile(
                         }
 
                         if (
-                            response.statusCode !== 200
+                            status !== 200
                         ) {
 
                             response.resume();
 
                             reject(
                                 new Error(
-                                    `HTTP ${response.statusCode}`
+                                    `HTTP ${status}`
                                 )
                             );
 
@@ -334,14 +378,18 @@ function downloadFile(
                                 destination
                             );
 
-                        response.pipe(file);
+                        response.pipe(
+                            file
+                        );
 
                         file.on(
                             "finish",
                             () => {
 
                                 file.close(
-                                    resolve
+                                    () => resolve(
+                                        destination
+                                    )
                                 );
 
                             }
@@ -357,7 +405,30 @@ function downloadFile(
                                     );
                                 } catch {}
 
-                                reject(error);
+                                reject(
+                                    error
+                                );
+
+                            }
+                        );
+
+                        response.on(
+                            "error",
+                            error => {
+
+                                try {
+                                    file.close();
+                                } catch {}
+
+                                try {
+                                    fs.unlinkSync(
+                                        destination
+                                    );
+                                } catch {}
+
+                                reject(
+                                    error
+                                );
 
                             }
                         );
@@ -379,11 +450,35 @@ async function getPaperDownload(
     version
 ) {
 
-    const url =
-        `https://api.papermc.io/v2/projects/paper/versions/${encodeURIComponent(version)}`;
+    const encodedVersion =
+        encodeURIComponent(
+            String(version)
+        );
+
+    /*
+     * Paper API:
+     *
+     * /versions/:version/builds
+     *
+     * Zamiast starego:
+     *
+     * /versions/:version
+     *
+     */
+
+    const apiUrl =
+        `https://api.papermc.io/v2/projects/paper/versions/${encodedVersion}/builds`;
 
     const response =
-        await fetch(url);
+        await fetch(
+            apiUrl,
+            {
+                headers: {
+                    "User-Agent":
+                        "ZenityHost/1.0"
+                }
+            }
+        );
 
     if (!response.ok) {
 
@@ -397,20 +492,61 @@ async function getPaperDownload(
         await response.json();
 
     if (
+        !data ||
         !Array.isArray(data.builds) ||
         !data.builds.length
     ) {
 
         throw new Error(
-            `Brak buildów Paper dla ${version}`
+            `Brak dostępnych buildów Paper dla wersji ${version}`
         );
 
     }
 
-    const build =
-        data.builds[
-            data.builds.length - 1
+    const successfulBuilds =
+        data.builds.filter(
+            build =>
+                build &&
+                (
+                    build.channel ===
+                    "default" ||
+                    build.channel ===
+                    "experimental" ||
+                    build.channel ===
+                    undefined
+                )
+        );
+
+    const availableBuilds =
+        successfulBuilds.length
+            ? successfulBuilds
+            : data.builds;
+
+    const latest =
+        availableBuilds[
+            availableBuilds.length - 1
         ];
+
+    const build =
+        typeof latest === "number"
+            ? latest
+            : latest.id;
+
+    if (
+        !build
+    ) {
+
+        throw new Error(
+            `Nie udało się ustalić numeru builda Paper dla ${version}`
+        );
+
+    }
+
+    const file =
+        `paper-${version}-${build}.jar`;
+
+    const downloadUrl =
+        `https://api.papermc.io/v2/projects/paper/versions/${encodedVersion}/builds/${build}/downloads/${encodeURIComponent(file)}`;
 
     return {
 
@@ -419,22 +555,24 @@ async function getPaperDownload(
         build,
 
         url:
-            `https://api.papermc.io/v2/projects/paper/versions/${encodeURIComponent(version)}/builds/${build}/downloads/paper-${version}-${build}.jar`,
+            downloadUrl,
 
-        file:
-            `paper-${version}-${build}.jar`
+        file
 
     };
 
 }
 
-function getMemory(service) {
+function getMemory(
+    service
+) {
 
     const packageName =
         String(
             service.package ||
             "dirt"
-        ).toLowerCase();
+        )
+        .toLowerCase();
 
     const memoryMap = {
 
@@ -453,8 +591,96 @@ function getMemory(service) {
     return Number(
         service.memory ||
         service.ramMb ||
+        service.ram ||
         memoryMap[packageName] ||
         2048
+    );
+
+}
+
+function getPort(
+    service
+) {
+
+    const port =
+        Number(
+            service.port
+        );
+
+    if (
+        Number.isInteger(port) &&
+        port > 0 &&
+        port <= 65535
+    ) {
+
+        return port;
+
+    }
+
+    return 25565;
+
+}
+
+function ensureProperties(
+    service,
+    directory,
+    port
+) {
+
+    const propertiesPath =
+        path.join(
+            directory,
+            "server.properties"
+        );
+
+    let properties = "";
+
+    if (
+        fs.existsSync(
+            propertiesPath
+        )
+    ) {
+
+        properties =
+            fs.readFileSync(
+                propertiesPath,
+                "utf8"
+            );
+
+    }
+
+    const lines =
+        properties
+            .split(/\r?\n/)
+            .filter(
+                line =>
+                    line.trim() &&
+                    !line.startsWith(
+                        "server-port="
+                    ) &&
+                    !line.startsWith(
+                        "server-ip="
+                    ) &&
+                    !line.startsWith(
+                        "motd="
+                    )
+            );
+
+    lines.push(
+        `server-port=${port}`,
+        "server-ip=",
+        "online-mode=true",
+        "enable-command-block=true",
+        "motd=ZenityHost",
+        "max-players=20",
+        "view-distance=10",
+        "simulation-distance=10"
+    );
+
+    fs.writeFileSync(
+        propertiesPath,
+        lines.join("\n") + "\n",
+        "utf8"
     );
 
 }
@@ -469,9 +695,11 @@ async function prepareServer(
         );
 
     const version =
-        service.minecraftVersion ||
-        service.version ||
-        "1.21.8";
+        String(
+            service.minecraftVersion ||
+            service.version ||
+            "1.21.8"
+        );
 
     const software =
         String(
@@ -501,6 +729,11 @@ async function prepareServer(
             version
         );
 
+    addConsole(
+        service.id,
+        `Znaleziono Paper ${version}, build ${info.build}.`
+    );
+
     const jarPath =
         path.join(
             directory,
@@ -508,7 +741,9 @@ async function prepareServer(
         );
 
     if (
-        !fs.existsSync(jarPath)
+        !fs.existsSync(
+            jarPath
+        )
     ) {
 
         addConsole(
@@ -547,39 +782,16 @@ async function prepareServer(
         "utf8"
     );
 
-    const propertiesPath =
-        path.join(
-            directory,
-            "server.properties"
-        );
-
     const port =
-        Number(
-            service.port
-        ) || 25565;
-
-    if (
-        !fs.existsSync(
-            propertiesPath
-        )
-    ) {
-
-        fs.writeFileSync(
-            propertiesPath,
-            [
-                `server-port=${port}`,
-                "server-ip=",
-                "online-mode=true",
-                "enable-command-block=true",
-                "motd=ZenityHost",
-                "max-players=20",
-                "view-distance=10",
-                "simulation-distance=10"
-            ].join("\n") + "\n",
-            "utf8"
+        getPort(
+            service
         );
 
-    }
+    ensureProperties(
+        service,
+        directory,
+        port
+    );
 
     return {
 
@@ -590,7 +802,12 @@ async function prepareServer(
 
         jarPath,
 
-        port
+        port,
+
+        version,
+
+        build:
+            info.build
 
     };
 
@@ -692,6 +909,16 @@ async function startMinecraft(
         addConsole(
             id,
             `RAM: ${memory} MB`
+        );
+
+        addConsole(
+            id,
+            `Minecraft ${prepared.version}`
+        );
+
+        addConsole(
+            id,
+            `Paper build: ${prepared.build}`
         );
 
         addConsole(
@@ -991,9 +1218,11 @@ async function restartMinecraft(
         processes.get(id);
 
     if (!child) {
+
         return startMinecraft(
             id
         );
+
     }
 
     addConsole(
