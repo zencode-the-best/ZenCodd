@@ -1,10 +1,14 @@
-FROM node:22-bookworm
+FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-21-jre-headless \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+RUN node --version && npm --version && java -version
 
 COPY package*.json ./
 
