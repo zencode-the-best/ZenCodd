@@ -1,14 +1,17 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre AS java
+
+FROM node:22-bookworm
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
-    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=java /opt/java/openjdk /opt/java/openjdk
 
-RUN node --version && npm --version && java -version
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="/opt/java/openjdk/bin:${PATH}"
+
+RUN node --version \
+    && npm --version \
+    && java -version
 
 COPY package*.json ./
 
