@@ -1648,7 +1648,7 @@ router.post(
             result =
                 await minecraftRuntime
                     .startMinecraft(
-                        service.id
+                        service
                     );
 
         } else if (
@@ -1670,7 +1670,7 @@ router.post(
             result =
                 await minecraftRuntime
                     .restartMinecraft(
-                        service.id
+                        service
                     );
 
         } else if (
