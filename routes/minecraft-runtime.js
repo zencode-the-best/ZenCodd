@@ -1,1712 +1,949 @@
 const fs = require("fs");
 const path = require("path");
-const https = require("https");
+const crypto = require("crypto");
 const { spawn } = require("child_process");
-const WebSocket = require("ws");
 
-const DATA_DIR = path.join(
+const axios = require("axios");
+
+const RUNTIME_ROOT = path.join(
     __dirname,
     "..",
     "data",
-    "hosting"
+    "minecraft-runtime"
 );
 
-const SERVICES_FILE = path.join(
-    DATA_DIR,
-    "services.json"
-);
-
-const SERVERS_DIR = path.join(
-    DATA_DIR,
-    "minecraft"
-);
+fs.mkdirSync(RUNTIME_ROOT, {
+    recursive: true
+});
 
 const processes = new Map();
 const sockets = new Map();
 
-fs.mkdirSync(
-    SERVERS_DIR,
-    {
-        recursive: true
-    }
-);
-
-function readServices() {
-
-    try {
-
-        if (!fs.existsSync(SERVICES_FILE)) {
-            return [];
-        }
-
-        return JSON.parse(
-            fs.readFileSync(
-                SERVICES_FILE,
-                "utf8"
-            )
-        );
-
-    } catch (error) {
-
-        console.error(
-            "[Minecraft Runtime] Błąd odczytu services.json:",
-            error.message
-        );
-
-        return [];
-
-    }
-
+function log(...args) {
+    console.log(...args);
 }
 
-function saveServices(services) {
-
-    fs.mkdirSync(
-        path.dirname(SERVICES_FILE),
-        {
-            recursive: true
-        }
-    );
-
-    fs.writeFileSync(
-        SERVICES_FILE,
-        JSON.stringify(
-            services,
-            null,
-            2
-        ),
-        "utf8"
-    );
-
-}
-
-function getService(id) {
-
-    return readServices().find(
-        service =>
-            String(service.id) ===
-            String(id)
-    );
-
-}
-
-function updateService(id, changes) {
-
-    const services =
-        readServices();
-
-    const index =
-        services.findIndex(
-            service =>
-                String(service.id) ===
-                String(id)
-        );
-
-    if (index === -1) {
-        return null;
-    }
-
-    services[index] = {
-        ...services[index],
-        ...changes,
-        updatedAt:
-            new Date().toISOString()
-    };
-
-    saveServices(services);
-
-    return services[index];
-
-}
-
-function getServerDirectory(service) {
-
-    const directory =
-        path.join(
-            SERVERS_DIR,
-            String(service.id)
-        );
-
-    fs.mkdirSync(
-        directory,
-        {
-            recursive: true
-        }
-    );
-
-    return directory;
-
-}
-
-function broadcast(
-    serviceId,
-    message
-) {
-
-    const clients =
-        sockets.get(
-            String(serviceId)
-        );
-
-    if (!clients) {
-        return;
-    }
-
-    const payload =
-        JSON.stringify({
-            type: "console",
-            data: String(message)
-        });
-
-    for (
-        const ws of clients
-    ) {
-
-        if (
-            ws.readyState ===
-            WebSocket.OPEN
-        ) {
-
-            try {
-                ws.send(payload);
-            } catch {}
-
-        }
-
-    }
-
-}
-
-function broadcastStatus(
-    serviceId,
-    state
-) {
-
-    const clients =
-        sockets.get(
-            String(serviceId)
-        );
-
-    if (!clients) {
-        return;
-    }
-
-    const payload =
-        JSON.stringify({
-            type: "status",
-            data: state
-        });
-
-    for (
-        const ws of clients
-    ) {
-
-        if (
-            ws.readyState ===
-            WebSocket.OPEN
-        ) {
-
-            try {
-                ws.send(payload);
-            } catch {}
-
-        }
-
-    }
-
-}
-
-function addConsole(
-    serviceId,
-    message
-) {
-
-    const service =
-        getService(serviceId);
-
-    if (!service) {
-        return;
-    }
-
-    const text =
-        String(message)
-            .replace(/\r/g, "");
-
-    const lines =
-        text.split(/\n/);
-
-    for (
-        const line of lines
-    ) {
-
-        const clean =
-            line.trimEnd();
-
-        if (!clean) {
-            continue;
-        }
-
-        service.console =
-            Array.isArray(service.console)
-                ? service.console
-                : [];
-
-        service.console.push({
-
-            id:
-                `console-${Date.now()}-${Math.random()
-                    .toString(16)
-                    .slice(2)}`,
-
-            type:
-                "runtime",
-
-            text:
-                clean,
-
-            createdAt:
-                new Date().toISOString()
-
-        });
-
-        if (
-            service.console.length >
-            1000
-        ) {
-
-            service.console =
-                service.console.slice(-1000);
-
-        }
-
-    }
-
-    updateService(
-        serviceId,
-        {
-            console:
-                service.console
-        }
-    );
-
-    broadcast(
-        serviceId,
-        text
-    );
-
-}
-
-function downloadFile(
-    url,
-    destination,
-    redirectCount = 0
-) {
-
-    return new Promise(
-        (resolve, reject) => {
-
-            if (
-                redirectCount > 5
-            ) {
-
-                reject(
-                    new Error(
-                        "Zbyt wiele przekierowań podczas pobierania Paper."
-                    )
-                );
-
-                return;
-
-            }
-
-            const request =
-                https.get(
-                    url,
-                    {
-                        headers: {
-                            "User-Agent":
-                                "ZenityHost/1.0 (https://zenitycode.pl)",
-                            "Accept":
-                                "*/*"
-                        }
-                    },
-                    response => {
-
-                        const status =
-                            response.statusCode ||
-                            0;
-
-                        if (
-                            status >= 300 &&
-                            status < 400 &&
-                            response.headers.location
-                        ) {
-
-                            const nextUrl =
-                                new URL(
-                                    response.headers.location,
-                                    url
-                                ).toString();
-
-                            response.resume();
-
-                            return downloadFile(
-                                nextUrl,
-                                destination,
-                                redirectCount + 1
-                            )
-                                .then(resolve)
-                                .catch(reject);
-
-                        }
-
-                        if (
-                            status !== 200
-                        ) {
-
-                            response.resume();
-
-                            reject(
-                                new Error(
-                                    `HTTP ${status}`
-                                )
-                            );
-
-                            return;
-
-                        }
-
-                        const file =
-                            fs.createWriteStream(
-                                destination
-                            );
-
-                        response.pipe(
-                            file
-                        );
-
-                        file.on(
-                            "finish",
-                            () => {
-
-                                file.close(
-                                    resolve
-                                );
-
-                            }
-                        );
-
-                        file.on(
-                            "error",
-                            error => {
-
-                                try {
-                                    fs.unlinkSync(
-                                        destination
-                                    );
-                                } catch {}
-
-                                reject(
-                                    error
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-            request.on(
-                "error",
-                reject
-            );
-
-        }
-    );
-
-}
-
-async function getPaperDownload(
-    version
-) {
-
-    const userAgent =
-        "ZenityHost/1.0 (https://zenitycode.pl)";
-
-    const url =
-        `https://fill.papermc.io/v3/projects/paper/versions/${encodeURIComponent(version)}/builds`;
-
-    addConsole(
-        "__global__",
+function getServiceId(service) {
+    return String(
+        service?.id ||
+        service?.serviceId ||
+        service?._id ||
         ""
     );
-
-    const response =
-        await fetch(
-            url,
-            {
-                headers: {
-                    "User-Agent":
-                        userAgent,
-
-                    "Accept":
-                        "application/json"
-                }
-            }
-        );
-
-    if (!response.ok) {
-
-        let message =
-            `Paper Downloads API HTTP ${response.status}`;
-
-        try {
-
-            const errorData =
-                await response.json();
-
-            if (
-                errorData &&
-                errorData.message
-            ) {
-
-                message +=
-                    `: ${errorData.message}`;
-
-            }
-
-        } catch {}
-
-        throw new Error(
-            message
-        );
-
-    }
-
-    const builds =
-        await response.json();
-
-    if (
-        !Array.isArray(builds)
-    ) {
-
-        throw new Error(
-            "Paper Downloads API zwróciło nieprawidłową odpowiedź."
-        );
-
-    }
-
-    const stable =
-        builds.find(
-            build =>
-                String(
-                    build.channel || ""
-                ).toUpperCase() ===
-                "STABLE" &&
-
-                build.downloads &&
-
-                build.downloads[
-                    "server:default"
-                ] &&
-
-                build.downloads[
-                    "server:default"
-                ].url
-        );
-
-    if (!stable) {
-
-        throw new Error(
-            `Brak stabilnego buildu Paper dla Minecraft ${version}.`
-        );
-
-    }
-
-    const download =
-        stable.downloads[
-            "server:default"
-        ];
-
-    return {
-
-        version,
-
-        build:
-            stable.id,
-
-        url:
-            download.url,
-
-        file:
-            download.name
-
-    };
-
 }
 
-function getMemory(
-    service
-) {
+function getMemory(service) {
+    const value =
+        service?.memory ??
+        service?.ramMb ??
+        service?.ram ??
+        service?.resources?.ram ??
+        service?.package?.ram ??
+        2048;
 
-    const packageName =
-        String(
-            service.package ||
-            "dirt"
-        )
-        .toLowerCase();
+    const memory = Number(value);
 
-    const memoryMap = {
+    if (!Number.isFinite(memory) || memory <= 0) {
+        return 2048;
+    }
 
-        dirt:
-            2048,
-
-        obsidian:
-            4096,
-
-        "złoto":
-            6144,
-
-        szmaragd:
-            8192,
-
-        diament:
-            12288
-
-    };
-
-    return Number(
-        service.memory ||
-        service.ramMb ||
-        service.ram ||
-        memoryMap[
-            packageName
-        ] ||
-        2048
-    );
-
+    return Math.floor(memory);
 }
 
-function getPort(
-    service
-) {
+function getPort(service) {
+    const value =
+        service?.port ??
+        service?.minecraftPort ??
+        service?.resources?.port;
 
-    const port =
-        Number(
-            service.port
-        );
+    const port = Number(value);
 
     if (
-        Number.isInteger(port) &&
+        Number.isFinite(port) &&
         port >= 1 &&
         port <= 65535
     ) {
-
-        return port;
-
+        return Math.floor(port);
     }
 
     return 25565;
+}
 
+function getVersion(service) {
+    return String(
+        service?.version ||
+        service?.minecraftVersion ||
+        service?.minecraft?.version ||
+        "1.21.4"
+    );
+}
+
+function getSoftware(service) {
+    return String(
+        service?.software ||
+        service?.minecraftSoftware ||
+        "paper"
+    ).toLowerCase();
+}
+
+function getRuntimeDirectory(service) {
+    const serviceId = getServiceId(service);
+
+    if (!serviceId) {
+        throw new Error(
+            "Brak ID usługi Minecraft."
+        );
+    }
+
+    const safeId = serviceId.replace(
+        /[^a-zA-Z0-9._-]/g,
+        "_"
+    );
+
+    const directory = path.join(
+        RUNTIME_ROOT,
+        safeId
+    );
+
+    fs.mkdirSync(directory, {
+        recursive: true
+    });
+
+    return directory;
+}
+
+function getJavaPath() {
+    if (process.env.JAVA_HOME) {
+        return path.join(
+            process.env.JAVA_HOME,
+            "bin",
+            "java"
+        );
+    }
+
+    return "/opt/java/openjdk/bin/java";
+}
+
+function ensureJava() {
+    const javaPath = getJavaPath();
+
+    log(
+        `Sprawdzanie Java: ${javaPath}`
+    );
+
+    if (!fs.existsSync(javaPath)) {
+        throw new Error(
+            `Java nie istnieje pod ścieżką: ${javaPath}`
+        );
+    }
+
+    log(
+        `Java znaleziona: ${javaPath}`
+    );
+
+    return javaPath;
 }
 
 function ensureProperties(
-    directory,
-    service
+    runtimeDir,
+    port
 ) {
+    const propertiesPath = path.join(
+        runtimeDir,
+        "server.properties"
+    );
 
-    const propertiesPath =
-        path.join(
-            directory,
-            "server.properties"
+    let properties = "";
+
+    if (fs.existsSync(propertiesPath)) {
+        properties = fs.readFileSync(
+            propertiesPath,
+            "utf8"
+        );
+    }
+
+    const lines = properties
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .filter(
+            line =>
+                !line.startsWith("server-port=")
         );
 
-    const port =
-        getPort(service);
-
-    let properties = {};
+    lines.push(
+        `server-port=${port}`
+    );
 
     if (
-        fs.existsSync(
-            propertiesPath
+        !lines.some(
+            line =>
+                line.startsWith(
+                    "server-ip="
+                )
         )
     ) {
-
-        const content =
-            fs.readFileSync(
-                propertiesPath,
-                "utf8"
-            );
-
-        for (
-            const line of
-            content.split(/\r?\n/)
-        ) {
-
-            if (
-                !line ||
-                line.startsWith("#")
-            ) {
-                continue;
-            }
-
-            const separator =
-                line.indexOf("=");
-
-            if (
-                separator === -1
-            ) {
-                continue;
-            }
-
-            const key =
-                line
-                    .slice(
-                        0,
-                        separator
-                    )
-                    .trim();
-
-            const value =
-                line
-                    .slice(
-                        separator + 1
-                    )
-                    .trim();
-
-            properties[key] =
-                value;
-
-        }
-
+        lines.push("server-ip=");
     }
-
-    properties[
-        "server-port"
-    ] =
-        String(port);
-
-    properties[
-        "server-ip"
-    ] =
-        "";
-
-    properties[
-        "online-mode"
-    ] =
-        "true";
-
-    properties[
-        "enable-command-block"
-    ] =
-        "true";
-
-    properties[
-        "motd"
-    ] =
-        "ZenityHost";
-
-    if (
-        !properties[
-            "max-players"
-        ]
-    ) {
-
-        properties[
-            "max-players"
-        ] =
-            "20";
-
-    }
-
-    if (
-        !properties[
-            "view-distance"
-        ]
-    ) {
-
-        properties[
-            "view-distance"
-        ] =
-            "10";
-
-    }
-
-    if (
-        !properties[
-            "simulation-distance"
-        ]
-    ) {
-
-        properties[
-            "simulation-distance"
-        ] =
-            "10";
-
-    }
-
-    const output =
-        Object.entries(
-            properties
-        )
-            .map(
-                ([key, value]) =>
-                    `${key}=${value}`
-            )
-            .join("\n") +
-        "\n";
 
     fs.writeFileSync(
         propertiesPath,
-        output,
+        `${lines.join("\n")}\n`,
         "utf8"
     );
-
 }
 
-async function prepareServer(
-    service
-) {
-
-    const directory =
-        getServerDirectory(
-            service
-        );
-
-    const version =
-        service.minecraftVersion ||
-        service.version ||
-        "1.21.8";
-
-    const software =
-        String(
-            service.software ||
-            "paper"
-        )
-        .trim()
-        .toLowerCase();
-
-    if (
-        software !==
-        "paper"
-    ) {
-
-        throw new Error(
-            `Runtime obsługuje obecnie tylko Paper. Wybrano: ${software}`
-        );
-
-    }
-
-    addConsole(
-        service.id,
-        `Sprawdzanie Paper ${version}...`
+function ensureEula(runtimeDir) {
+    const eulaPath = path.join(
+        runtimeDir,
+        "eula.txt"
     );
-
-    const info =
-        await getPaperDownload(
-            version
-        );
-
-    addConsole(
-        service.id,
-        `Znaleziono stabilny Paper ${version}, build ${info.build}.`
-    );
-
-    const jarPath =
-        path.join(
-            directory,
-            info.file
-        );
-
-    if (
-        !fs.existsSync(
-            jarPath
-        )
-    ) {
-
-        addConsole(
-            service.id,
-            `Pobieranie Paper ${version}, build ${info.build}...`
-        );
-
-        await downloadFile(
-            info.url,
-            jarPath
-        );
-
-        addConsole(
-            service.id,
-            `Paper pobrany: ${info.file}`
-        );
-
-    } else {
-
-        addConsole(
-            service.id,
-            `Paper już istnieje: ${info.file}`
-        );
-
-    }
-
-    const eulaPath =
-        path.join(
-            directory,
-            "eula.txt"
-        );
 
     fs.writeFileSync(
         eulaPath,
         "eula=true\n",
         "utf8"
     );
+}
 
-    ensureProperties(
-        directory,
-        service
+function downloadFile(
+    url,
+    destination
+) {
+    return new Promise(
+        (resolve, reject) => {
+            const request = require("https").get(
+                url,
+                {
+                    headers: {
+                        "User-Agent":
+                            "ZenityHost/1.0"
+                    }
+                },
+                response => {
+                    if (
+                        response.statusCode >= 300 &&
+                        response.statusCode < 400 &&
+                        response.headers.location
+                    ) {
+                        response.resume();
+
+                        return downloadFile(
+                            response.headers.location,
+                            destination
+                        )
+                            .then(resolve)
+                            .catch(reject);
+                    }
+
+                    if (
+                        response.statusCode !== 200
+                    ) {
+                        response.resume();
+
+                        reject(
+                            new Error(
+                                `HTTP ${response.statusCode} podczas pobierania ${url}`
+                            )
+                        );
+
+                        return;
+                    }
+
+                    const file = fs.createWriteStream(
+                        destination
+                    );
+
+                    response.pipe(file);
+
+                    file.on(
+                        "finish",
+                        () => {
+                            file.close(
+                                () => resolve()
+                            );
+                        }
+                    );
+
+                    file.on(
+                        "error",
+                        error => {
+                            file.close(
+                                () => {}
+                            );
+
+                            reject(error);
+                        }
+                    );
+                }
+            );
+
+            request.on(
+                "error",
+                reject
+            );
+        }
+    );
+}
+
+async function getPaperDownload(
+    version
+) {
+    const url =
+        `https://fill.papermc.io/v3/projects/paper/versions/${encodeURIComponent(version)}/builds`;
+
+    log(
+        `Sprawdzanie Paper ${version}...`
+    );
+
+    const response =
+        await axios.get(
+            url,
+            {
+                headers: {
+                    "User-Agent":
+                        "ZenityHost/1.0"
+                },
+                timeout: 30000
+            }
+        );
+
+    const builds =
+        Array.isArray(response.data)
+            ? response.data
+            : [];
+
+    const stableBuilds =
+        builds.filter(build => {
+            const channel =
+                String(
+                    build?.channel ||
+                    ""
+                ).toLowerCase();
+
+            return (
+                channel === "default" ||
+                channel === "stable" ||
+                channel === ""
+            );
+        });
+
+    const candidates =
+        stableBuilds.length
+            ? stableBuilds
+            : builds;
+
+    if (!candidates.length) {
+        throw new Error(
+            `Nie znaleziono Paper dla Minecraft ${version}.`
+        );
+    }
+
+    candidates.sort(
+        (a, b) =>
+            Number(b?.build || 0) -
+            Number(a?.build || 0)
+    );
+
+    const selected =
+        candidates[0];
+
+    const downloadUrl =
+        selected?.downloads?.[
+            "server:default"
+        ]?.url ||
+        selected?.downloads?.server?.url ||
+        selected?.downloads?.["server"]?.url;
+
+    if (!downloadUrl) {
+        throw new Error(
+            `Paper ${version} nie ma dostępnego pliku server:default.`
+        );
+    }
+
+    const build =
+        Number(selected?.build);
+
+    log(
+        `Znaleziono stabilny Paper ${version}, build ${build}.`
     );
 
     return {
-
-        directory,
-
-        jar:
-            info.file,
-
-        jarPath,
-
-        port:
-            getPort(service),
-
         version,
-
-        build:
-            info.build
-
+        build,
+        url: downloadUrl
     };
+}
 
+async function prepareServer(
+    service
+) {
+    const runtimeDir =
+        getRuntimeDirectory(service);
+
+    const version =
+        getVersion(service);
+
+    const software =
+        getSoftware(service);
+
+    const port =
+        getPort(service);
+
+    if (software !== "paper") {
+        throw new Error(
+            `Aktualnie prawdziwy runtime obsługuje Paper. Wybrano: ${software}`
+        );
+    }
+
+    const paper =
+        await getPaperDownload(version);
+
+    const jarName =
+        `paper-${version}-${paper.build}.jar`;
+
+    const jarPath =
+        path.join(
+            runtimeDir,
+            jarName
+        );
+
+    if (!fs.existsSync(jarPath)) {
+        log(
+            `Pobieranie Paper ${version}, build ${paper.build}...`
+        );
+
+        await downloadFile(
+            paper.url,
+            jarPath
+        );
+
+        log(
+            `Paper pobrany: ${jarName}`
+        );
+    } else {
+        log(
+            `Paper już istnieje: ${jarName}`
+        );
+    }
+
+    ensureEula(runtimeDir);
+    ensureProperties(
+        runtimeDir,
+        port
+    );
+
+    return {
+        runtimeDir,
+        jarPath,
+        jarName,
+        version,
+        build: paper.build,
+        port
+    };
+}
+
+function broadcast(
+    serviceId,
+    type,
+    data
+) {
+    const set =
+        sockets.get(serviceId);
+
+    if (!set) {
+        return;
+    }
+
+    const payload =
+        JSON.stringify({
+            type,
+            ...data
+        });
+
+    for (const socket of set) {
+        try {
+            if (
+                socket.readyState === 1
+            ) {
+                socket.send(payload);
+            }
+        } catch {
+            // ignoruj zamknięte połączenie
+        }
+    }
+}
+
+function attachSocket(
+    serviceId,
+    socket
+) {
+    if (
+        !sockets.has(serviceId)
+    ) {
+        sockets.set(
+            serviceId,
+            new Set()
+        );
+    }
+
+    sockets
+        .get(serviceId)
+        .add(socket);
+
+    socket.on(
+        "close",
+        () => {
+            sockets
+                .get(serviceId)
+                ?.delete(socket);
+        }
+    );
 }
 
 async function startMinecraft(
-    serviceId
+    service
 ) {
+    const serviceId =
+        getServiceId(service);
 
-    const id =
-        String(
-            serviceId
+    if (!serviceId) {
+        throw new Error(
+            "Brak ID usługi."
         );
+    }
+
+    const existing =
+        processes.get(serviceId);
 
     if (
-        processes.has(id)
+        existing &&
+        existing.process &&
+        !existing.process.killed
     ) {
-
         return {
-
-            ok:
-                false,
-
-            error:
-                "Serwer Minecraft jest już uruchomiony."
-
-        };
-
-    }
-
-    const service =
-        getService(id);
-
-    if (!service) {
-
-        return {
-
-            ok:
-                false,
-
-            error:
-                "Nie znaleziono usługi."
-
-        };
-
-    }
-
-    updateService(
-        id,
-        {
-            status:
-                "provisioning",
-
-            powerState:
-                "starting",
-
+            ok: true,
+            alreadyRunning: true,
             pid:
-                null
+                existing.process.pid
+        };
+    }
+
+    const prepared =
+        await prepareServer(
+            service
+        );
+
+    const memory =
+        getMemory(service);
+
+    const javaPath =
+        ensureJava();
+
+    const javaArgs = [
+        `-Xms${memory}M`,
+        `-Xmx${memory}M`,
+        "-jar",
+        prepared.jarName,
+        "nogui"
+    ];
+
+    log(
+        `Minecraft: ${prepared.version}`
+    );
+
+    log(
+        `Paper build: ${prepared.build}`
+    );
+
+    log(
+        `RAM: ${memory} MB`
+    );
+
+    log(
+        `Port Minecraft: ${prepared.port}`
+    );
+
+    log(
+        `Java executable: ${javaPath}`
+    );
+
+    log(
+        `Uruchamianie: ${javaPath} ${javaArgs.join(" ")}`
+    );
+
+    const minecraftProcess =
+        spawn(
+            javaPath,
+            javaArgs,
+            {
+                cwd:
+                    prepared.runtimeDir,
+
+                env: {
+                    ...process.env,
+
+                    JAVA_HOME:
+                        process.env.JAVA_HOME ||
+                        "/opt/java/openjdk",
+
+                    PATH:
+                        `${path.dirname(javaPath)}:${process.env.PATH || ""}`
+                },
+
+                stdio: [
+                    "pipe",
+                    "pipe",
+                    "pipe"
+                ]
+            }
+        );
+
+    const runtime = {
+        process:
+            minecraftProcess,
+
+        service,
+
+        serviceId,
+
+        runtimeDir:
+            prepared.runtimeDir,
+
+        startedAt:
+            new Date().toISOString(),
+
+        version:
+            prepared.version,
+
+        build:
+            prepared.build,
+
+        port:
+            prepared.port
+    };
+
+    processes.set(
+        serviceId,
+        runtime
+    );
+
+    log(
+        `Proces Minecraft utworzony. PID: ${minecraftProcess.pid}`
+    );
+
+    broadcast(
+        serviceId,
+        "status",
+        {
+            status: "starting",
+            pid:
+                minecraftProcess.pid
         }
     );
 
-    broadcastStatus(
-        id,
-        "starting"
-    );
+    minecraftProcess.stdout.on(
+        "data",
+        chunk => {
+            const text =
+                chunk.toString();
 
-    addConsole(
-        id,
-        "========================================"
-    );
-
-    addConsole(
-        id,
-        "ZenityHost Runtime"
-    );
-
-    addConsole(
-        id,
-        "Przygotowywanie prawdziwego procesu Minecraft..."
-    );
-
-    try {
-
-        const prepared =
-            await prepareServer(
-                service
+            process.stdout.write(
+                `[MINECRAFT] ${text}`
             );
 
-        const memory =
-            getMemory(
-                service
-            );
-
-        const javaArgs = [
-
-            `-Xms${memory}M`,
-
-            `-Xmx${memory}M`,
-
-            "-jar",
-
-            prepared.jar,
-
-            "nogui"
-
-        ];
-
-        addConsole(
-            id,
-            `Minecraft: ${prepared.version}`
-        );
-
-        addConsole(
-            id,
-            `Paper build: ${prepared.build}`
-        );
-
-        addConsole(
-            id,
-            `RAM: ${memory} MB`
-        );
-
-        addConsole(
-            id,
-            `Port Minecraft: ${prepared.port}`
-        );
-
-        addConsole(
-            id,
-            `Uruchamianie: java ${javaArgs.join(" ")}`
-        );
-
-        const child =
-            spawn(
-                "java",
-                javaArgs,
+            broadcast(
+                serviceId,
+                "console",
                 {
-                    cwd:
-                        prepared.directory,
+                    data: text
+                }
+            );
+        }
+    );
 
-                    stdio: [
-                        "pipe",
-                        "pipe",
-                        "pipe"
-                    ],
+    minecraftProcess.stderr.on(
+        "data",
+        chunk => {
+            const text =
+                chunk.toString();
 
-                    windowsHide:
-                        true
+            process.stderr.write(
+                `[MINECRAFT ERROR] ${text}`
+            );
+
+            broadcast(
+                serviceId,
+                "console",
+                {
+                    data: text,
+                    error: true
+                }
+            );
+        }
+    );
+
+    minecraftProcess.on(
+        "error",
+        error => {
+            log(
+                `[PROCESS ERROR] ${error.message}`
+            );
+
+            broadcast(
+                serviceId,
+                "status",
+                {
+                    status: "error",
+                    error:
+                        error.message
+                }
+            );
+        }
+    );
+
+    minecraftProcess.on(
+        "spawn",
+        () => {
+            log(
+                `Proces Minecraft uruchomiony. PID: ${minecraftProcess.pid}`
+            );
+
+            broadcast(
+                serviceId,
+                "status",
+                {
+                    status: "running",
+                    pid:
+                        minecraftProcess.pid
+                }
+            );
+        }
+    );
+
+    minecraftProcess.on(
+        "exit",
+        (
+            code,
+            signal
+        ) => {
+            log(
+                `Proces Minecraft zakończony. Kod: ${code}, sygnał: ${signal || "brak"}`
+            );
+
+            broadcast(
+                serviceId,
+                "status",
+                {
+                    status: "stopped",
+                    code,
+                    signal
                 }
             );
 
-        processes.set(
-            id,
-            child
-        );
+            processes.delete(
+                serviceId
+            );
+        }
+    );
 
-        updateService(
-            id,
-            {
-                status:
-                    "running",
+    return {
+        ok: true,
 
-                powerState:
-                    "online",
+        running: true,
 
-                pid:
-                    child.pid
-            }
-        );
+        pid:
+            minecraftProcess.pid,
 
-        broadcastStatus(
-            id,
-            "online"
-        );
+        version:
+            prepared.version,
 
-        addConsole(
-            id,
-            `Proces Minecraft uruchomiony. PID: ${child.pid}`
-        );
+        build:
+            prepared.build,
 
-        child.stdout.on(
-            "data",
-            data => {
-
-                const text =
-                    data.toString();
-
-                for (
-                    const line of
-                    text.split(/\r?\n/)
-                ) {
-
-                    if (
-                        line.trim()
-                    ) {
-
-                        addConsole(
-                            id,
-                            line
-                        );
-
-                    }
-
-                }
-
-            }
-        );
-
-        child.stderr.on(
-            "data",
-            data => {
-
-                const text =
-                    data.toString();
-
-                for (
-                    const line of
-                    text.split(/\r?\n/)
-                ) {
-
-                    if (
-                        line.trim()
-                    ) {
-
-                        addConsole(
-                            id,
-                            `[STDERR] ${line}`
-                        );
-
-                    }
-
-                }
-
-            }
-        );
-
-        child.on(
-            "error",
-            error => {
-
-                processes.delete(
-                    id
-                );
-
-                addConsole(
-                    id,
-                    `[PROCESS ERROR] ${error.message}`
-                );
-
-                updateService(
-                    id,
-                    {
-                        status:
-                            "error",
-
-                        powerState:
-                            "offline",
-
-                        pid:
-                            null
-                    }
-                );
-
-                broadcastStatus(
-                    id,
-                    "offline"
-                );
-
-            }
-        );
-
-        child.on(
-            "close",
-            code => {
-
-                processes.delete(
-                    id
-                );
-
-                addConsole(
-                    id,
-                    `Proces Minecraft zakończony. Kod procesu: ${code}`
-                );
-
-                updateService(
-                    id,
-                    {
-                        status:
-                            "stopped",
-
-                        powerState:
-                            "offline",
-
-                        pid:
-                            null
-                    }
-                );
-
-                broadcastStatus(
-                    id,
-                    "offline"
-                );
-
-            }
-        );
-
-        return {
-
-            ok:
-                true,
-
-            pid:
-                child.pid
-
-        };
-
-    } catch (error) {
-
-        updateService(
-            id,
-            {
-                status:
-                    "error",
-
-                powerState:
-                    "offline",
-
-                pid:
-                    null
-            }
-        );
-
-        broadcastStatus(
-            id,
-            "offline"
-        );
-
-        addConsole(
-            id,
-            `[START ERROR] ${error.message}`
-        );
-
-        return {
-
-            ok:
-                false,
-
-            error:
-                error.message
-
-        };
-
-    }
-
+        port:
+            prepared.port
+    };
 }
 
 function stopMinecraft(
     serviceId
 ) {
-
-    const id =
-        String(
-            serviceId
+    const runtime =
+        processes.get(
+            String(serviceId)
         );
 
-    const child =
-        processes.get(id);
-
-    if (!child) {
-
-        updateService(
-            id,
-            {
-                status:
-                    "stopped",
-
-                powerState:
-                    "offline",
-
-                pid:
-                    null
-            }
-        );
-
-        broadcastStatus(
-            id,
-            "offline"
-        );
-
-        addConsole(
-            id,
-            "Brak aktywnego procesu Minecraft."
-        );
-
+    if (
+        !runtime ||
+        !runtime.process
+    ) {
         return {
-            ok:
-                true
+            ok: true,
+            running: false
         };
-
     }
 
-    addConsole(
-        id,
-        "Wysyłanie komendy stop do Minecraft..."
-    );
+    const minecraftProcess =
+        runtime.process;
 
-    try {
-
-        child.stdin.write(
-            "stop\n"
-        );
-
-    } catch {}
-
-    setTimeout(
-        () => {
-
-            if (
-                processes.has(id)
-            ) {
-
-                try {
-                    child.kill(
-                        "SIGTERM"
-                    );
-                } catch {}
-
+    if (
+        !minecraftProcess.killed
+    ) {
+        try {
+            minecraftProcess.stdin.write(
+                "stop\n"
+            );
+        } catch {
+            try {
+                minecraftProcess.kill(
+                    "SIGTERM"
+                );
+            } catch {
+                // proces już zakończony
             }
-
-        },
-        10000
-    );
+        }
+    }
 
     return {
-        ok:
-            true
+        ok: true,
+        stopping: true
     };
-
 }
 
 async function restartMinecraft(
-    serviceId
+    service
 ) {
+    const serviceId =
+        getServiceId(service);
 
-    const id =
-        String(
-            serviceId
-        );
-
-    const child =
-        processes.get(id);
-
-    if (!child) {
-
-        return startMinecraft(
-            id
-        );
-
-    }
-
-    addConsole(
-        id,
-        "Restartowanie serwera Minecraft..."
+    stopMinecraft(
+        serviceId
     );
 
-    try {
-
-        child.stdin.write(
-            "stop\n"
-        );
-
-    } catch {}
-
-    return new Promise(
-        resolve => {
-
-            let finished =
-                false;
-
-            const timeout =
-                setTimeout(
-                    () => {
-
-                        try {
-                            child.kill(
-                                "SIGTERM"
-                            );
-                        } catch {}
-
-                        finish();
-
-                    },
-                    10000
-                );
-
-            const finish =
-                async () => {
-
-                    if (
-                        finished
-                    ) {
-                        return;
-                    }
-
-                    finished =
-                        true;
-
-                    clearTimeout(
-                        timeout
-                    );
-
-                    processes.delete(
-                        id
-                    );
-
-                    const result =
-                        await startMinecraft(
-                            id
-                        );
-
-                    resolve(
-                        result
-                    );
-
-                };
-
-            child.once(
-                "close",
-                finish
-            );
-
-        }
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                2000
+            )
     );
 
+    return startMinecraft(
+        service
+    );
 }
 
 function sendCommand(
     serviceId,
     command
 ) {
-
-    const id =
-        String(
-            serviceId
+    const runtime =
+        processes.get(
+            String(serviceId)
         );
 
-    const child =
-        processes.get(id);
-
-    if (!child) {
-
-        return {
-
-            ok:
-                false,
-
-            error:
-                "Serwer Minecraft nie jest uruchomiony."
-
-        };
-
-    }
-
-    const text =
-        String(
-            command ||
-            ""
-        ).trim();
-
-    if (!text) {
-
-        return {
-
-            ok:
-                false,
-
-            error:
-                "Komenda jest pusta."
-
-        };
-
-    }
-
-    addConsole(
-        id,
-        `> ${text}`
-    );
-
-    try {
-
-        child.stdin.write(
-            `${text}\n`
+    if (
+        !runtime ||
+        !runtime.process
+    ) {
+        throw new Error(
+            "Serwer Minecraft nie jest uruchomiony."
         );
-
-        return {
-            ok:
-                true
-        };
-
-    } catch (error) {
-
-        return {
-
-            ok:
-                false,
-
-            error:
-                error.message
-
-        };
-
     }
 
-}
+    const minecraftProcess =
+        runtime.process;
 
-function setupWebSocket(
-    server
-) {
+    if (
+        minecraftProcess.killed ||
+        !minecraftProcess.stdin
+    ) {
+        throw new Error(
+            "Proces Minecraft nie jest dostępny."
+        );
+    }
 
-    const wss =
-        new WebSocket.Server({
-            server,
-            path:
-                "/ws/minecraft"
-        });
-
-    wss.on(
-        "connection",
-        (ws, request) => {
-
-            try {
-
-                const url =
-                    new URL(
-                        request.url,
-                        "http://localhost"
-                    );
-
-                const serviceId =
-                    url.searchParams.get(
-                        "service"
-                    );
-
-                if (!serviceId) {
-
-                    ws.close(
-                        1008,
-                        "Brak service"
-                    );
-
-                    return;
-
-                }
-
-                const service =
-                    getService(
-                        serviceId
-                    );
-
-                if (!service) {
-
-                    ws.close(
-                        1008,
-                        "Nie znaleziono usługi"
-                    );
-
-                    return;
-
-                }
-
-                const id =
-                    String(
-                        serviceId
-                    );
-
-                if (
-                    !sockets.has(id)
-                ) {
-
-                    sockets.set(
-                        id,
-                        new Set()
-                    );
-
-                }
-
-                sockets
-                    .get(id)
-                    .add(ws);
-
-                ws.send(
-                    JSON.stringify({
-                        type:
-                            "connected",
-
-                        serviceId:
-                            id
-                    })
-                );
-
-                const history =
-                    Array.isArray(
-                        service.console
-                    )
-                        ? service.console.slice(-100)
-                        : [];
-
-                for (
-                    const entry of history
-                ) {
-
-                    ws.send(
-                        JSON.stringify({
-
-                            type:
-                                "console",
-
-                            data:
-                                typeof entry ===
-                                    "string"
-                                    ? entry
-                                    : entry.text ||
-                                      ""
-
-                        })
-                    );
-
-                }
-
-                ws.send(
-                    JSON.stringify({
-
-                        type:
-                            "status",
-
-                        data:
-                            service.powerState ||
-                            "offline"
-
-                    })
-                );
-
-                ws.on(
-                    "close",
-                    () => {
-
-                        const clients =
-                            sockets.get(
-                                id
-                            );
-
-                        if (!clients) {
-                            return;
-                        }
-
-                        clients.delete(
-                            ws
-                        );
-
-                        if (
-                            !clients.size
-                        ) {
-
-                            sockets.delete(
-                                id
-                            );
-
-                        }
-
-                    }
-                );
-
-            } catch (error) {
-
-                try {
-                    ws.close();
-                } catch {}
-
-            }
-
-        }
+    minecraftProcess.stdin.write(
+        `${String(command)}\n`
     );
 
-    return wss;
-
+    return {
+        ok: true
+    };
 }
 
 function getRuntimeState(
     serviceId
 ) {
-
-    const id =
-        String(
-            serviceId
-        );
-
-    const child =
+    const runtime =
         processes.get(
-            id
+            String(serviceId)
         );
+
+    if (
+        !runtime ||
+        !runtime.process
+    ) {
+        return {
+            running: false,
+            status: "stopped"
+        };
+    }
+
+    const process =
+        runtime.process;
 
     return {
-
         running:
-            Boolean(child),
+            !process.killed &&
+            process.exitCode === null,
+
+        status:
+            process.exitCode === null
+                ? "running"
+                : "stopped",
 
         pid:
-            child?.pid ||
-            null
+            process.pid,
 
+        version:
+            runtime.version,
+
+        build:
+            runtime.build,
+
+        port:
+            runtime.port,
+
+        startedAt:
+            runtime.startedAt
     };
+}
 
+function getRuntimeDirectoryForService(
+    service
+) {
+    return getRuntimeDirectory(
+        service
+    );
+}
+
+function getProcess(
+    serviceId
+) {
+    return processes.get(
+        String(serviceId)
+    );
 }
 
 module.exports = {
-
     startMinecraft,
-
     stopMinecraft,
-
     restartMinecraft,
-
     sendCommand,
-
     getRuntimeState,
-
-    setupWebSocket
-
+    attachSocket,
+    getRuntimeDirectory:
+        getRuntimeDirectoryForService,
+    getProcess
 };
