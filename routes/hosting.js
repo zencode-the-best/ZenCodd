@@ -1640,16 +1640,67 @@ router.post(
 
         let result;
 
+        console.log("[ZENITYHOST DEBUG] Console command:", command);
+        console.log("[ZENITYHOST DEBUG] Service:", JSON.stringify({
+            id: service.id,
+            type: service.type,
+            ownerId: service.ownerId,
+            version: service.version,
+            minecraftVersion: service.minecraftVersion,
+            software: service.software,
+            memory: service.memory,
+            ramMb: service.ramMb,
+            port: service.port
+        }));
+
         if (
             command ===
             "system: start"
         ) {
 
-            result =
-                await minecraftRuntime
-                    .startMinecraft(
-                        service
-                    );
+            try {
+
+                console.log(
+                    "[ZENITYHOST DEBUG] START Minecraft:",
+                    service.id
+                );
+
+                result =
+                    await minecraftRuntime
+                        .startMinecraft(
+                            service
+                        );
+
+                console.log(
+                    "[ZENITYHOST DEBUG] START RESULT:",
+                    JSON.stringify(result)
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "[ZENITYHOST DEBUG] START ERROR:",
+                    error
+                );
+
+                console.error(
+                    "[ZENITYHOST DEBUG] START STACK:",
+                    error?.stack
+                );
+
+                return res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message:
+                            error?.message ||
+                            "Błąd uruchamiania Minecraft.",
+                        error:
+                            error?.stack ||
+                            String(error)
+                    });
+
+            }
 
         } else if (
             command ===
