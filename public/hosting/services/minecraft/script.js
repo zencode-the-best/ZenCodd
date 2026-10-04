@@ -1116,11 +1116,18 @@ async function loadFiles() {
 
 async function powerCommand(command) {
 
+    console.log("[ZENITY DEBUG] POWER CLICK:", command);
+    console.log("[ZENITY DEBUG] SERVICE ID:", serviceId);
+    console.log("[ZENITY DEBUG] API URL:", `${API}/service/${encodeURIComponent(serviceId)}/console`);
+
     if (!serviceId) {
+        console.error("[ZENITY DEBUG] BRAK SERVICE ID!");
         return;
     }
 
     try {
+
+        console.log("[ZENITY DEBUG] WYSYŁAM REQUEST:", command);
 
         await api(
             `${API}/service/${encodeURIComponent(serviceId)}/console`,
